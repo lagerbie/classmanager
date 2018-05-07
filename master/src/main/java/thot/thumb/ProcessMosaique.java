@@ -40,6 +40,9 @@ import org.slf4j.LoggerFactory;
 import thot.ProgressThread;
 import thot.Server;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
+import thot.model.CommandType;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
 
@@ -244,10 +247,9 @@ public class ProcessMosaique extends ProgressThread {
      */
     private void sendToThumb(String action, int parameter, int numero) {
 //        ProcessCommand command = new ProcessCommand(action, parameter);
-        Command command = new Command(Command.TYPE_SUPERVISION, action);
-        command.putParameter(Command.PARAMETER, parameter);
-        InetSocketAddress socketAddress
-                = new InetSocketAddress("127.0.0.1", mosaiqueToThumbPortBase + numero);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.getCommandAction(action));
+        command.putParameter(CommandParamater.PARAMETER, parameter);
+        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", mosaiqueToThumbPortBase + numero);
         Socket socket = new Socket();
         DataOutputStream outputStream;
         try {
@@ -287,7 +289,7 @@ public class ProcessMosaique extends ProgressThread {
 //        ProcessCommand command = ProcessCommand.createCommand(xml);
         List<Command> commands = XMLUtilities.parseCommand(xml);
         for (Command command : commands) {
-            if (command.getAction().contentEquals(Command.CLOSE)) {
+            if (command.getAction() == CommandAction.CLOSE) {
                 close();
             }
         }
@@ -301,7 +303,7 @@ public class ProcessMosaique extends ProgressThread {
             return;
         }
 
-        sendToAllThumb(Command.CLOSE, 1);
+        sendToAllThumb(CommandAction.CLOSE.getAction(), 1);
 
         for (Process screenWindow : screenWindows) {
             screenWindow.destroy();

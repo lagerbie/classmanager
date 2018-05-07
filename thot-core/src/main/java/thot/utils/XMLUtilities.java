@@ -39,6 +39,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
+import thot.model.CommandType;
 import thot.model.Index;
 import thot.model.IndexFile;
 import thot.model.Indexes;
@@ -332,7 +335,7 @@ public class XMLUtilities {
         if (command.getAction() != null) {
             String actionType = element_supervision;
             switch (command.getType()) {
-                case Command.TYPE_LABORATORY:
+                case TYPE_LABORATORY:
                     actionType = element_laboratory;
                     break;
             }
@@ -340,12 +343,12 @@ public class XMLUtilities {
             element.append(createElementStart(actionType));
             element.append(command.getAction());
 
-            Set<String> parameters = command.getParameters();
-            for (String key : parameters) {
+            Set<CommandParamater> parameters = command.getParameters();
+            for (CommandParamater key : parameters) {
                 if (Command.protectionNeeded(key)) {
-                    element.append(createCDATAElement(key, command.getParameter(key)));
+                    element.append(createCDATAElement(key.getParameter(), command.getParameter(key)));
                 } else {
-                    element.append(createElement(key, command.getParameter(key)));
+                    element.append(createElement(key.getParameter(), command.getParameter(key)));
                 }
             }
             element.append(createElementEnd(actionType));
@@ -615,20 +618,19 @@ public class XMLUtilities {
      * @return la liste des commandes ou <code>null</code>.
      */
     private static List<Command> parseNodeAsCommand(Node node) {
-        List<Command> commands = null;
+        List<Command> commands = new ArrayList<>(2);
 
         if (node.getNodeName().equals(element_command)) {
-            commands = new ArrayList<>(2);
             NodeList actions = node.getChildNodes();
             for (int i = 0; i < actions.getLength(); i++) {
                 Node action = actions.item(i);
                 Command command = null;
                 switch (action.getNodeName()) {
                     case element_supervision:
-                        command = new Command(Command.TYPE_SUPERVISION, Command.UNKNOWN);
+                        command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.UNKNOWN);
                         break;
                     case element_laboratory:
-                        command = new Command(Command.TYPE_LABORATORY, Command.UNKNOWN);
+                        command = new Command(CommandType.TYPE_LABORATORY, CommandAction.UNKNOWN);
                         break;
                 }
                 if (command != null) {
@@ -636,25 +638,24 @@ public class XMLUtilities {
                         NodeList children = action.getChildNodes();
                         for (int j = 0; j < children.getLength(); j++) {
                             Node child = children.item(j);
-                            if ((child.getNodeType() == Node.CDATA_SECTION_NODE)
-                                    || (child.getNodeType() == Node.TEXT_NODE)) {
-                                command.setAction(child.getNodeValue());
+                            if ((child.getNodeType() == Node.CDATA_SECTION_NODE) || (child.getNodeType()
+                                    == Node.TEXT_NODE)) {
+                                command.setAction(CommandAction.getCommandAction(child.getNodeValue()));
                             } else {
-                                if (child.getNodeName().contentEquals(Command.LIST)) {
+                                if (child.getNodeName().contentEquals(CommandParamater.LIST.getParameter())) {
                                     List<String> list = parseNodeAsList(child);
                                     String elementName = child.getFirstChild().getNodeName();
                                     StringBuilder ipList = new StringBuilder(1024);
                                     for (String item : list) {
-                                        ipList.append(XMLUtilities.createElement(
-                                                elementName, item));
+                                        ipList.append(XMLUtilities.createElement(elementName, item));
                                     }
-                                    command.putParameter(Command.LIST,
-                                            createElement(Command.LIST, ipList.toString()));
+                                    command.putParameter(CommandParamater.LIST,
+                                            createElement(CommandParamater.LIST.getParameter(), ipList.toString()));
                                 } else if (child.getFirstChild() != null) {
-                                    command.putParameter(child.getNodeName(),
+                                    command.putParameter(CommandParamater.getCommandParamater(child.getNodeName()),
                                             child.getFirstChild().getNodeValue());
                                 } else {
-                                    command.putParameter(child.getNodeName(), "");
+                                    command.putParameter(CommandParamater.getCommandParamater(child.getNodeName()), "");
                                 }
                             }
                         }
@@ -682,8 +683,7 @@ public class XMLUtilities {
             Node child = childList.item(i);
             if (child.getNodeType() == Node.TEXT_NODE && child.getNodeValue() != null) {
                 list.add(child.getNodeValue());
-            } else if (child.getFirstChild() != null
-                    && child.getFirstChild().getNodeValue() != null) {
+            } else if (child.getFirstChild() != null && child.getFirstChild().getNodeValue() != null) {
                 list.add(child.getFirstChild().getNodeValue());
             }
         }
@@ -705,8 +705,7 @@ public class XMLUtilities {
                 NodeList nodes = node.getChildNodes();
                 for (int i = 0; i < nodes.getLength(); i++) {
                     Node child = nodes.item(i);
-                    if (child.getNodeName().equalsIgnoreCase(element_password)
-                            && child.hasChildNodes()) {
+                    if (child.getNodeName().equalsIgnoreCase(element_password) && child.hasChildNodes()) {
                         password = child.getFirstChild().getNodeValue();
                         break;
                     }
@@ -732,8 +731,7 @@ public class XMLUtilities {
                 NodeList nodes = node.getChildNodes();
                 for (int i = 0; i < nodes.getLength(); i++) {
                     Node child = nodes.item(i);
-                    if (child.getNodeName().equalsIgnoreCase(element_language)
-                            && child.getFirstChild() != null) {
+                    if (child.getNodeName().equalsIgnoreCase(element_language) && child.getFirstChild() != null) {
                         language = child.getFirstChild().getNodeValue();
                         break;
                     }
@@ -763,8 +761,7 @@ public class XMLUtilities {
      *
      * @return la basile de départ du xml.
      */
-    protected static String createElementStart(String name,
-            StringBuilder attributes) {
+    protected static String createElementStart(String name, StringBuilder attributes) {
         StringBuilder element = new StringBuilder(32);
         element.append("<");
         element.append(name);
@@ -990,19 +987,16 @@ public class XMLUtilities {
                             }
                             break;
                         case attribut_initialTime:
-                            index.setInitialTime(
-                                    Utilities.parseStringAsLong(nodeValue));
+                            index.setInitialTime(Utilities.parseStringAsLong(nodeValue));
                             break;
                         case attribut_finalTime:
-                            index.setFinalTime(
-                                    Utilities.parseStringAsLong(nodeValue));
+                            index.setFinalTime(Utilities.parseStringAsLong(nodeValue));
                             break;
                         case attribut_subtitle:
                             index.setSubtitle(nodeValue);
                             break;
                         case attribut_read:
-                            index.setRead(
-                                    Utilities.parseStringAsInt(nodeValue));
+                            index.setRead(Utilities.parseStringAsInt(nodeValue));
                             break;
                         case attribut_file:
                             index = convertToIndexFile(index);
@@ -1016,11 +1010,9 @@ public class XMLUtilities {
                 Node child;
                 for (int i = 0; i < children.getLength(); i++) {
                     child = children.item(i);
-                    if ((child.getNodeType() == Node.CDATA_SECTION_NODE)
-                            || (child.getNodeType() == Node.TEXT_NODE)) {
+                    if ((child.getNodeType() == Node.CDATA_SECTION_NODE) || (child.getNodeType() == Node.TEXT_NODE)) {
                         index.setSubtitle(child.getNodeValue());
-                    } else if (child.getNodeName().equals(element_file)
-                            && child.hasChildNodes()) {
+                    } else if (child.getNodeName().equals(element_file) && child.hasChildNodes()) {
                         index = convertToIndexFile(index);
                         ((IndexFile) index).setFileName(child.getFirstChild().getNodeValue());
                     }

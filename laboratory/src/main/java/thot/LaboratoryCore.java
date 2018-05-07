@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -48,6 +47,8 @@ import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
 import thot.model.Constants;
 import thot.model.Index;
 import thot.model.ProjectFiles;
@@ -90,10 +91,6 @@ public class LaboratoryCore extends LaboCore {
      * Stockage des données audio à enregistrer.
      */
     private ByteBuffer audioBuffer;
-    /**
-     * Socket pour le mode déporté.
-     */
-    private DatagramSocket socketMicrophone;
 
     /**
      * Serveur pour écouter les requêtes du professeur.
@@ -454,13 +451,13 @@ public class LaboratoryCore extends LaboCore {
     private boolean isDownloadFile(Command command) {
         boolean download = false;
         switch (command.getAction()) {
-            case Command.MEDIA_LOAD:
-            case Command.MEDIA_LOAD_INDEXES:
-            case Command.MEDIA_LOAD_SUBTITLE:
-            case Command.TEXT_LOAD:
-            case Command.AUDIO_LOAD:
-                String fileName = command.getParameter(Command.FILE);
-                long size = command.getParameterAsLong(Command.SIZE);
+            case MEDIA_LOAD:
+            case MEDIA_LOAD_INDEXES:
+            case MEDIA_LOAD_SUBTITLE:
+            case TEXT_LOAD:
+            case AUDIO_LOAD:
+                String fileName = command.getParameter(CommandParamater.FILE);
+                long size = command.getParameterAsLong(CommandParamater.SIZE);
                 File file = new File(userHome, fileName);
                 //test si le fichier à la même taille (s'il n'existe pas taille = 0)
                 download = (file.length() != size);
@@ -481,112 +478,103 @@ public class LaboratoryCore extends LaboCore {
         ProjectFiles project;
 
         switch (command.getAction()) {
-            case Command.LANGUAGE://réinitialise le poste élève
-                fireLanguageChanged(command.getParameter(Command.PARAMETER));
+            case LANGUAGE://réinitialise le poste élève
+                fireLanguageChanged(command.getParameter(CommandParamater.PARAMETER));
                 break;
-            case Command.FREEZE:
-                fireFreezeChanged(Utilities.parseStringAsBoolean(
-                        command.getParameter(Command.PARAMETER)));
+            case FREEZE:
+                fireFreezeChanged(Utilities.parseStringAsBoolean(command.getParameter(CommandParamater.PARAMETER)));
                 break;
-            case Command.CLOSE:
+            case CLOSE:
                 new Thread(() -> {
                     Utilities.waitInMillisecond(200);
                     closeApplication();
                 }, "close").start();
                 break;
-            case Command.TIME_MOVE:
+            case TIME_MOVE:
                 //utilisation de setPosition qui est sécurisée (pas setTime)
-                double position = (double) Utilities.parseStringAsLong(
-                        command.getParameter(Command.PARAMETER))
+                double position = (double) Utilities.parseStringAsLong(command.getParameter(CommandParamater.PARAMETER))
                         / getRecordTimeMax();
                 setPosition(position);
                 break;
-            case Command.TIME_MAX:
+            case TIME_MAX:
                 if (getProjectFiles().getVideoFile() != null) {
                     project = new ProjectFiles();
                     project.setVideoFile(defaultFileName);
                     removeProject(project);
                 }
-                setRecordTimeMax(Utilities.parseStringAsLong(
-                        command.getParameter(Command.PARAMETER)));
+                setRecordTimeMax(Utilities.parseStringAsLong(command.getParameter(CommandParamater.PARAMETER)));
                 break;
-            case Command.TIME_TO_ZERO:
+            case TIME_TO_ZERO:
                 timeToZero();
                 break;
-            case Command.MEDIA_LOAD:
+            case MEDIA_LOAD:
                 if (getRunningState() != Constants.PAUSE) {
                     //au cas où il y a une lecture en cours
                     audioPause();
                 }
-                File file = new File(userHome,
-                        command.getParameter(Command.PARAMETER));
+                File file = new File(userHome, command.getParameter(CommandParamater.PARAMETER));
                 project = Utilities.getProject(file);
                 isExecute = loadProject(project);
                 break;
-            case Command.MEDIA_FULL_SCREEN:
-                setFullScreen(Utilities.parseStringAsBoolean(
-                        command.getParameter(Command.PARAMETER)));
+            case MEDIA_FULL_SCREEN:
+                setFullScreen(Utilities.parseStringAsBoolean(command.getParameter(CommandParamater.PARAMETER)));
                 break;
-            case Command.MEDIA_UNLOAD:
+            case MEDIA_UNLOAD:
                 if (getRunningState() != Constants.PAUSE) {
                     //au cas où il y a une lecture en cours
                     audioPause();
                 }
                 project = new ProjectFiles();
-                project.setVideoFile(command.getParameter(Command.MEDIA_UNLOAD));
-                project.setAudioFile(command.getParameter(Command.AUDIO_ERASE));
-                project.setTextFile(command.getParameter(Command.TEXT_ERASE));
+                project.setVideoFile(command.getParameter(CommandParamater.MEDIA_UNLOAD));
+                project.setAudioFile(command.getParameter(CommandParamater.AUDIO_ERASE));
+                project.setTextFile(command.getParameter(CommandParamater.TEXT_ERASE));
                 removeProject(project);
                 break;
-            case Command.MEDIA_VOLUME:
-                int mediaVolume = Utilities.parseStringAsInt(
-                        command.getParameter(Command.PARAMETER));
+            case MEDIA_VOLUME:
+                int mediaVolume = Utilities.parseStringAsInt(command.getParameter(CommandParamater.PARAMETER));
                 mediaSetVolume(mediaVolume);
                 fireMediaVolumeChanged(mediaVolume);
                 break;
-            case Command.AUDIO_PLAY:
+            case AUDIO_PLAY:
                 if (getRunningState() != Constants.PAUSE) {
                     //au cas où il y a une lecture en cours
                     audioPause();
                 }
-                if (command.getParameter(Command.PARAMETER) != null) {
-                    setTime(Utilities.parseStringAsLong(
-                            command.getParameter(Command.PARAMETER)));
+                if (command.getParameter(CommandParamater.PARAMETER) != null) {
+                    setTime(Utilities.parseStringAsLong(command.getParameter(CommandParamater.PARAMETER)));
                 }
                 audioPlay();
                 break;
-            case Command.AUDIO_RECORD:
+            case AUDIO_RECORD:
                 if (getRunningState() != Constants.PAUSE) {
                     //au cas où il y a une lecture en cours
                     audioPause();
                 }
-                if (command.getParameter(Command.PARAMETER) != null) {
-                    setTime(Utilities.parseStringAsLong(
-                            command.getParameter(Command.PARAMETER)));
+                if (command.getParameter(CommandParamater.PARAMETER) != null) {
+                    setTime(Utilities.parseStringAsLong(command.getParameter(CommandParamater.PARAMETER)));
                 }
                 audioRecord();
                 break;
-            case Command.AUDIO_PAUSE:
+            case AUDIO_PAUSE:
                 if (getRunningState() != Constants.PAUSE) {
                     //pour éviter de faire pause inutilement
                     audioPause();
                 }
                 break;
-            case Command.AUDIO_SAVE:
+            case AUDIO_SAVE:
                 if (getRunningState() != Constants.PAUSE) {
                     //au cas où il y a une lecture en cours
                     audioPause();
                 }
-                saveAudio(new File(userHome, command.getParameter(Command.PARAMETER)));
+                saveAudio(new File(userHome, command.getParameter(CommandParamater.PARAMETER)));
                 break;
-            case Command.AUDIO_VOLUME:
-                int audioVolume = Utilities.parseStringAsInt(
-                        command.getParameter(Command.PARAMETER));
+            case AUDIO_VOLUME:
+                int audioVolume = Utilities.parseStringAsInt(command.getParameter(CommandParamater.PARAMETER));
                 audioSetVolume(audioVolume);
                 fireAudioVolumeChanged(audioVolume);
                 break;
-            case Command.SEND_MESSAGE:
-                fireNewMessage(command.getParameter(Command.PARAMETER));
+            case SEND_MESSAGE:
+                fireNewMessage(command.getParameter(CommandParamater.PARAMETER));
                 break;
             default:
                 isExecute = false;
@@ -676,7 +664,7 @@ public class LaboratoryCore extends LaboCore {
             List<Command> commands = XMLUtilities.parseCommand(xml);
 
             if (commands.isEmpty()) {
-                outputStream.writeUTF(Command.END);
+                outputStream.writeUTF(CommandAction.END.getAction());
                 outputStream.flush();
                 //envoi de la façon dont s'est exécutée la commande
                 outputStream.writeBoolean(false);
@@ -690,11 +678,11 @@ public class LaboratoryCore extends LaboCore {
             if (isDownloadFile(command)) {
                 //création d'un fichier avec le même nom dans le
                 //répertoire userHome
-                File file = new File(userHome, command.getParameter(Command.PARAMETER));
+                File file = new File(userHome, command.getParameter(CommandParamater.PARAMETER));
                 //ouverture du fichier d'écriture
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
 
-                outputStream.writeUTF(Command.FILE_GET);
+                outputStream.writeUTF(CommandAction.FILE_GET.getAction());
                 outputStream.flush();
                 //récupération de la taille du fichier à télécharger
                 int cntMax = inputStream.readInt();
@@ -712,7 +700,7 @@ public class LaboratoryCore extends LaboCore {
                 fileOutputStream.close();
             }
 
-            if (command.getAction().contentEquals(Command.FILE_GET)) {
+            if (command.getAction() == CommandAction.FILE_GET) {
                 File file = new File(userHome, defaultFileName);
                 ProjectFiles projectFiles = new ProjectFiles();
                 projectFiles.setVideoFile(defaultFileName);
@@ -721,7 +709,7 @@ public class LaboratoryCore extends LaboCore {
                 saveProject(file, projectFiles);
                 //envoi du fichier si il existe, sinon on retourne l'échec
                 if (file.exists()) {
-                    outputStream.writeUTF(Command.FILE_SEND);
+                    outputStream.writeUTF(CommandAction.FILE_SEND.getAction());
                     outputStream.flush();
                     //envoi du nom de fichier
                     outputStream.writeUTF(file.getName());
@@ -752,7 +740,7 @@ public class LaboratoryCore extends LaboCore {
                 isOK = executeCommand(command);
             }
 
-            outputStream.writeUTF(Command.END);
+            outputStream.writeUTF(CommandAction.END.getAction());
             outputStream.flush();
             //envoi de la façon dont s'est exécutée la commande
             outputStream.writeBoolean(isOK);

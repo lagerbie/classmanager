@@ -38,6 +38,8 @@ import supervision.MasterCore;
 import supervision.Student;
 import thot.Server;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
 import thot.model.Constants;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
@@ -128,13 +130,13 @@ public class StudentServer extends Server {
      * @param addressIP l'adresse ip du demandeur.
      */
     private void execute(Command command, final String addressIP) {
-        String action = command.getAction();
+        CommandAction action = command.getAction();
         Student student;
 
         switch (action) {
-            case Command.PONG:
+            case PONG:
                 student = core.getStudentAtIP(addressIP);
-                String battery = command.getParameter(Command.BATTERY);
+                String battery = command.getParameter(CommandParamater.BATTERY);
 
                 if (student == null) {
                     return;
@@ -145,9 +147,9 @@ public class StudentServer extends Server {
                     student.setBatteryLevel(level);
                 }
 
-                String login = command.getParameter(Command.NAME);
+                String login = command.getParameter(CommandParamater.NAME);
                 if (login != null) {
-                    String password = command.getParameter(Command.PASSWORD);
+                    String password = command.getParameter(CommandParamater.PASSWORD);
                     Student loginStudent = core.getStudentAtLogin(login);
                     //si login est utilisé par un autre
                     if (loginStudent != null && loginStudent != student) {
@@ -169,10 +171,10 @@ public class StudentServer extends Server {
                 }
                 core.fireStudentChanged(student);
                 break;
-            case Command.FIND:
+            case FIND:
                 core.addStudent(addressIP);
                 break;
-            case Command.HELP_CALL:
+            case HELP_CALL:
                 student = core.getStudentAtIP(addressIP);
                 if (student != null && wavFile.exists()) {
                     try {
@@ -191,10 +193,10 @@ public class StudentServer extends Server {
                     core.fireHelpDemanded(student);
                 }
                 break;
-            case Command.RECEIVE_FILE:
-                int portFile = command.getParameterAsInt(Command.PORT);
-                String fileName = command.getParameter(Command.FILE);
-                int size = command.getParameterAsInt(Command.SIZE);
+            case RECEIVE_FILE:
+                int portFile = command.getParameterAsInt(CommandParamater.PORT);
+                String fileName = command.getParameter(CommandParamater.FILE);
+                int size = command.getParameterAsInt(CommandParamater.SIZE);
 
                 student = core.getStudentAtIP(addressIP);
                 String studentName = student.getName();
@@ -203,7 +205,7 @@ public class StudentServer extends Server {
                 File file = new File(path, fileName);
                 core.receiveFile(file, size, addressIP, portFile);
                 break;
-            case Command.END_ERROR:
+            case END_ERROR:
                 core.closeRemoteScreen();
                 break;
         }

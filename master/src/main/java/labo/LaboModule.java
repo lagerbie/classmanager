@@ -40,6 +40,9 @@ import thot.audio.DummyAudioRecorder;
 import thot.gui.GuiConstants;
 import thot.gui.Resources;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
+import thot.model.CommandType;
 import thot.model.Constants;
 import thot.model.ThotPort;
 import thot.utils.Converter;
@@ -128,8 +131,7 @@ public class LaboModule extends LaboCore {
     /**
      * Envoie d'une commande avec parametre.
      *
-     * @param action le type de la commande.
-     * @param parameter le paramètre de la commande.
+     * @param command la commande.
      */
     private void sendCommand(Command command) {
         String xml = XMLUtilities.getXML(command);
@@ -148,7 +150,7 @@ public class LaboModule extends LaboCore {
      * Envoi la commande à l'adresse indiquée.
      *
      * @param address l'adresse IP de l'élève.
-     * @param command la commande à envoyer.
+     * @param xml la commande à envoyer.
      *
      * @return <code>true</code> si la commande a bien été exécuter.
      */
@@ -174,7 +176,7 @@ public class LaboModule extends LaboCore {
      */
     public void executeCommand(String button, String parameter) {
         LOGGER.info("button: " + button + " parameter: " + parameter);
-        Command command = new Command(Command.TYPE_LABORATORY, button);
+        Command command = new Command(CommandType.TYPE_LABORATORY, CommandAction.getCommandAction(button));
 
         int cnt;
         long time;
@@ -184,11 +186,11 @@ public class LaboModule extends LaboCore {
 
         switch (button) {
             case GuiConstants.freeze:
-                command.putParameter(Command.PARAMETER, parameter);
+                command.putParameter(CommandParamater.PARAMETER, parameter);
                 sendCommand(command);
                 break;
             case GuiConstants.fullScreen:
-                command.putParameter(Command.PARAMETER, parameter);
+                command.putParameter(CommandParamater.PARAMETER, parameter);
                 sendCommand(command);
                 break;
             case GuiConstants.mediaDiffuse:
@@ -196,21 +198,20 @@ public class LaboModule extends LaboCore {
                     if (getRunningState() != Constants.PAUSE) {
                         audioPause();
                     }
-                    command.putParameter(Command.PARAMETER, !diffuse);
+                    command.putParameter(CommandParamater.PARAMETER, !diffuse);
                     sendCommand(command);
                     diffuse = false;
                 } else {
-                    //affiche la boite de dialogue et récupère le nom du fichier
-                    //si l'action à été validée
+                    //affiche la boite de dialogue et récupère le nom du fichier si l'action à été validée
                     file = new File(parameter);
                     if (file.exists()) {
-                        command.putParameter(Command.RECEIVE_FILE, true);
-                        command.putParameter(Command.FILE, file.getName());
+                        command.putParameter(CommandParamater.RECEIVE_FILE, true);
+                        command.putParameter(CommandParamater.FILE, file.getName());
                         try {
                             fileInputStream = new FileInputStream(fileSend);
                             //envoi la taille du fichier
                             cnt = fileInputStream.available();
-                            command.putParameter(Command.SIZE, Integer.toString(cnt));
+                            command.putParameter(CommandParamater.SIZE, Integer.toString(cnt));
                         } catch (IOException e) {
                             LOGGER.error("", e);
                         }
@@ -218,7 +219,7 @@ public class LaboModule extends LaboCore {
                         sendCommand(command);
 //                        loadMedia(file);
                         audioPlay();
-                        command.putParameter(Command.RECEIVE_FILE, false);
+                        command.putParameter(CommandParamater.RECEIVE_FILE, false);
                         sendCommand(command);
                         diffuse = true;
                     }
@@ -232,7 +233,7 @@ public class LaboModule extends LaboCore {
                 time = Utilities.parseStringAsLong(parameter);
                 if (time >= 0) {
                     setTime(time);
-                    command.putParameter(Command.PARAMETER, parameter);
+                    command.putParameter(CommandParamater.PARAMETER, parameter);
                     sendCommand(command);
                     if (running == Constants.PLAYING) {
                         audioPlay();
@@ -245,17 +246,17 @@ public class LaboModule extends LaboCore {
                 time = Utilities.parseStringAsLong(parameter);
                 if (time > 0) {
                     setRecordTimeMax(time);
-                    command.putParameter(Command.PARAMETER, time);
+                    command.putParameter(CommandParamater.PARAMETER, time);
                     sendCommand(command);
                     setTime(0);
                 }
                 break;
             case GuiConstants.rapatriate:
-                command.putParameter(Command.PARAMETER, parameter);
+                command.putParameter(CommandParamater.PARAMETER, parameter);
                 sendCommand(command);
                 break;
             case GuiConstants.message:
-                command.putParameter(Command.PARAMETER, parameter);
+                command.putParameter(CommandParamater.PARAMETER, parameter);
                 sendCommand(command);
                 break;
             case GuiConstants.mediaLoad:
@@ -263,12 +264,12 @@ public class LaboModule extends LaboCore {
                 //si l'action à été validée
                 file = new File(parameter);
                 if (file.exists()) {
-                    command.putParameter(Command.FILE, file.getName());
+                    command.putParameter(CommandParamater.FILE, file.getName());
                     try {
                         fileInputStream = new FileInputStream(fileSend);
                         //envoi la taille du fichier
                         cnt = fileInputStream.available();
-                        command.putParameter(Command.SIZE, Integer.toString(cnt));
+                        command.putParameter(CommandParamater.SIZE, Integer.toString(cnt));
                     } catch (IOException e) {
                         LOGGER.error("", e);
                     }
@@ -288,7 +289,7 @@ public class LaboModule extends LaboCore {
                 break;
             case GuiConstants.mediaSend:
                 //            flashSendCommand("secure", "true");
-                command.putParameter(Command.PARAMETER, getProjectFiles().getVideoFile());
+                command.putParameter(CommandParamater.PARAMETER, getProjectFiles().getVideoFile());
                 sendCommand(command);
                 //si il y a un fichier d'index, on l'envoi
                 if (getProjectFiles().getIndexesFile() != null) {
@@ -301,7 +302,7 @@ public class LaboModule extends LaboCore {
 //                mediaUnload();
                 break;
             case GuiConstants.back:
-                command.putParameter(Command.PARAMETER, 0);
+                command.putParameter(CommandParamater.PARAMETER, 0);
                 sendCommand(command);
                 timeToZero();
                 break;
@@ -314,7 +315,7 @@ public class LaboModule extends LaboCore {
                 }
 
                 audioPlay();
-                command.putParameter(Command.PARAMETER, getCurrentTime());
+                command.putParameter(CommandParamater.PARAMETER, getCurrentTime());
                 sendCommand(command);
                 break;
             case GuiConstants.stop:
@@ -332,7 +333,7 @@ public class LaboModule extends LaboCore {
                 }
 
                 audioRecord();
-                command.putParameter(Command.PARAMETER, getCurrentTime());
+                command.putParameter(CommandParamater.PARAMETER, getCurrentTime());
                 sendCommand(command);
                 break;
             case GuiConstants.audioErase:

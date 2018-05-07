@@ -28,6 +28,8 @@ import java.net.SocketTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandType;
 import thot.model.Constants;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
@@ -125,7 +127,7 @@ public class MasterSearch extends ProgressThread implements Runnable {
             return;
         }
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.FIND);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.FIND);
         String response = XMLUtilities.getXML(command);
         String xml;
         String addressIP;

@@ -1682,7 +1682,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @param fileName le fichier de soustitres.
      */
-    protected void mediaPlayerSetSubtitleFile(String fileName) {
+    private void mediaPlayerSetSubtitleFile(String fileName) {
         projectFiles.setSubtitleFile(fileName);
         mediaPlayer.setVideoSubtitleFile(fileName);
     }

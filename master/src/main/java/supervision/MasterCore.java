@@ -40,6 +40,9 @@ import thot.ProgressListener;
 import thot.gui.GuiConstants;
 import thot.gui.Resources;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
+import thot.model.CommandType;
 import thot.model.Constants;
 import thot.model.ThotPort;
 import thot.screen.CaptureScreen;
@@ -245,8 +248,8 @@ public class MasterCore implements Runnable {
                     } else {
                         filePath = Constants.PROGAM_FILES + filePath;
                     }
-                    Command command = new Command(Command.TYPE_SUPERVISION, Command.EXECUTE);
-                    command.putParameter(Command.FILE, filePath);
+                    Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.EXECUTE);
+                    command.putParameter(CommandParamater.FILE, filePath);
                     sendXmlToSelected(command);
                 }
             }
@@ -261,14 +264,14 @@ public class MasterCore implements Runnable {
 
                     if (!application.isAllowed() && application.getPath() != null) {
                         File file = new File(application.getPath());
-                        appList.append(XMLUtilities.createElement(
-                                Command.APPLICATION, file.getName()));
+                        appList.append(XMLUtilities
+                                .createElement(CommandParamater.APPLICATION.getParameter(), file.getName()));
                     }
                 }
 
-                Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_INTREDICTION);
+                Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_INTREDICTION);
                 if (appList.length() > 0) {
-                    command.putParameter(Command.LIST, appList);
+                    command.putParameter(CommandParamater.LIST, appList);
                 }
                 sendXmlToSelected(command);
 
@@ -625,7 +628,7 @@ public class MasterCore implements Runnable {
         captureScreen.stop();
         chatVoip.disconnectAll();
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.MASTER_CLOSED);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.MASTER_CLOSED);
         sendXmlToOnLan(command);
     }
 
@@ -633,8 +636,6 @@ public class MasterCore implements Runnable {
      * Ajoute un élève avec son adresse IP. Ajoute un élève connecté (onLine). Prévient la duplication d'adresses IP.
      *
      * @param addressIP l'adresse IP de l'élève.
-     *
-     * @see StudentClass.addStudent(String addressIP)
      */
     public void addStudent(String addressIP) {
         Student student = getStudentAtIP(addressIP);
@@ -807,7 +808,7 @@ public class MasterCore implements Runnable {
         screenWindow.stop();
         chatVoip.disconnectAll();
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.SEND_SCREEN_STOP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN_STOP);
         String xml = XMLUtilities.getXML(command);
         //Un seul élévé émetteur d'écran 
         if (visualisationMode != NORMAL_MODE && visualisationMode != MOSAIQUE_MODE) {
@@ -829,7 +830,7 @@ public class MasterCore implements Runnable {
         }
 
         if (visualisationMode == STUDENT_MODE) {
-            command.setAction(Command.RECEIVE_SCREEN_STOP);
+            command.setAction(CommandAction.RECEIVE_SCREEN_STOP);
             sendXmlToOnLan(command);
         }
     }
@@ -837,7 +838,7 @@ public class MasterCore implements Runnable {
     /**
      * Déclenche l'écoute discrète d'un élève.
      *
-     * @param eleve l'indice de l'élève.
+     * @param student l'indice de l'élève.
      */
     private void startListening(Student student) {
         if (visualisationMode == NORMAL_MODE) {
@@ -846,25 +847,24 @@ public class MasterCore implements Runnable {
 
         selectStudent(student);
         String addressIP = student.getAddressIP();
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.SEND_SCREEN);
-        command.putParameter(Command.CLIENT_NUMBER, 1);
-        command.putParameter(Command.IP_ADDRESS, tuteurIP);
-        command.putParameter(Command.SCREEN_PORT, ThotPort.screenRemotePortBase);
-        command.putParameter(Command.AUDIO_PORT, chatVoip.getPort());
-        command.putParameter(Command.FPS, (int) fps);
-        command.putParameter(Command.QUALITY, quality);
-        command.putParameter(Command.LINES, nbLines);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN);
+        command.putParameter(CommandParamater.CLIENT_NUMBER, 1);
+        command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+        command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
+        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+        command.putParameter(CommandParamater.FPS, (int) fps);
+        command.putParameter(CommandParamater.QUALITY, quality);
+        command.putParameter(CommandParamater.LINES, nbLines);
         sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
 
-        screenWindow.start(addressIP, ThotPort.screenRemotePortBase, false,
-                nbLines, student.getName());
+        screenWindow.start(addressIP, ThotPort.screenRemotePortBase, false, nbLines, student.getName());
 
         Student pairingStudent = student.getPairing();
         if (pairingStudent != null) {
             addressIP = pairingStudent.getAddressIP();
-            command = new Command(Command.TYPE_SUPERVISION, Command.SEND_VOICE);
-            command.putParameter(Command.IP_ADDRESS, tuteurIP);
-            command.putParameter(Command.AUDIO_PORT, chatVoip.getPairingPort());
+            command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_VOICE);
+            command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
             sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
         }
     }
@@ -883,15 +883,15 @@ public class MasterCore implements Runnable {
         String addressIP = student.getAddressIP();
         chatVoip.connect(addressIP, ThotPort.audioPort);
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.SEND_SCREEN);
-        command.putParameter(Command.REMOTE_HANDLING, true);
-        command.putParameter(Command.CLIENT_NUMBER, 1);
-        command.putParameter(Command.IP_ADDRESS, tuteurIP);
-        command.putParameter(Command.SCREEN_PORT, ThotPort.screenRemotePortBase);
-        command.putParameter(Command.AUDIO_PORT, chatVoip.getPort());
-        command.putParameter(Command.FPS, (int) fps);
-        command.putParameter(Command.QUALITY, quality);
-        command.putParameter(Command.LINES, nbLines);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN);
+        command.putParameter(CommandParamater.REMOTE_HANDLING, true);
+        command.putParameter(CommandParamater.CLIENT_NUMBER, 1);
+        command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+        command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
+        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+        command.putParameter(CommandParamater.FPS, (int) fps);
+        command.putParameter(CommandParamater.QUALITY, quality);
+        command.putParameter(CommandParamater.LINES, nbLines);
         sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
 
         screenWindow.start(addressIP, ThotPort.screenRemotePortBase, true,
@@ -901,9 +901,9 @@ public class MasterCore implements Runnable {
         if (pairingStudent != null) {
             addressIP = pairingStudent.getAddressIP();
             chatVoip.connect(addressIP, ThotPort.audioPort);
-            command = new Command(Command.TYPE_SUPERVISION, Command.SEND_VOICE);
-            command.putParameter(Command.IP_ADDRESS, tuteurIP);
-            command.putParameter(Command.AUDIO_PORT, chatVoip.getPairingPort());
+            command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_VOICE);
+            command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
             sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
         }
     }
@@ -940,12 +940,12 @@ public class MasterCore implements Runnable {
 
         int currentPort = ThotPort.screenRemotePortBase;
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.SEND_SCREEN);
-        command.putParameter(Command.CLIENT_NUMBER, 1);
-        command.putParameter(Command.FPS, mosaiqueFps);
-        command.putParameter(Command.QUALITY, quality);
-        command.putParameter(Command.LINES, nbLines);
-        command.putParameter(Command.SCREEN_PORT, currentPort);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN);
+        command.putParameter(CommandParamater.CLIENT_NUMBER, 1);
+        command.putParameter(CommandParamater.FPS, mosaiqueFps);
+        command.putParameter(CommandParamater.QUALITY, quality);
+        command.putParameter(CommandParamater.LINES, nbLines);
+        command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
 
         String xml = XMLUtilities.getXML(command);
 
@@ -958,9 +958,9 @@ public class MasterCore implements Runnable {
                 int x = colonne * width;
                 int y = (ligne) * height;
 
-                mosaiqueProcess.addClient(i, currentStudent.getAddressIP(),
-                        currentPort, currentStudent.getName(), x, y, width, height,
-                        nbLines, mosaiqueTimeout);
+                mosaiqueProcess
+                        .addClient(i, currentStudent.getAddressIP(), currentPort, currentStudent.getName(), x, y, width,
+                                height, nbLines, mosaiqueTimeout);
 
                 Utilities.waitInMillisecond(mosaiqueDelay);
 
@@ -1004,11 +1004,11 @@ public class MasterCore implements Runnable {
             Student currentStudent = it.next();
             if (isSelectionnedForDiffuse(currentStudent)) {
                 int currentPort = ThotPort.screenRemotePortBase + eleve;
-                Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_SCREEN);
-                command.putParameter(Command.IP_ADDRESS, tuteurIP);
-                command.putParameter(Command.SCREEN_PORT, currentPort);
-                command.putParameter(Command.LINES, nbLines);
-                command.putParameter(Command.TIMEOUT, screenWindow.getTimeout());
+                Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_SCREEN);
+                command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+                command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
+                command.putParameter(CommandParamater.LINES, nbLines);
+                command.putParameter(CommandParamater.TIMEOUT, screenWindow.getTimeout());
                 sendXmlToStudent(XMLUtilities.getXML(command), currentStudent.getAddressIP());
 
 //                addresses.add(new InetSocketAddress(getAddressIP(i), currentPort));
@@ -1029,7 +1029,7 @@ public class MasterCore implements Runnable {
     private void voiceAndScreenStop() {
         chatVoip.disconnectAll();
         captureScreen.stop();
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_SCREEN_STOP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_SCREEN_STOP);
         sendXmlToOnLan(command);
     }
 
@@ -1037,7 +1037,7 @@ public class MasterCore implements Runnable {
      * Démarre l'envoi d'un écran noir.
      */
     private void blackScreen() {
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_BLACK_SCREEN);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_BLACK_SCREEN);
         String xml = XMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
@@ -1052,7 +1052,7 @@ public class MasterCore implements Runnable {
      * Arrête l'envoi d'un écran noir.
      */
     private void blackScreenStop() {
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_SCREEN_STOP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_SCREEN_STOP);
         sendXmlToOnLan(command);
         chatVoip.disconnectAll();
     }
@@ -1075,8 +1075,8 @@ public class MasterCore implements Runnable {
             if (student != currentStudent && isSelectionnedForDiffuse(currentStudent)) {
                 nbDiffusion++;
                 if (currentStudent != pairing) {
-                    studentList.append(XMLUtilities.createElement(
-                            Command.CLIENT_IP_ADDRESS, currentStudent.getAddressIP()));
+                    studentList.append(XMLUtilities.createElement(CommandParamater.CLIENT_IP_ADDRESS.getParameter(),
+                            currentStudent.getAddressIP()));
                 }
             }
         }
@@ -1085,32 +1085,32 @@ public class MasterCore implements Runnable {
             nbDiffusion++; //on ajoute le poste professeur
             String ipDiffuseur = student.getAddressIP();
 
-            Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_SCREEN);
-            command.putParameter(Command.IP_ADDRESS, ipDiffuseur);
-            command.putParameter(Command.LINES, nbLines);
-            command.putParameter(Command.TIMEOUT, studentTimeout);
+            Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_SCREEN);
+            command.putParameter(CommandParamater.IP_ADDRESS, ipDiffuseur);
+            command.putParameter(CommandParamater.LINES, nbLines);
+            command.putParameter(CommandParamater.TIMEOUT, studentTimeout);
 
             int currentPort = ThotPort.screenRemotePortBase;
             for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
                 Student currentStudent = it.next();
                 if (student != currentStudent && isSelectionnedForDiffuse(currentStudent)) {
-                    command.putParameter(Command.SCREEN_PORT, currentPort);
+                    command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
                     sendXmlToStudent(XMLUtilities.getXML(command), currentStudent.getAddressIP());
                     currentPort++;
                 }
             }
 
-            command = new Command(Command.TYPE_SUPERVISION, Command.SEND_SCREEN);
-            command.putParameter(Command.REMOTE_HANDLING, true);
-            command.putParameter(Command.CLIENT_NUMBER, nbDiffusion);
-            command.putParameter(Command.SCREEN_PORT, ThotPort.screenRemotePortBase);
-            command.putParameter(Command.AUDIO_PORT, chatVoip.getPort());
-            command.putParameter(Command.FPS, (int) fps);
-            command.putParameter(Command.QUALITY, quality);
-            command.putParameter(Command.LINES, nbLines);
-            command.putParameter(Command.IP_ADDRESS, tuteurIP);
+            command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN);
+            command.putParameter(CommandParamater.REMOTE_HANDLING, true);
+            command.putParameter(CommandParamater.CLIENT_NUMBER, nbDiffusion);
+            command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+            command.putParameter(CommandParamater.FPS, (int) fps);
+            command.putParameter(CommandParamater.QUALITY, quality);
+            command.putParameter(CommandParamater.LINES, nbLines);
+            command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
             if (studentList.length() > 0) {
-                command.putParameter(Command.LIST, studentList.toString());
+                command.putParameter(CommandParamater.LIST, studentList.toString());
             }
             sendXmlToStudent(XMLUtilities.getXML(command), ipDiffuseur);
 
@@ -1124,7 +1124,7 @@ public class MasterCore implements Runnable {
      */
     private void pairingStop() {
         setPairingMode(NORMAL_MODE);
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.PAIRING_STOP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING_STOP);
         String xml = XMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
@@ -1144,7 +1144,7 @@ public class MasterCore implements Runnable {
     private void pairing(Student student) {
         //Anulation du précédent pairing
         Student pairing = student.getPairing();
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.PAIRING_STOP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING_STOP);
         String xml = XMLUtilities.getXML(command);
         if (pairing != null) {
             sendXmlToStudent(xml, student.getAddressIP());
@@ -1168,12 +1168,12 @@ public class MasterCore implements Runnable {
             firePairingStudentAssociatedChanged(pairingFirstSelected, student);
 
             //Interconnecter les élèves
-            command = new Command(Command.TYPE_SUPERVISION, Command.PAIRING);
-            command.putParameter(Command.IP_ADDRESS, student.getAddressIP());
-            command.putParameter(Command.AUDIO_PORT, ThotPort.audioPairingPort);
+            command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING);
+            command.putParameter(CommandParamater.IP_ADDRESS, student.getAddressIP());
+            command.putParameter(CommandParamater.AUDIO_PORT, ThotPort.audioPairingPort);
             sendXmlToStudent(XMLUtilities.getXML(command), pairingFirstSelected.getAddressIP());
 
-            command.putParameter(Command.IP_ADDRESS, pairingFirstSelected.getAddressIP());
+            command.putParameter(CommandParamater.IP_ADDRESS, pairingFirstSelected.getAddressIP());
             sendXmlToStudent(XMLUtilities.getXML(command), student.getAddressIP());
 
             pairingFirstSelected = null;
@@ -1187,23 +1187,20 @@ public class MasterCore implements Runnable {
         final int nbEleve = studentClass.getSelectedCount();
 
         if (nbEleve > 0) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    fileTransfert.sendFile(file, ThotPort.fileTransfertPortBase, nbEleve);
-                    Command command = new Command(Command.TYPE_SUPERVISION, Command.LAUNCH_FILE);
-                    command.putParameter(Command.FILE, file.getName());
-                    sendXmlToSelected(command);
-                }
+            Thread thread = new Thread(() -> {
+                fileTransfert.sendFile(file, ThotPort.fileTransfertPortBase, nbEleve);
+                Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.LAUNCH_FILE);
+                command.putParameter(CommandParamater.FILE, file.getName());
+                sendXmlToSelected(command);
             }, "sendFile");
 
             thread.start();
 
-            Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_FILE);
-            command.putParameter(Command.IP_ADDRESS, tuteurIP);
-            command.putParameter(Command.PORT, ThotPort.fileTransfertPortBase);
-            command.putParameter(Command.FILE, file.getName());
-            command.putParameter(Command.SIZE, file.length());
+            Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_FILE);
+            command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
+            command.putParameter(CommandParamater.PORT, ThotPort.fileTransfertPortBase);
+            command.putParameter(CommandParamater.FILE, file.getName());
+            command.putParameter(CommandParamater.SIZE, file.length());
             sendXmlToSelected(command);
 
             while (thread.isAlive()) {
@@ -1222,15 +1219,12 @@ public class MasterCore implements Runnable {
      */
     public void receiveFile(final File file, final int size,
             final String addressIP, final int portFile) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (fileTransfert.isRunning()) {
-                    Utilities.waitInMillisecond(100);
-                }
-                fileTransfert.loadFile(file, size, addressIP, portFile);
-                fireFileReceived(getStudentAtIP(addressIP), file);
+        new Thread(() -> {
+            while (fileTransfert.isRunning()) {
+                Utilities.waitInMillisecond(100);
             }
+            fileTransfert.loadFile(file, size, addressIP, portFile);
+            fireFileReceived(getStudentAtIP(addressIP), file);
         }, "receiveFile from " + addressIP).start();
     }
 
@@ -1249,8 +1243,8 @@ public class MasterCore implements Runnable {
         boolean isSend;
         String addressIP;
 
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.PING);
-        command.putParameter(Command.IP_ADDRESS, tuteurIP);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PING);
+        command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
 
         Student student = studentClass.getFirstStudent();
         while (true) {
@@ -1261,7 +1255,7 @@ public class MasterCore implements Runnable {
             }
 
             addressIP = student.getAddressIP();
-            command.putParameter(Command.PASSWORD_CHECKED, student.isChecked());
+            command.putParameter(CommandParamater.PASSWORD_CHECKED, student.isChecked());
             isSend = sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
 
             student.setOnLine(isSend);
@@ -1412,8 +1406,8 @@ public class MasterCore implements Runnable {
                 }
                 break;
             case GuiConstants.sendMessage:
-                command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_MESSAGE);
-                command.putParameter(Command.MESSAGE, parameter);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_MESSAGE);
+                command.putParameter(CommandParamater.MESSAGE, parameter);
                 sendXmlToSelected(command);
                 break;
             case GuiConstants.sendFile:
@@ -1426,7 +1420,7 @@ public class MasterCore implements Runnable {
                 applicationsDialog.updateLanguage();
                 break;
             case GuiConstants.loginSession:
-                command = new Command(Command.TYPE_SUPERVISION, Command.RESET_LOGIN);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RESET_LOGIN);
                 String xml = XMLUtilities.getXML(command);
 
                 for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
@@ -1438,7 +1432,7 @@ public class MasterCore implements Runnable {
                 }
                 break;
             case GuiConstants.computerPower:
-                command = new Command(Command.TYPE_SUPERVISION, Command.SHUTDOWN);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SHUTDOWN);
                 sendXmlToSelected(command);
 
                 for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
@@ -1457,7 +1451,7 @@ public class MasterCore implements Runnable {
                 }
                 break;
             case GuiConstants.osSession:
-                command = new Command(Command.TYPE_SUPERVISION, Command.SHUTDOWN_SESSION);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SHUTDOWN_SESSION);
                 sendXmlToSelected(command);
 
                 for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
@@ -1488,18 +1482,18 @@ public class MasterCore implements Runnable {
                 break;
             case GuiConstants.jclic:
                 String file = "jclic";
-                command = new Command(Command.TYPE_SUPERVISION, Command.EXECUTE);
-                command.putParameter(Command.FILE, file);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.EXECUTE);
+                command.putParameter(CommandParamater.FILE, file);
                 sendXmlToSelected(command);
                 break;
             case GuiConstants.bloqueClavier:
-                command = new Command(Command.TYPE_SUPERVISION, Command.BLOCK_KEYBOARD);
-                command.putParameter(Command.BLOCK, on);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.BLOCK_KEYBOARD);
+                command.putParameter(CommandParamater.BLOCK, on);
                 sendXmlToSelected(command);
                 break;
             case GuiConstants.bloqueInternet:
-                command = new Command(Command.TYPE_SUPERVISION, Command.BLOCK_INTERNET);
-                command.putParameter(Command.BLOCK, on);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.BLOCK_INTERNET);
+                command.putParameter(CommandParamater.BLOCK, on);
                 sendXmlToSelected(command);
                 break;
             case GuiConstants.interdireApplication:
@@ -1508,7 +1502,7 @@ public class MasterCore implements Runnable {
                 }
                 break;
             case GuiConstants.deleteDocument:
-                command = new Command(Command.TYPE_SUPERVISION, Command.DELETE_DOCUMENT);
+                command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.DELETE_DOCUMENT);
                 sendXmlToSelected(command);
                 fireButtonStateChanged(GuiConstants.deleteDocument, true);
                 break;
@@ -1562,8 +1556,8 @@ public class MasterCore implements Runnable {
      */
     public void sendOpenLabo() {
         String file = "labo";
-        Command command = new Command(Command.TYPE_LABORATORY, Command.EXECUTE);
-        command.putParameter(Command.FILE, file);
+        Command command = new Command(CommandType.TYPE_LABORATORY, CommandAction.EXECUTE);
+        command.putParameter(CommandParamater.FILE, file);
         sendXmlToSelected(command);
     }
 

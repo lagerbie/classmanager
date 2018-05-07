@@ -36,6 +36,9 @@ import thot.gui.GuiUtilities;
 import thot.gui.Login;
 import thot.gui.Resources;
 import thot.model.Command;
+import thot.model.CommandAction;
+import thot.model.CommandParamater;
+import thot.model.CommandType;
 import thot.model.Constants;
 import thot.model.ThotPort;
 import thot.screen.BlackWindow;
@@ -398,7 +401,7 @@ public class StudentCore implements Runnable {
      * @return le success de l'envoi.
      */
     public boolean sendHelpDemand() {
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.HELP_CALL);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.HELP_CALL);
         return sendSupervisionCommand(command);
     }
 
@@ -410,10 +413,10 @@ public class StudentCore implements Runnable {
      * @return si le fichier à été transféré.
      */
     public boolean sendFile(File file) {
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.RECEIVE_FILE);
-        command.putParameter(Command.PORT, ThotPort.fileTransfertPortBase);
-        command.putParameter(Command.FILE, file.getName());
-        command.putParameter(Command.SIZE, file.length());
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_FILE);
+        command.putParameter(CommandParamater.PORT, ThotPort.fileTransfertPortBase);
+        command.putParameter(CommandParamater.FILE, file.getName());
+        command.putParameter(CommandParamater.SIZE, file.length());
 
         boolean sended = sendSupervisionCommand(command);
 
@@ -429,7 +432,7 @@ public class StudentCore implements Runnable {
      * @return si le fichier à été transféré.
      */
     private boolean sendEndedError() {
-        Command command = new Command(Command.TYPE_SUPERVISION, Command.END_ERROR);
+        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.END_ERROR);
         return sendSupervisionCommand(command);
     }
 
@@ -439,10 +442,10 @@ public class StudentCore implements Runnable {
      * @param command la commande à traiter.
      */
     private void execute(Command command) {
-        String action = command.getAction();
+        CommandAction action = command.getAction();
 
         switch (action) {
-            case Command.PING:
+            case PING:
                 killApplication();
                 if (internetBlocked) {
                     killWebNavigators();
@@ -450,17 +453,15 @@ public class StudentCore implements Runnable {
 
                 int batteryLevel = Battery.getBatteryLevel();
 
-                String remoteHost = command.getParameter(Command.IP_ADDRESS);
-                boolean passwordChecked = command.getParameterAsBoolean(
-                        Command.PASSWORD_CHECKED);
+                String remoteHost = command.getParameter(CommandParamater.IP_ADDRESS);
+                boolean passwordChecked = command.getParameterAsBoolean(CommandParamater.PASSWORD_CHECKED);
 
                 if (remoteHost.isEmpty()) {
                     return;
                 }
 
-                Command returnCommand = new Command(
-                        Command.TYPE_SUPERVISION, Command.PONG);
-                returnCommand.putParameter(Command.BATTERY, batteryLevel);
+                Command returnCommand = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PONG);
+                returnCommand.putParameter(CommandParamater.BATTERY, batteryLevel);
 
                 //pas de login élève
                 if (userLogin == null) {
@@ -471,8 +472,8 @@ public class StudentCore implements Runnable {
                     loginSended = false;
                 } //login élève vérifié
                 else if (passwordChecked) {
-                    returnCommand.putParameter(Command.NAME, userLogin);
-                    returnCommand.putParameter(Command.PASSWORD, userPassword);
+                    returnCommand.putParameter(CommandParamater.NAME, userLogin);
+                    returnCommand.putParameter(CommandParamater.PASSWORD, userPassword);
                     loginSended = true;
                 } //login élève à vérifier
                 else {
@@ -487,8 +488,8 @@ public class StudentCore implements Runnable {
 
                         loginSended = false;
                     } else {
-                        returnCommand.putParameter(Command.NAME, userLogin);
-                        returnCommand.putParameter(Command.PASSWORD, userPassword);
+                        returnCommand.putParameter(CommandParamater.NAME, userLogin);
+                        returnCommand.putParameter(CommandParamater.PASSWORD, userPassword);
                         loginSended = true;
                     }
                 }
@@ -496,28 +497,28 @@ public class StudentCore implements Runnable {
                 Utilities.sendXml(XMLUtilities.getXML(returnCommand),
                         remoteHost, ThotPort.studentToMasterPort);
                 break;
-            case Command.SEND_SCREEN:
-                int portBase = command.getParameterAsInt(Command.SCREEN_PORT);
-                int nbClient = command.getParameterAsInt(Command.CLIENT_NUMBER);
+            case SEND_SCREEN:
+                int portBase = command.getParameterAsInt(CommandParamater.SCREEN_PORT);
+                int nbClient = command.getParameterAsInt(CommandParamater.CLIENT_NUMBER);
 
                 boolean control = false;
-                if (command.getParameter(Command.REMOTE_HANDLING) != null) {
-                    control = command.getParameterAsBoolean(Command.REMOTE_HANDLING);
+                if (command.getParameter(CommandParamater.REMOTE_HANDLING) != null) {
+                    control = command.getParameterAsBoolean(CommandParamater.REMOTE_HANDLING);
                 }
 
-                if (command.getParameter(Command.FPS) != null) {
-                    captureScreen.setFPS(command.getParameterAsDouble(Command.FPS));
+                if (command.getParameter(CommandParamater.FPS) != null) {
+                    captureScreen.setFPS(command.getParameterAsDouble(CommandParamater.FPS));
                 }
-                if (command.getParameter(Command.QUALITY) != null) {
-                    captureScreen.setQuality(command.getParameterAsInt(Command.QUALITY));
+                if (command.getParameter(CommandParamater.QUALITY) != null) {
+                    captureScreen.setQuality(command.getParameterAsInt(CommandParamater.QUALITY));
                 }
-                if (command.getParameter(Command.LINES) != null) {
-                    captureScreen.setNbLines(command.getParameterAsInt(Command.LINES));
+                if (command.getParameter(CommandParamater.LINES) != null) {
+                    captureScreen.setNbLines(command.getParameterAsInt(CommandParamater.LINES));
                 }
 
                 int audioPort = chatVoip.getPort();
 
-                String list = command.getParameter(Command.LIST);
+                String list = command.getParameter(CommandParamater.LIST);
 //                List<InetSocketAddress> addresses = new ArrayList<>(nbClient);
                 if (list != null) {
                     List<String> ipList = XMLUtilities.parseList(list);
@@ -528,34 +529,34 @@ public class StudentCore implements Runnable {
                     ipList.clear();
                 }
 
-                if (command.getParameter(Command.AUDIO_PORT) != null) {
-                    String hostIP = command.getParameter(Command.IP_ADDRESS);
-                    chatVoip.connect(hostIP, command.getParameterAsInt(Command.AUDIO_PORT));
+                if (command.getParameter(CommandParamater.AUDIO_PORT) != null) {
+                    String hostIP = command.getParameter(CommandParamater.IP_ADDRESS);
+                    chatVoip.connect(hostIP, command.getParameterAsInt(CommandParamater.AUDIO_PORT));
                     //addresses.add(new InetSocketAddress(hostIP, portBase));
                 }
 
                 captureScreen.start(portBase, nbClient, control);
                 //captureScreen.start(addresses, control);
                 break;
-            case Command.SEND_SCREEN_STOP:
+            case SEND_SCREEN_STOP:
                 chatVoip.disconnectAllWithoutPairing();
                 captureScreen.stop();
                 break;
-            case Command.RECEIVE_SCREEN:
-                String addressIP = command.getParameter(Command.IP_ADDRESS);
-                int remotePort = command.getParameterAsInt(Command.SCREEN_PORT);
+            case RECEIVE_SCREEN:
+                String addressIP = command.getParameter(CommandParamater.IP_ADDRESS);
+                int remotePort = command.getParameterAsInt(CommandParamater.SCREEN_PORT);
 
                 boolean remoteHandling = false;
-                if (command.getParameter(Command.REMOTE_HANDLING) != null) {
-                    remoteHandling = command.getParameterAsBoolean(Command.REMOTE_HANDLING);
+                if (command.getParameter(CommandParamater.REMOTE_HANDLING) != null) {
+                    remoteHandling = command.getParameterAsBoolean(CommandParamater.REMOTE_HANDLING);
                 }
 
                 int nbLines = -1;
-                if (command.getParameter(Command.LINES) != null) {
-                    nbLines = command.getParameterAsInt(Command.LINES);
+                if (command.getParameter(CommandParamater.LINES) != null) {
+                    nbLines = command.getParameterAsInt(CommandParamater.LINES);
                 }
-                if (command.getParameter(Command.TIMEOUT) != null) {
-                    int timeout = command.getParameterAsInt(Command.TIMEOUT);
+                if (command.getParameter(CommandParamater.TIMEOUT) != null) {
+                    int timeout = command.getParameterAsInt(CommandParamater.TIMEOUT);
                     screenWindow.setTimeout(timeout);
                 }
 
@@ -565,7 +566,7 @@ public class StudentCore implements Runnable {
 
                 screenWindow.start(addressIP, remotePort, remoteHandling, nbLines);
                 break;
-            case Command.RECEIVE_BLACK_SCREEN:
+            case RECEIVE_BLACK_SCREEN:
                 if (login.isVisible()) {
                     login.showLogin(false);
                 }
@@ -578,7 +579,7 @@ public class StudentCore implements Runnable {
                 break;
 //            case "RecevoirSon":
 //                break;
-            case Command.RECEIVE_SCREEN_STOP:
+            case RECEIVE_SCREEN_STOP:
                 chatVoip.disconnectAllWithoutPairing();
                 screenWindow.stop();
 
@@ -590,44 +591,43 @@ public class StudentCore implements Runnable {
                     WindowsUtilities.blockInput(false);
                 }
                 break;
-            case Command.PAIRING_STOP:
+            case PAIRING_STOP:
                 chatVoip.disconnectAll();
                 break;
-            case Command.PAIRING:
-                String pairingIP = command.getParameter(Command.IP_ADDRESS);
-                int portPairing = command.getParameterAsInt(Command.AUDIO_PORT);
+            case PAIRING:
+                String pairingIP = command.getParameter(CommandParamater.IP_ADDRESS);
+                int portPairing = command.getParameterAsInt(CommandParamater.AUDIO_PORT);
 
                 chatVoip.disconnectAll();
                 chatVoip.connectPairing(pairingIP, portPairing);
                 break;
-            case Command.SEND_VOICE:
-                if (command.getParameter(Command.IP_ADDRESS) != null) {
-                    String stHost = command.getParameter(Command.IP_ADDRESS);
+            case SEND_VOICE:
+                if (command.getParameter(CommandParamater.IP_ADDRESS) != null) {
+                    String stHost = command.getParameter(CommandParamater.IP_ADDRESS);
                     if (stHost.length() > 1) {
-                        chatVoip.connect(
-                                stHost, command.getParameterAsInt(Command.AUDIO_PORT));
+                        chatVoip.connect(stHost, command.getParameterAsInt(CommandParamater.AUDIO_PORT));
                     }
                 }
                 break;
-            case Command.RECEIVE_MESSAGE:
-                String message = command.getParameter(Command.MESSAGE);
+            case RECEIVE_MESSAGE:
+                String message = command.getParameter(CommandParamater.MESSAGE);
                 showMessage(message);
                 break;
-            case Command.RECEIVE_FILE:
-                final String address = command.getParameter(Command.IP_ADDRESS);
-                final int portFile = command.getParameterAsInt(Command.PORT);
-                final String fileName = command.getParameter(Command.FILE);
-                final int size = command.getParameterAsInt(Command.SIZE);
+            case RECEIVE_FILE:
+                final String address = command.getParameter(CommandParamater.IP_ADDRESS);
+                final int portFile = command.getParameterAsInt(CommandParamater.PORT);
+                final String fileName = command.getParameter(CommandParamater.FILE);
+                final int size = command.getParameterAsInt(CommandParamater.SIZE);
 
                 final File file = new File(userPath, fileName);
                 new Thread(() -> fileTransfert.loadFile(file, size, address, portFile), "receiveFile").start();
                 break;
-            case Command.LAUNCH_FILE:
-                File launchFile = new File(userPath, command.getParameter(Command.FILE));
+            case LAUNCH_FILE:
+                File launchFile = new File(userPath, command.getParameter(CommandParamater.FILE));
                 FileTransfert.launchFile(launchFile);
                 break;
-            case Command.EXECUTE:
-                String parameter = command.getParameter(Command.FILE);
+            case EXECUTE:
+                String parameter = command.getParameter(CommandParamater.FILE);
                 String binCommand = null;
                 File executeFile = new File(parameter);
 
@@ -665,11 +665,11 @@ public class StudentCore implements Runnable {
                     Utilities.startProcess(binCommand, binCommand, out, err);
                 }
                 break;
-            case Command.RESET_LOGIN:
+            case RESET_LOGIN:
                 userLogin = null;
                 login.reset();
                 break;
-            case Command.SHUTDOWN_SESSION:
+            case SHUTDOWN_SESSION:
                 if (Utilities.WINDOWS_PLATFORM) {
                     new Thread(() -> {
                         Utilities.waitInMillisecond(200);
@@ -683,7 +683,7 @@ public class StudentCore implements Runnable {
                     System.exit(0);
                 }, "exit").start();
                 break;
-            case Command.SHUTDOWN:
+            case SHUTDOWN:
                 /*la commande : sudo visudo
                  Pour pouvoir effectuer un shutdown sans avoir à fournir de mot de passe
                  Cmnd_Alias      SHUTDOWN = /sbin/shutdown
@@ -708,16 +708,16 @@ public class StudentCore implements Runnable {
                     System.exit(0);
                 }, "exit").start();
                 break;
-            case Command.BLOCK_KEYBOARD:
-                boolean block = command.getParameterAsBoolean(Command.BLOCK);
+            case BLOCK_KEYBOARD:
+                boolean block = command.getParameterAsBoolean(CommandParamater.BLOCK);
                 if (Utilities.WINDOWS_PLATFORM) {
                     WindowsUtilities.blockInput(block);
                 }
 
                 blockWindow.showWindow(block);
                 break;
-            case Command.RECEIVE_INTREDICTION:
-                String applicationList = command.getParameter(Command.LIST);
+            case RECEIVE_INTREDICTION:
+                String applicationList = command.getParameter(CommandParamater.LIST);
                 applicationsForbiden.clear();
                 if (applicationList != null) {
                     List<String> appList = XMLUtilities.parseList(applicationList);
@@ -729,13 +729,13 @@ public class StudentCore implements Runnable {
 
                 killApplication();
                 break;
-            case Command.BLOCK_INTERNET:
-                setWebEnable(command.getParameterAsBoolean(Command.BLOCK));
+            case BLOCK_INTERNET:
+                setWebEnable(command.getParameterAsBoolean(CommandParamater.BLOCK));
                 break;
-            case Command.DELETE_DOCUMENT:
+            case DELETE_DOCUMENT:
                 Utilities.deteleFiles(userPath);
                 break;
-            case Command.MASTER_CLOSED:
+            case MASTER_CLOSED:
                 masterClosed();
                 setWebEnable(false);
                 applicationsForbiden.clear();
