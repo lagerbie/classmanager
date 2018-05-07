@@ -23,12 +23,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.Data;
+
 /**
  * Classes regroupant une suite d'index.
  *
  * @author Fabrice Alleau
  * @version 1.90
  */
+@Data
 public class Indexes {
 
     /**
@@ -79,42 +82,6 @@ public class Indexes {
     }
 
     /**
-     * Retourne le mode d'utilisation.
-     *
-     * @return le mode d'utilisation.
-     */
-    public String getMode() {
-        return mode;
-    }
-
-    /**
-     * Modifie le mode d'utilisation.
-     *
-     * @param mode le mode d'utilisation.
-     */
-    public void setMode(String mode) {
-        this.mode = mode;
-    }
-
-    /**
-     * Retourne la durée totale du média sans les insertions.
-     *
-     * @return la durée totale en millisecondes.
-     */
-    public long getMediaLength() {
-        return mediaLength;
-    }
-
-    /**
-     * Modifie la durée totale.
-     *
-     * @param length la durée totale en millisecondes.
-     */
-    public void setMediaLength(long length) {
-        this.mediaLength = length;
-    }
-
-    /**
      * Retourne la durée totale du média avec les insertions.
      *
      * @return la durée totale en millisecondes.
@@ -123,7 +90,11 @@ public class Indexes {
         long length = mediaLength;
         for (Index index : indexes) {
             if (index.isTimeLineModifier()) {
-                length += index.getLength();
+                if (index.getRate() == Index.NORMAL_RATE) {
+                    length += index.getLength();
+                } else {
+                    length += index.getLength() * (1 - index.getRate());
+                }
             }
         }
         return length;
@@ -139,16 +110,29 @@ public class Indexes {
     }
 
     /**
-     * Ajoute un index. WARNING: pas de changements pour les index modifiant la durée.
+     * Ajoute un index.
+     * <p>
+     * WARNING: pas de changements pour les index modifiant la durée.
+     *
+     * @param index l'index à ajouter.
+     *
+     * @return {@code true} si l'index a été ajouté.
+     *
+     * @see public boolean addIndex(Index index)
+     */
+    public boolean add(Index index) {
+        return indexes.add(index);
+    }
+
+    /**
+     * Ajoute un index.
      *
      * @param index l'index à ajouter.
      *
      * @return <code>true</true> si l'index a été ajouté.
-     *
-     * @warning pas de changements pour les index modifiant la durée.
-     * @see public boolean addIndex(Index index)
      */
-    public boolean add(Index index) {
+    public boolean addIndex(Index index) {
+        updateIndexes(index, null);
         return indexes.add(index);
     }
 
@@ -169,13 +153,10 @@ public class Indexes {
      * @param time le temps voulu.
      *
      * @return si le demi index a été ajouté.
-     *
-     * @deprecated
      */
-    @Deprecated
     public boolean addHalfSubtitleIndexAtTime(long time) {
         boolean added = true;
-        Index index = getLast();
+        Index index = getHalfIndex();
         if (index == null) {
             added = indexes.add(new Index(IndexType.PLAY, time));
         } else {
@@ -187,8 +168,23 @@ public class Indexes {
                 index.setFinalTime(time);
             }
         }
-
         return added;
+    }
+
+    /**
+     * Retoune le dernier index créé (pas de temps de fin).
+     *
+     * @return le dernier index créé.
+     *
+     * @since version 0.94
+     */
+    private Index getHalfIndex() {
+        for (Index index : indexes) {
+            if (index.getFinalTime() < 0) {
+                return index;
+            }
+        }
+        return null;
     }
 
     /**
@@ -246,6 +242,68 @@ public class Indexes {
 
         removeIndexesIn(initialTime, finalTime);
     }
+
+
+//    /**
+//     * Ajoute un demi-index de fin de soustitre au temps voulu.
+//     * Supprime et fusionne les index si nécessaire.
+//     *
+//     * @param beginTime le temps de départ initial.
+//     * @param endTime le temps de fin de l'index.
+//     * @since version 0.99
+//     * @deprecated
+//     */
+//    @Deprecated
+//    public void addHalfSubtitleIndex(long beginTime, long endTime) {
+//        long initialTime = beginTime;
+//        long finalTime = endTime;
+//
+//        Index beginIndex = getIndexAtTime(initialTime);
+//        Index endIndex = getIndexAtTime(finalTime);
+//        Index last = getHalfIndex();
+//
+//        //si l'on commence dans un index le temps initial est celui de cet index
+//        if(beginIndex != null) {
+//            initialTime = beginIndex.getInitialTime();
+//            //si on fini dans cet index, on ajuste le temps de fin
+//            if(beginIndex.getFinalTime() > finalTime) {
+//                finalTime = beginIndex.getFinalTime();
+//            } else {
+//                if(endIndex != null && endIndex != beginIndex) {
+//                    finalTime = endIndex.getFinalTime();
+//                    removeIndex(endIndex);
+//                }
+//                beginIndex.setFinalTime(finalTime);
+//            }
+//
+//            //si un index à été créé mais pas finalisé, on le supprime.
+//            if(last != null) {
+//                removeIndex(last);
+//                last = null;
+//            }
+//        }
+//        else if(endIndex != null) {
+//            finalTime = endIndex.getFinalTime();
+//
+//            //si on fini dans cet index, on ajuste le temps de fin
+//            if(endIndex.getInitialTime() < initialTime) {
+//                initialTime = endIndex.getInitialTime();
+//            } else {
+//                endIndex.setInitialTime(initialTime);
+//            }
+//
+//            if(last != null) {
+//                removeIndex(last);
+//                last = null;
+//            }
+//        }
+//
+//        if(last != null) {
+//            last.setFinalTime(finalTime);
+//        }
+//
+//        removeIndexesIn(initialTime, finalTime);
+//    }
 
     /**
      * Enleve l'index.
@@ -428,10 +486,7 @@ public class Indexes {
      * @param time time le temps demandé.
      *
      * @return l'index.
-     *
-     * @deprecated
      */
-    @Deprecated
     private Index getNearestIndexAtTime(long time) {
         Index nearestIndex = null;
         long min = Long.MAX_VALUE;
@@ -559,20 +614,27 @@ public class Indexes {
                 || (newIndex != null && oldIndex != null)) {
             return;
         }
-        // à partir d'ici un seul des index est null
 
         //Mise à jour des index pour le redimensionnement de l'index
         long timeMin = 0;
         long timeOffset = 0;
 
         //Ajout d'un Index modifiant la durée
-        if (newIndex != null && newIndex.isTimeLineModifier()) {
+        if (oldIndex == null && newIndex.isTimeLineModifier()) {
             timeMin = newIndex.getInitialTime();
             timeOffset = newIndex.getLength();
-        } //supp d'un Index modifiant la durée
-        else if (oldIndex != null && oldIndex.isTimeLineModifier()) {
+            if (newIndex.getRate() != Index.NORMAL_RATE) {
+                timeOffset = (long) (newIndex.getLength()
+                        * (1 - newIndex.getRate()) / newIndex.getRate());
+            }
+        }
+        //supp d'un Index modifiant la durée
+        else if (newIndex == null && oldIndex.isTimeLineModifier()) {
             timeMin = oldIndex.getInitialTime();
             timeOffset = -oldIndex.getLength();
+            if (oldIndex.getRate() != Index.NORMAL_RATE) {
+                timeOffset = (long) (oldIndex.getLength() * (oldIndex.getRate() - 1));
+            }
         }
 
         if (timeOffset != 0) {
@@ -585,19 +647,32 @@ public class Indexes {
     }
 
     /**
+     * Indique si la liste contient un index où l'élève doit s'enregistrer.
+     *
+     * @return si la liste contient un index où l'élève doit s'enregistrer.
+     *
+     * @since version 1.01
+     */
+    public boolean hasStudentRecordIndex() {
+        for (Index index : indexes) {
+            if (index.isStudentRecord()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Indique si l'index à une durée nulle.
      *
      * @param currentIndex l'index.
      *
      * @return <code>true</code>si l'index à une durée nulle.
-     *
-     * @deprecated
      */
-    @Deprecated
     private boolean isNullSize(Index currentIndex) {
         long begin = currentIndex.getInitialTime();
         long end = currentIndex.getFinalTime();
-        return (begin == end);
+        return (begin >= end);
     }
 
     /**
@@ -606,10 +681,7 @@ public class Indexes {
      * @param currentIndex l'index.
      *
      * @return <code>true</code>si l'index est à cheval avec un autre index.
-     *
-     * @deprecated
      */
-    @Deprecated
     private boolean isOverlapped(Index currentIndex) {
         long begin = currentIndex.getInitialTime();
         long end = currentIndex.getFinalTime();
@@ -631,10 +703,7 @@ public class Indexes {
      * @param currentIndex l'index.
      *
      * @return <code>true</code> si l'index est identique à un autre index.
-     *
-     * @deprecated
      */
-    @Deprecated
     private boolean isIdentical(Index currentIndex) {
         long begin = currentIndex.getInitialTime();
         long end = currentIndex.getFinalTime();
@@ -648,6 +717,45 @@ public class Indexes {
             }
         }
         return false;
+    }
+
+
+    /**
+     * Retourne la validité de l'index.
+     *
+     * @param currentIndex l'index.
+     *
+     * @return la validité de l'index.
+     *
+     * @since version 0.99
+     */
+    private boolean checkValidity(Index currentIndex) {
+        if (isNullSize(currentIndex)) {
+            return false;
+        }
+        if (isOverlapped(currentIndex)) {
+            return false;
+        }
+        if (isIdentical(currentIndex)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Retourne la validité globale.
+     *
+     * @return la validité globale.
+     *
+     * @since version 0.99
+     */
+    public boolean checkValidity() {
+        for (Index index : indexes) {
+            if (!checkValidity(index)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

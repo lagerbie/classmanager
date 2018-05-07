@@ -29,7 +29,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import eestudio.Constants;
-import eestudio.Indexes;
+import thot.model.Indexes;
 import thot.model.ProjectFiles;
 
 /**
@@ -699,13 +699,7 @@ public class Utilities {
      * @since version 0.94 - version 0.95
      */
     public static Indexes getIndexes(File file) {
-        Indexes indexes = XMLUtilities.loadIndexes(file);
-
-        if (indexes.getIndexesCount() == 0) {
-            indexes = XMLUtilitiesOldVersion.loadIndexes(file);
-        }
-
-        return indexes;
+        return XMLUtilities.loadIndexes(file);
     }
 
     /**
@@ -718,13 +712,7 @@ public class Utilities {
      * @since version 0.94 - version 0.95
      */
     public static ProjectFiles getProject(File file) {
-        ProjectFiles project = XMLUtilities.loadProject(file);
-
-        if (project.isEmptyProject()) {
-            project = XMLUtilitiesOldVersion.loadProject(file);
-        }
-
-        return project;
+        return XMLUtilities.loadProject(file);
     }
 
     /**
