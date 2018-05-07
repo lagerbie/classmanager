@@ -19,12 +19,17 @@
  */
 package thot.model;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Index d'insertion de fichier.
  *
  * @author Fabrice Alleau
  * @version 1.90
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class IndexFile extends Index {
 
     /**
@@ -49,24 +54,6 @@ public class IndexFile extends Index {
      */
     public IndexFile(String fileName, long initialTime) {
         super(IndexType.FILE, initialTime);
-        this.fileName = fileName;
-    }
-
-    /**
-     * Retourne le nom de fichier.
-     *
-     * @return le nom de fichier.
-     */
-    public String getFileName() {
-        return fileName;
-    }
-
-    /**
-     * Modifie le nom du fichier.
-     *
-     * @param fileName le nom de fichier.
-     */
-    public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 

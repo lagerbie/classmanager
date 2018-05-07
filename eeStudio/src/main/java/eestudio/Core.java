@@ -34,6 +34,7 @@ import eestudio.utils.Utilities;
 import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
 import thot.model.Index;
+import thot.model.IndexFile;
 import thot.model.IndexType;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;

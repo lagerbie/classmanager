@@ -11,7 +11,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import eestudio.IndexFile;
 import eestudio.Indexes;
 import eestudio.flash.Command;
 import org.w3c.dom.Document;
@@ -20,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import thot.model.Index;
+import thot.model.IndexFile;
 import thot.model.IndexType;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
