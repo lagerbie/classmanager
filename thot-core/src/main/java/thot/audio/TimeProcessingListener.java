@@ -32,14 +32,17 @@ public interface TimeProcessingListener extends EventListener {
     /**
      * Notification du changement de temps.
      *
-     * @param newTime le nouveau temps.
+     * @param source the source du changement.
+     * @param oldValue l'ancien temps.
+     * @param newValue le nouveau temps.
      */
-    void timeChanged(long newTime);
+    void timeChanged(Object source, long oldValue, long newValue);
 
     /**
      * Notification de la fin du processus.
      *
-     * @param running indique si le processus s'est arrêté de lui même.
+     * @param source the source du changement.
+     * @param selfStop indique si le processus s'est arrêté de lui même.
      */
-    void endProcess(boolean running);
+    void endProcess(Object source, boolean selfStop);
 }

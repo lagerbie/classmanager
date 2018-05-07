@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * Classe pour capturer les données issues du microphone avec un serveur qui diffuse le microphone en multicast.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
-public class DatagramSocketAudioRecorder extends AudioRecorder {
+public class DatagramSocketAudioRecorder extends AbstractAudioProcessing implements AudioRecorder {
 
     /**
      * Instance de log.
@@ -50,17 +50,6 @@ public class DatagramSocketAudioRecorder extends AudioRecorder {
      * Paquet pour la réception des données.
      */
     private DatagramPacket paquet;
-
-    /**
-     * Initialisation avec un format audio et la socket initialisée. Equivalent à <code>AudioRecorder(core, null,
-     * audioFormat, socketMicrophone)</code>.
-     *
-     * @param audioFormat le format audio.
-     * @param socketMicrophone la socket pour recevoir les données.
-     */
-    public DatagramSocketAudioRecorder(AudioFormat audioFormat, DatagramSocket socketMicrophone) {
-        this(null, audioFormat, socketMicrophone);
-    }
 
     /**
      * Initialisation avec un format audio, une référence sur le buffer où seront enregistrées les données et la socket
@@ -82,14 +71,27 @@ public class DatagramSocketAudioRecorder extends AudioRecorder {
     }
 
     @Override
-    protected int read(byte data[], int offset, int read) {
+    protected void endProcess() {
+
+    }
+
+    @Override
+    protected int process(ByteBuffer recordBuffer, byte[] data, int offset, int length) {
+        int read = read(data, length);
+        if (read > 0) {
+            recordBuffer.put(data, 0, read);
+        }
+        return read;
+    }
+
+    private int read(byte data[], int length) {
         if (paquet == null) {
             paquet = new DatagramPacket(data, BUFFER_SIZE);
         }
         int cnt = -1;
         long timeTampon = System.currentTimeMillis();
 
-        paquet.setLength(read);
+        paquet.setLength(length);
 
         try {
             socketMicrophone.receive(paquet);
@@ -104,9 +106,5 @@ public class DatagramSocketAudioRecorder extends AudioRecorder {
             cnt = 0;
         }
         return cnt;
-    }
-
-    @Override
-    protected void flush() {
     }
 }

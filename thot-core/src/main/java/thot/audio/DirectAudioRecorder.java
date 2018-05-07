@@ -20,16 +20,16 @@
 package thot.audio;
 
 import java.nio.ByteBuffer;
+
 import javax.sound.sampled.TargetDataLine;
 
 /**
- * Classe pour capturer les données issues du microphone. Configuer pour être en
- * lecture directe du microphone.
+ * Classe pour capturer les données issues du microphone en lecture directe.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
-public class DirectAudioRecorder extends AudioRecorder {
+public class DirectAudioRecorder extends AbstractAudioProcessing implements AudioRecorder {
 
     /**
      * Ligne directe sur le microphone.
@@ -37,20 +37,8 @@ public class DirectAudioRecorder extends AudioRecorder {
     private TargetDataLine targetDataLine;
 
     /**
-     * Initialisation avec une ligne de capture ouverte (directement relié au
-     * microphone).
-     * Equivalant à <code>AudioRecorder(core, null, targetDataLine)</code>.
-     *
-     * @param targetDataLine la ligne de capture.
-     */
-    public DirectAudioRecorder(TargetDataLine targetDataLine) {
-        this(null, targetDataLine);
-    }
-
-    /**
-     * Initialisation avec une ligne de capture ouverte et une référence sur le
-     * buffer où seront enregistrées les données (directement relié au
-     * microphone).
+     * Initialisation avec une ligne de capture ouverte et une référence sur le buffer où seront enregistrées les
+     * données (directement relié au microphone).
      *
      * @param recordBuffer le buffer de stockage.
      * @param targetDataLine la ligne de capture.
@@ -67,12 +55,17 @@ public class DirectAudioRecorder extends AudioRecorder {
     }
 
     @Override
-    protected int read(byte data[], int offset, int read) {
-        return targetDataLine.read(data, 0, read);
+    protected void endProcess() {
+        targetDataLine.flush();
     }
 
     @Override
-    protected void flush() {
-        targetDataLine.flush();
+    protected int process(ByteBuffer recordBuffer, byte[] data, int offset, int length) {
+        int read = targetDataLine.read(data, 0, length);
+        if (read > 0) {
+            recordBuffer.put(data, 0, read);
+        }
+        return read;
     }
+
 }

@@ -19,78 +19,28 @@
  */
 package thot.audio;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Classe pour lire le ByteBuffer.
+ * Classe pour la non lecture de données audio.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
-public class DummyAudioPlayer extends AudioPlayer {
-
-    /**
-     * Instance de log.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummyAudioPlayer.class);
-
-    /**
-     * Temps courant dans la piste.
-     */
-    private long currentTime;
-    /**
-     * Temps fin de lecture dans la piste.
-     */
-    private long stopTime;
+public class DummyAudioPlayer extends DummyAudioProcessing implements AudioPlayer {
 
     /**
      * Initialisation.
      */
     public DummyAudioPlayer() {
-        super(null, null);
-    }
-
-    @Override
-    public void start(long initTime, long stopTime) {
-        this.currentTime = initTime;
-        this.stopTime = stopTime;
-        super.start(initTime, stopTime);
     }
 
     @Override
     public void setVolume(int value) {
+
     }
 
     @Override
     public void close() {
+
     }
 
-    @Override
-    public void run() {
-        long duration = stopTime - currentTime;
-        long initTime = System.currentTimeMillis();
-
-        long timePassed = 0;
-
-        while (isRun() && duration > 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                LOGGER.error("", e);
-            }
-
-            timePassed = System.currentTimeMillis() - initTime;
-            if (timePassed > 500) {
-                duration -= timePassed;
-                initTime = System.currentTimeMillis();
-                currentTime += timePassed;
-                fireTimeChanged(currentTime);
-                timePassed = 0;
-            }
-        }
-
-        fireTimeChanged(currentTime + timePassed);
-        fireEndProcess(isRun());
-    }
 }

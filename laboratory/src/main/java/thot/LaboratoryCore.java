@@ -41,9 +41,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.audio.AudioPlayer;
 import thot.audio.AudioRecorder;
 import thot.audio.DatagramSocketAudioRecorder;
+import thot.audio.DirectAudioPlayer;
 import thot.audio.DirectAudioRecorder;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
@@ -134,7 +134,7 @@ public class LaboratoryCore extends LaboCore {
         audioBuffer = null;
         setByteArrayLimit(getRecordTimeMax());
 
-        AudioPlayer audioPlayer = new AudioPlayer(audioBuffer, audioFormat);
+        DirectAudioPlayer audioPlayer = new DirectAudioPlayer(audioBuffer, audioFormat);
         audioPlayer.initAudioLine();
 
         if (!audioPlayer.isLineOpen()) {

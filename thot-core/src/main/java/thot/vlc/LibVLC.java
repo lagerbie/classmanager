@@ -21,7 +21,6 @@ package thot.vlc;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
-
 import thot.vlc.internal.libvlc_callback_t;
 import thot.vlc.internal.libvlc_event_manager_t;
 import thot.vlc.internal.libvlc_exception_t;
@@ -246,21 +245,21 @@ public interface LibVLC extends Library {
     void libvlc_media_parse(libvlc_media_t media);
 
     /**
-     * Create an empty Media AudioPlayer object
+     * Create an empty Media DirectAudioPlayer object
      *
      * VLC_PUBLIC_API libvlc_media_player_t * libvlc_media_player_new(
      * libvlc_instance_t *p_libvlc_instance );
      *
-     * @param p_libvlc_instance the libvlc instance in which the Media AudioPlayer
+     * @param p_libvlc_instance the libvlc instance in which the Media DirectAudioPlayer
      * should be created.
      * @return a new media player object, or NULL on error.
      * @since version 1.1.0
      */
     libvlc_media_player_t libvlc_media_player_new(libvlc_instance_t p_libvlc_instance);
     /**
-     * Create an empty Media AudioPlayer object
+     * Create an empty Media DirectAudioPlayer object
      *
-     * @param p_libvlc_instance the libvlc instance in which the Media AudioPlayer
+     * @param p_libvlc_instance the libvlc instance in which the Media DirectAudioPlayer
      * should be created.
      * @param p_e an initialized exception pointer
      * @return
@@ -280,7 +279,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API void libvlc_media_player_release(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer to free
+     * @param p_mi the Media DirectAudioPlayer to free
      * @since version 0.9.0
      */
     void libvlc_media_player_release(libvlc_media_player_t p_mi);
@@ -292,7 +291,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_media(
      * libvlc_media_player_t *p_mi, libvlc_media_t *p_md );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_md the Media. Afterwards the p_md can be safely destroyed.
      * @since version 1.1.0
      */
@@ -301,7 +300,7 @@ public interface LibVLC extends Library {
      * Set the media that will be used by the media_player. If any, previous md
      * will be released.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_md the Media. Afterwards the p_md can be safely destroyed.
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
@@ -317,7 +316,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API libvlc_media_t * libvlc_media_player_get_media(
      * libvlc_media_player_t *p_mi );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the media associated with p_mi, or NULL if no media is associated
      * @since version 1.1.0
      */
@@ -325,7 +324,7 @@ public interface LibVLC extends Library {
     /**
      * Get the media used by the media_player.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return the media associated with p_mi, or NULL if no media is associated
      * @since version 0.9.0
@@ -341,7 +340,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API libvlc_event_manager_t * libvlc_media_player_event_manager(
      * libvlc_media_player_t *p_mi );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the event manager associated with p_mi
      * @since version 1.1.0
      */
@@ -349,7 +348,7 @@ public interface LibVLC extends Library {
     /**
      * Get the Event Manager from which the media player send event.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return the event manager associated with p_mi
      * @since version 0.9.0
@@ -364,7 +363,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API int libvlc_media_player_play(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return 0 if playback started (and was already started), or -1 on error.
      * @since version 1.1.0
      */
@@ -372,7 +371,7 @@ public interface LibVLC extends Library {
     /**
      * Play
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
      * @deprecated VLC 1.1.0
@@ -385,14 +384,14 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API void libvlc_media_player_pause(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @since version 1.1.0
      */
     void libvlc_media_player_pause(libvlc_media_player_t p_mi);
     /**
      * Pause
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
      * @deprecated VLC 1.1.0
@@ -405,14 +404,14 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API void libvlc_media_player_stop(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @since version 1.1.0
      */
     void libvlc_media_player_stop(libvlc_media_player_t p_mi);
     /**
      * Stop
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
      * @deprecated VLC 1.1.0
@@ -454,7 +453,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_nsobject(
      * libvlc_media_player_t *p_mi, void * drawable );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the drawable that is either an NSView or an object
      * following
      * @since version 1.1.0
@@ -464,7 +463,7 @@ public interface LibVLC extends Library {
      * Set the agl handler where the media player should render its video
      * output.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the agl handler
      * @param p_e an initialized exception pointer
      * @since version 1.0.0
@@ -480,7 +479,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API void * libvlc_media_player_get_nsobject(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the NSView handler or 0 if none where set
      * @since version 1.0.0
      */
@@ -493,7 +492,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_agl(
      * libvlc_media_player_t *p_mi, uint32_t drawable );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the agl handler
      * @since version 1.1.0
      */
@@ -502,7 +501,7 @@ public interface LibVLC extends Library {
      * Set the agl handler where the media player should render its video
      * output.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the agl handler
      * @param p_e an initialized exception pointer
      * @since version 1.0.0
@@ -517,7 +516,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API uint32_t libvlc_media_player_get_agl(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the agl handler or 0 if none where set
      * @since version 1.0.0
      */
@@ -538,7 +537,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_xwindow (
      * libvlc_media_player_t *p_mi, uint32_t drawable );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the ID of the X window
      * @since version 1.1.0
      */
@@ -555,7 +554,7 @@ public interface LibVLC extends Library {
      * the drawable has the following properties in common with the default X11
      * screen: depth, scan line pad, black pixel. This is a bug.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the ID of the X window
      * @param p_e an initialized exception pointer
      * @since version 1.0.0
@@ -573,7 +572,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API uint32_t libvlc_media_player_get_xwindow(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return an X window ID, or 0 if none where set.
      * @since version 1.0.0
      */
@@ -587,7 +586,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_hwnd (
      * libvlc_media_player_t *p_mi, void *drawable );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable windows handle of the drawable
      * @since version 1.1.0
      */
@@ -597,7 +596,7 @@ public interface LibVLC extends Library {
      * render its video output. If LibVLC was built without Win32/Win64 API
      * output support, then this has no effects.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable windows handle of the drawable
      * @param p_e an initialized exception pointer
      * @since version 1.0.0
@@ -614,7 +613,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API void *libvlc_media_player_get_hwnd(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return a window handle or NULL if there are none.
      * @since version 1.0.0
      */
@@ -623,7 +622,7 @@ public interface LibVLC extends Library {
     /**
      * Set the drawable where the media player should render its video output
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param drawable the libvlc_drawable_t where the media player should
      * render its video
      * @param p_e an initialized exception pointer
@@ -637,7 +636,7 @@ public interface LibVLC extends Library {
     /**
      * Get the drawable where the media player should render its video output
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return the libvlc_drawable_t where the media player should render its
      * video
@@ -656,7 +655,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API libvlc_time_t libvlc_media_player_get_length (
      * libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the movie length (in ms), or -1 if there is no media.
      * @since version 1.1.0
      */
@@ -664,7 +663,7 @@ public interface LibVLC extends Library {
     /**
      * Get the current movie length (in ms).
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return the movie length (in ms).
      * @since version 0.9.0
@@ -678,7 +677,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API libvlc_time_t libvlc_media_player_get_time(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the movie time (in ms), or -1 if there is no media.
      * @since version 1.1.0
      */
@@ -686,7 +685,7 @@ public interface LibVLC extends Library {
     /**
      * Get the current movie time (in ms).
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return the movie time (in ms).
      * @since version 0.9.0
@@ -702,7 +701,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_time(
      * libvlc_media_player_t *p_mi, libvlc_time_t i_time );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param i_time the movie time (in ms).
      * @since version 1.1.0
      */
@@ -710,7 +709,7 @@ public interface LibVLC extends Library {
     /**
      * Set the movie time (in ms).
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param i_time the movie time (in ms).
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
@@ -725,7 +724,7 @@ public interface LibVLC extends Library {
      *
      * VLC_PUBLIC_API float libvlc_media_player_get_position(libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return movie position, or -1. in case of error
      * @since version 1.1.0
      */
@@ -733,7 +732,7 @@ public interface LibVLC extends Library {
     /**
      * Get movie position.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return movie position
      * @since version 0.9.0
@@ -749,7 +748,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API void libvlc_media_player_set_position(
      * libvlc_media_player_t *p_mi, float f_pos );
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param f_pos the position
      * @since version 1.1.0
      */
@@ -757,7 +756,7 @@ public interface LibVLC extends Library {
     /**
      * Set movie position.
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param f_pos movie position
      * @param p_e an initialized exception pointer
      * @since version 0.9.0
@@ -773,7 +772,7 @@ public interface LibVLC extends Library {
      * VLC_PUBLIC_API libvlc_state_t libvlc_media_player_get_state(
      * libvlc_media_player_t *p_mi);
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @return the current state of the media player (playing, paused, ...)
      * @see libvlc_state_t
      * @since version 1.1.0
@@ -782,7 +781,7 @@ public interface LibVLC extends Library {
     /**
      * Get current movie state
      *
-     * @param p_mi the Media AudioPlayer
+     * @param p_mi the Media DirectAudioPlayer
      * @param p_e an initialized exception pointer
      * @return current movie state as libvlc_state_t
      * @since version 0.9.0

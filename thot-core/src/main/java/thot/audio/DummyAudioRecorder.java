@@ -19,83 +19,22 @@
  */
 package thot.audio;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Classe pour capturer les données issues du microphone (mode dummy).
+ * Classe pour la non capture de données audio.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
-public class DummyAudioRecorder extends AudioRecorder {
-
-    /**
-     * Instance de log.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummyAudioRecorder.class);
-
-    /**
-     * Temps courant dans la piste.
-     */
-    private long currentTime;
-    /**
-     * Temps fin d'enregistrement dans la piste.
-     */
-    private long stopTime;
+public class DummyAudioRecorder extends DummyAudioProcessing implements AudioRecorder {
 
     /**
      * Initialisation.
      */
     public DummyAudioRecorder() {
-        super(null, null);
-    }
-
-    @Override
-    public void start(long initTime, long stopTime) {
-        this.currentTime = initTime;
-        this.stopTime = stopTime;
-        super.start(initTime, stopTime);
     }
 
     @Override
     public void close() {
-    }
 
-    @Override
-    protected int read(byte data[], int offset, int read) {
-        return -1;
-    }
-
-    @Override
-    protected void flush() {
-    }
-
-    @Override
-    public void run() {
-        long duration = stopTime - currentTime;
-        long initTime = System.currentTimeMillis();
-
-        long timePassed = 0;
-
-        while (isRun() && duration > 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                LOGGER.error("", e);
-            }
-
-            timePassed = System.currentTimeMillis() - initTime;
-            if (timePassed > 500) {
-                duration -= timePassed;
-                initTime = System.currentTimeMillis();
-                currentTime += timePassed;
-                fireTimeChanged(currentTime);
-                timePassed = 0;
-            }
-        }
-
-        fireTimeChanged(currentTime + timePassed);
-        fireEndProcess(isRun());
     }
 }

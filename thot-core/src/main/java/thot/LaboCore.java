@@ -221,13 +221,13 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
 
         TimeProcessingListener listener = new TimeProcessingListener() {
             @Override
-            public void timeChanged(long time) {
-                fireProcessTimeChanged(time);
+            public void timeChanged(Object source, long oldValue, long newValue) {
+                fireProcessTimeChanged(newValue);
             }
 
             @Override
-            public void endProcess(boolean running) {
-                fireProcessEnded(running);
+            public void endProcess(Object source, boolean selfStop) {
+                fireProcessEnded(selfStop);
             }
         };
         this.audioRecorder.addListener(listener);
@@ -1441,8 +1441,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
             setTime(0);
         }
 
-        if (!mediaPlayer.isPlaying()
-                && (mediaType == Constants.VIDEO_FILE || mediaType == Constants.AUDIO_FILE)) {
+        if (!mediaPlayer.isPlaying() && (mediaType == Constants.VIDEO_FILE || mediaType == Constants.AUDIO_FILE)) {
             mediaPlayerPlay();
         }
 
@@ -1630,8 +1629,8 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     }
 
     /**
-     * Réinitialise le audioPlayer VLC. Nécessaire après la conversion qui change les paramètres de VLC (qui sont globaux à
-     * toutes les instances de vlc).
+     * Réinitialise le audioPlayer VLC. Nécessaire après la conversion qui change les paramètres de VLC (qui sont
+     * globaux à toutes les instances de vlc).
      */
     private void mediaPlayerInit() {
         //Lecteurs multimédia
