@@ -21,11 +21,6 @@
         <dependencies>
             <dependency>
                 <groupId>fr.lgp.classmanager</groupId>
-                <artifactId>supervision-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fr.lgp.classmanager</groupId>
                 <artifactId>thot-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -131,7 +126,6 @@
             <id>student</id>
             <modules>
                 <module>../student</module>
-                <module>../supervision-core</module>
                 <module>../thot-core</module>
             </modules>
         </profile>
@@ -140,7 +134,6 @@
             <id>master</id>
             <modules>
                 <module>../master</module>
-                <module>../supervision-core</module>
                 <module>../thot-core</module>
             </modules>
         </profile>

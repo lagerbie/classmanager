@@ -14,11 +14,7 @@
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>fr.lgp.classmanager</groupId>
-            <artifactId>supervision-core</artifactId>
-        </dependency>
-        <dependency>
+         <dependency>
             <groupId>fr.lgp.classmanager</groupId>
             <artifactId>thot-core</artifactId>
         </dependency>
