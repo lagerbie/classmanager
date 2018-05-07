@@ -44,7 +44,7 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
     /**
      * Taille des buffers utilisés. x8 pour XP 2 canaux à 44100Hz
      */
-    public static final int BUFFER_SIZE = 1024 * 8;
+    protected static final int BUFFER_SIZE = 1024 * 8;
 
     /**
      * Format Audio pour la lecture ou la capture audio.
@@ -88,12 +88,24 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
     private Thread thread;
 
     /**
+     * Initialisation avec un format audio et le buffer où seront enregistrées les données pour un mode indirect.
+     *
+     * @param audioBuffer le buffer de stockage.
+     * @param audioFormat le format audio.
+     */
+    AbstractAudioProcessing(ByteBuffer audioBuffer, AudioFormat audioFormat) {
+        this.audioFormat = audioFormat;
+        this.audioBuffer = audioBuffer;
+    }
+
+    /**
      * Ajoute un listener.
      *
      * @param listener le listener à ajouter.
      */
     @Override
     public void addListener(TimeProcessingListener listener) {
+        LOGGER.info("Ajout du listener {}", listener);
         listenerList.add(TimeProcessingListener.class, listener);
     }
 
@@ -104,6 +116,7 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
      */
     @Override
     public void removeListener(TimeProcessingListener listener) {
+        LOGGER.info("Suppression du listener {}", listener);
         listenerList.remove(TimeProcessingListener.class, listener);
     }
 
@@ -142,7 +155,7 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
      */
     @Override
     public void start(long startTime, long stopTime) {
-        LOGGER.debug("Lancement du processus [startTime={}; endTime={}]", startTime, stopTime);
+        LOGGER.info("Lancement du processus [startTime={}; endTime={}]", startTime, stopTime);
         this.startTime = startTime;
         this.endTime = stopTime;
 
@@ -158,6 +171,7 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
      */
     @Override
     public void stop() {
+        LOGGER.info("Arrêt du processus de traitement de l'audio");
         running = false;
     }
 
@@ -169,18 +183,6 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
     @Override
     public boolean isAlive() {
         return thread != null && thread.isAlive();
-    }
-
-
-    /**
-     * Initialisation avec un format audio et le buffer où seront enregistrées les données pour un mode indirect.
-     *
-     * @param audioBuffer le buffer de stockage.
-     * @param audioFormat le format audio.
-     */
-    AbstractAudioProcessing(ByteBuffer audioBuffer, AudioFormat audioFormat) {
-        this.audioFormat = audioFormat;
-        this.audioBuffer = audioBuffer;
     }
 
     /**

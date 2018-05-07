@@ -35,8 +35,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.slf4j.Logger;
@@ -45,6 +43,8 @@ import thot.audio.AudioRecorder;
 import thot.audio.DatagramSocketAudioRecorder;
 import thot.audio.DirectAudioPlayer;
 import thot.audio.DirectAudioRecorder;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.model.Command;
@@ -87,10 +87,6 @@ public class LaboratoryCore extends LaboCore {
      */
     private AudioFormat audioFormat;
     /**
-     * Ligne directe sur le microphone.
-     */
-    private TargetDataLine targetDataLine;
-    /**
      * Stockage des données audio à enregistrer.
      */
     private ByteBuffer audioBuffer;
@@ -127,7 +123,7 @@ public class LaboratoryCore extends LaboCore {
      * @param resources les resources textuelles.
      * @param microphone prise directe du microphone.
      */
-    public void initValues(Resources resources, boolean microphone) throws LineUnavailableException {
+    public void initValues(Resources resources, boolean microphone) throws ThotException {
         //Initialisation du format audio
         setAudioFormat(microphone ? 22050 : 44100);
         //enregistrement et sauvegarde des données
@@ -146,24 +142,14 @@ public class LaboratoryCore extends LaboCore {
             System.exit(0);
         }
 
-        AudioRecorder audioRecorder = null;
+        AudioRecorder audioRecorder;
         if (microphone) {
-            if (initTargetDataLine()) {
-                audioRecorder = new DirectAudioRecorder(audioBuffer, targetDataLine);
-            }
+            audioRecorder = new DirectAudioRecorder(audioBuffer, audioFormat);
+            ((DirectAudioRecorder) audioRecorder).initAudioLine();
         } else {
-            if (initDatagramSocket(ThotPort.microphoneLaboPort, ThotPort.soundServerPort)) {
-                audioRecorder = new DatagramSocketAudioRecorder(audioBuffer, audioFormat, socketMicrophone);
-            }
-        }
-
-        if (audioRecorder == null) {
-            String message = resources.getString("soundError");
-//            String imagesPath = "labo/gui/images/icone.png";
-//            ImageIcon icone = new ImageIcon(getClass().getClassLoader().getResource(imagesPath));
-
-            GuiUtilities.showMessageDialog(null, message);
-            System.exit(0);
+            initDatagramSocket(ThotPort.microphoneLaboPort, ThotPort.soundServerPort);
+            audioRecorder = new DatagramSocketAudioRecorder(audioBuffer, audioFormat);
+            ((DatagramSocketAudioRecorder) audioRecorder).initDatagramSocket(ThotPort.microphoneLaboPort);
         }
 
         initRecorderAndPlayer(audioRecorder, audioPlayer);
@@ -641,65 +627,28 @@ public class LaboratoryCore extends LaboCore {
         fireHelpDemandSuccess(success);
     }
 
-    /**
-     * Initialise la ligne directe sur le microphone.
-     *
-     * @return le sucess de l'ouverture.
-     */
-    private boolean initTargetDataLine() {
-        boolean success = true;
-        try {
-            //Recherche de la configuration pour la capture des données.
-            targetDataLine = AudioSystem.getTargetDataLine(audioFormat);
-
-            //ouverture et démarage de la ligne de capture aver une taille
-            //de buffer la plus petite possible.
-            targetDataLine.open(audioFormat, DirectAudioRecorder.BUFFER_SIZE);
-            targetDataLine.start();
-        } catch (LineUnavailableException | IllegalArgumentException e) {
-            LOGGER.error("", e);
-            success = false;
-        }
-        return success;
-    }
 
     /**
      * Initialise la socket multicast pour la réception des données du microphone.
      *
      * @param portMicrophone le port de réception des données audio.
      * @param portMicrophoneServer le port du serveur du microphone.
-     *
-     * @return le sucess de l'ouverture.
      */
-    private boolean initDatagramSocket(int portMicrophone, int portMicrophoneServer) {
-        boolean success = true;
+    private void initDatagramSocket(int portMicrophone, int portMicrophoneServer) throws ThotException {
         String xml = "<connection><address>127.0.0.1</address>"
                 + "<port>" + String.valueOf(portMicrophone) + "</port></connection>";
 
-        Socket socket = null;
-        try {
-            socket = new Socket("127.0.0.1", portMicrophoneServer);
+        try (Socket socket = new Socket("127.0.0.1", portMicrophoneServer)) {
+
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
             outputStream.writeUTF(xml);
             outputStream.flush();
-            socket.close();
 
-            socketMicrophone = new DatagramSocket(portMicrophone);
         } catch (IOException e) {
-            LOGGER.error("", e);
-            success = false;
-        } finally {
-            //Fermeture
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    LOGGER.error("", e);
-                }
-            }
+            throw new ThotException(ThotCodeException.SERVER,
+                    "Impossible de se connecter au serveur du microphone sur le port {}", e, portMicrophoneServer);
         }
 
-        return success;
     }
 
 

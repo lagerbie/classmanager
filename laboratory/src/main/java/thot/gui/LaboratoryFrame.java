@@ -289,6 +289,22 @@ public class LaboratoryFrame extends JFrame {
         this.setResizable(false);
         this.setIconImages(GuiUtilities.getIcons());
 
+        initFrame();
+
+        chooser = new FileChooser(this, userHome, true);
+        //création du répertoire utilisateur
+        File tempPath = new File(System.getProperty("java.io.tmpdir"), "Siclic");
+        tempPath.mkdirs();
+        processingBar = new ProcessingBar(this, null);
+        importDialog = new ImportDialog(this, core, resources, processingBar, tempPath);
+        exportDialog = new ExportDialog(this, core, resources, processingBar);
+        eraseDialog = new EraseDialog(this, core, resources, processingBar);
+
+        addButtonListeners();
+        addCoreListener();
+    }
+
+    public void showApplication() {
         GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Dimension dim = graphicsEnvironment.getMaximumWindowBounds().getSize();
 
@@ -324,22 +340,9 @@ public class LaboratoryFrame extends JFrame {
             dim.width = 1024;
         }
 
-        initFrame();
         this.setVisible(true);
         core.mediaPlayerSetVideoOutput(videoCanvas);
         this.setSize(dim);
-
-        chooser = new FileChooser(this, userHome, true);
-        //création du répertoire utilisateur
-        File tempPath = new File(System.getProperty("java.io.tmpdir"), "Siclic");
-        tempPath.mkdirs();
-        processingBar = new ProcessingBar(this, null);
-        importDialog = new ImportDialog(this, core, resources, processingBar, tempPath);
-        exportDialog = new ExportDialog(this, core, resources, processingBar);
-        eraseDialog = new EraseDialog(this, core, resources, processingBar);
-
-        addButtonListeners();
-        addCoreListener();
     }
 
     /**

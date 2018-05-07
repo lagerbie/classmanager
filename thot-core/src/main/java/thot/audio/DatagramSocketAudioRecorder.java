@@ -28,6 +28,8 @@ import javax.sound.sampled.AudioFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 
 /**
  * Classe pour capturer les données issues du microphone avec un serveur qui diffuse le microphone en multicast.
@@ -57,16 +59,32 @@ public class DatagramSocketAudioRecorder extends AbstractAudioProcessing impleme
      *
      * @param recordBuffer le buffer de stockage.
      * @param audioFormat le format audio.
-     * @param socketMicrophone la socket pour recevoir les données.
      */
-    public DatagramSocketAudioRecorder(ByteBuffer recordBuffer, AudioFormat audioFormat,
-            DatagramSocket socketMicrophone) {
+    public DatagramSocketAudioRecorder(ByteBuffer recordBuffer, AudioFormat audioFormat) {
         super(recordBuffer, audioFormat);
-        this.socketMicrophone = socketMicrophone;
+    }
+
+    /**
+     * Initialise la socket multicast pour la réception des données du microphone.
+     *
+     * @param portMicrophone le port de réception des données audio.
+     */
+    public void initDatagramSocket(int portMicrophone) throws ThotException {
+        if (socketMicrophone != null) {
+            close();
+        }
+        LOGGER.info("Initialisation de la socket pour la connexion au serveur du microphone");
+        try {
+            socketMicrophone = new DatagramSocket(portMicrophone);
+        } catch (IOException e) {
+            throw new ThotException(ThotCodeException.AUDIO, "Impossible d'ouvrir une socket UDP sur le port {}", e,
+                    portMicrophone);
+        }
     }
 
     @Override
     public void close() {
+        LOGGER.info("Fermeture de la connexion au serveur du microphone");
         socketMicrophone.close();
     }
 

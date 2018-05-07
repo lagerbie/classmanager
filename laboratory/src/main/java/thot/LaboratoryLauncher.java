@@ -22,10 +22,9 @@ package thot;
 import java.io.File;
 import java.util.Locale;
 
-import javax.sound.sampled.LineUnavailableException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.LaboratoryFrame;
 import thot.gui.Resources;
@@ -59,7 +58,7 @@ public class LaboratoryLauncher {
      *
      * @param args les paramètres de lancement.
      */
-    public static void main(String[] args) throws LineUnavailableException {
+    public static void main(String[] args) {
         GuiUtilities.setDefaultFont("Arial");
 
         boolean microphone = !Utilities.LINUX_PLATFORM;
@@ -115,8 +114,16 @@ public class LaboratoryLauncher {
         }
 
         LaboratoryCore studentCore = new LaboratoryCore(converter, userHome);
-        studentCore.initValues(resources, microphone);
-        LaboratoryFrame frame = new LaboratoryFrame(studentCore, resources, userHome);
+        try {
+            studentCore.initValues(resources, microphone);
+            LaboratoryFrame frame = new LaboratoryFrame(studentCore, resources, userHome);
+            frame.showApplication();
+        } catch (ThotException e) {
+            LOGGER.error("Impossible d'initinialiser l'application", e);
+            showMessage("Impossible d'initinialiser l'application " + e.getMessage());
+            System.exit(0);
+        }
+
     }
 
     /**

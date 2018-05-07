@@ -29,6 +29,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 
 /**
  * Classe pour lire les données audio en mode direct.
@@ -65,22 +67,29 @@ public class DirectAudioPlayer extends AbstractAudioProcessing implements AudioP
     /**
      * Initialise le flux audio.
      *
-     * @throws LineUnavailableException
+     * @throws ThotException si l'ouverture de la ligne échoue.
      */
-    public void initAudioLine() throws LineUnavailableException {
+    public void initAudioLine() throws ThotException {
         LOGGER.info("Initialisation du flux audio pour le format {}", getAudioFormat());
-        //Recherche de la configuration pour la lecture de données.
-        sourceDataLine = AudioSystem.getSourceDataLine(getAudioFormat());
-        //Ouverture de la ligne avec une taille de buffer la plus petite possible.
-        sourceDataLine.open(getAudioFormat(), BUFFER_SIZE);
-        sourceDataLine.start();
 
-        //control pour le volume
-        LOGGER.info("Initialisation du controller du volume audio pour le format");
-        if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
-        } else if (sourceDataLine.isControlSupported(FloatControl.Type.VOLUME)) {
-            gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.VOLUME);
+        try {
+            //Recherche de la configuration pour la lecture de données.
+            sourceDataLine = AudioSystem.getSourceDataLine(getAudioFormat());
+
+            //Ouverture de la ligne avec une taille de buffer la plus petite possible.
+            sourceDataLine.open(getAudioFormat(), BUFFER_SIZE);
+            sourceDataLine.start();
+
+            //control pour le volume
+            LOGGER.info("Initialisation du controller du volume audio pour le format");
+            if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+            } else if (sourceDataLine.isControlSupported(FloatControl.Type.VOLUME)) {
+                gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.VOLUME);
+            }
+        } catch (LineUnavailableException | IllegalArgumentException e) {
+            throw new ThotException(ThotCodeException.AUDIO, "Impossible d'ouvrir une ligne avec le format {}", e,
+                    getAudioFormat());
         }
     }
 
@@ -93,6 +102,7 @@ public class DirectAudioPlayer extends AbstractAudioProcessing implements AudioP
      */
     @Override
     public void setVolume(int value) {
+        LOGGER.debug("Initialisation du flux audio pour le format {}", getAudioFormat());
         float max = gainControl.getMaximum();
         float min = gainControl.getMinimum();
         float gain = (max - min) * value / 100.0f + min;
@@ -101,6 +111,7 @@ public class DirectAudioPlayer extends AbstractAudioProcessing implements AudioP
 
     @Override
     public void close() {
+        LOGGER.info("Fermeture de la ligne audio");
         sourceDataLine.stop();
         sourceDataLine.close();
     }
@@ -134,6 +145,7 @@ public class DirectAudioPlayer extends AbstractAudioProcessing implements AudioP
 
     @Override
     protected void endProcess() {
+        LOGGER.info("Drain sur la ligne audio");
         sourceDataLine.drain();
     }
 }

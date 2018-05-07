@@ -4,7 +4,9 @@ import lombok.Getter;
 
 public enum ThotCodeException {
 
-    AUDIO(100);
+    SERVER(100),
+    AUDIO(200),
+    VIDEO(300);
 
     @Getter
     private int code;

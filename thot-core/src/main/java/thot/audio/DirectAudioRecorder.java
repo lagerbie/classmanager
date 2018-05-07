@@ -21,7 +21,15 @@ package thot.audio;
 
 import java.nio.ByteBuffer;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 
 /**
  * Classe pour capturer les données issues du microphone en lecture directe.
@@ -32,30 +40,53 @@ import javax.sound.sampled.TargetDataLine;
 public class DirectAudioRecorder extends AbstractAudioProcessing implements AudioRecorder {
 
     /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DirectAudioRecorder.class);
+
+    /**
      * Ligne directe sur le microphone.
      */
     private TargetDataLine targetDataLine;
 
     /**
-     * Initialisation avec une ligne de capture ouverte et une référence sur le buffer où seront enregistrées les
-     * données (directement relié au microphone).
+     * Initialisation avec un format audio et une référence sur le buffer où seront enregistrées les données.
      *
      * @param recordBuffer le buffer de stockage.
-     * @param targetDataLine la ligne de capture.
+     * @param audioFormat le format audio.
      */
-    public DirectAudioRecorder(ByteBuffer recordBuffer, TargetDataLine targetDataLine) {
-        super(recordBuffer, targetDataLine.getFormat());
-        this.targetDataLine = targetDataLine;
+    public DirectAudioRecorder(ByteBuffer recordBuffer, AudioFormat audioFormat) {
+        super(recordBuffer, audioFormat);
+    }
+
+    /**
+     * Initialise la ligne directe sur le microphone.
+     */
+    public void initAudioLine() throws ThotException {
+        LOGGER.info("Initialisation du flux audio pour le format {}", getAudioFormat());
+        try {
+            //Recherche de la configuration pour la capture des données.
+            targetDataLine = AudioSystem.getTargetDataLine(getAudioFormat());
+
+            //ouverture et démarage de la ligne de capture aver une taille de buffer la plus petite possible.
+            targetDataLine.open(getAudioFormat(), DirectAudioRecorder.BUFFER_SIZE);
+            targetDataLine.start();
+        } catch (LineUnavailableException | IllegalArgumentException e) {
+            throw new ThotException(ThotCodeException.AUDIO, "Impossible d'ouvrir une ligne avec le format {}", e,
+                    getAudioFormat());
+        }
     }
 
     @Override
     public void close() {
+        LOGGER.info("Fermeture de la ligne audio");
         targetDataLine.stop();
         targetDataLine.close();
     }
 
     @Override
     protected void endProcess() {
+        LOGGER.info("Flush sur la ligne audio");
         targetDataLine.flush();
     }
 
