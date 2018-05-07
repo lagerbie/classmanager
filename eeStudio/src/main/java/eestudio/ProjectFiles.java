@@ -30,6 +30,7 @@ package eestudio;
  * @since version 0.94
  * @version 1.03
  */
+@Deprecated
 public class ProjectFiles {
     /** Nom du logiciel de l'exportation */
     private String soft;

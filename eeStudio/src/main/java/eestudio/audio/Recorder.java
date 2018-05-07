@@ -38,6 +38,7 @@ import javax.sound.sampled.TargetDataLine;
  * @since version 0.94
  * @version 0.97
  */
+@Deprecated
 public class Recorder extends AudioProcessing {
     /* Ligne directe sur le microphone */
     private TargetDataLine targetDataLine;

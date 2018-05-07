@@ -43,6 +43,7 @@ import javax.sound.sampled.SourceDataLine;
  * @since version 0.94
  * @version 0.97
  */
+@Deprecated
 public class Player extends AudioProcessing {
     /** Ligne audio de rendu */
     private SourceDataLine sourceDataLine;

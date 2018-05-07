@@ -16,6 +16,7 @@ import javax.swing.event.EventListenerList;
  * @since version 0.94
  * @version 0.97
  */
+@Deprecated
 public abstract class AudioProcessing implements Runnable {
     /** Taille des buffers utilisés */
     public static final int BUFFER_SIZE = 1024*8;//x8 pour XP 2 canaux à 44100Hz

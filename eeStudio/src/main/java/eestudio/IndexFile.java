@@ -11,6 +11,7 @@ package eestudio;
  * @since version 0.90
  * @version 0.96
  */
+@Deprecated
 public class IndexFile extends Index {
     /** Nom du fichier associé */
     private String fileName;

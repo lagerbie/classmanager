@@ -9,6 +9,7 @@ import java.util.EventListener;
  * @author Fabrice Alleau
  * @since version 0.95
  */
+@Deprecated
 public interface ProcessingListener extends EventListener {
 
     /**

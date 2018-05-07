@@ -44,6 +44,7 @@ import java.util.List;
  * @since version 0.94
  * @version 1.01
  */
+@Deprecated
 public class Indexes {
     /** Mode d'examin (une seule lecture) */
     public static final String EXAMEN_MODE = "examen";

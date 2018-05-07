@@ -13,4 +13,11 @@
         <relativePath>../classmanager</relativePath>
     </parent>
 
+    <dependencies>
+        <dependency>
+            <groupId>fr.lgp.classmanager</groupId>
+            <artifactId>thot-core</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

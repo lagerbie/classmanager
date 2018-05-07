@@ -58,6 +58,7 @@ package eestudio;
  * @since version 0.90
  * @version 1.02
  */
+@Deprecated
 public class Index implements Cloneable {
     /** Indentifiant inconu */
     public static final String UNKNOWN = "unknown";
