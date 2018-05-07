@@ -12,8 +12,8 @@ import javax.swing.*;
 
 import eestudio.Constants;
 import eestudio.Core;
-import eestudio.ProjectFiles;
 import eestudio.utils.Utilities;
+import thot.model.ProjectFiles;
 
 /**
  * Fenêtre de dialogue pour l'exportation.

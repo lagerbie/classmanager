@@ -30,7 +30,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import eestudio.Constants;
 import eestudio.Indexes;
-import eestudio.ProjectFiles;
+import thot.model.ProjectFiles;
 
 /**
  * Utilitaires divers.

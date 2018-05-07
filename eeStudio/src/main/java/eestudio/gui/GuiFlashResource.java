@@ -15,6 +15,7 @@ import eestudio.Index;
 import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import thot.model.ProjectTarget;
 
 /**
  * Gestion des resources graphiques.
@@ -155,7 +156,7 @@ public class GuiFlashResource {
                 core.getStyledDocument());
         tagsEditor = new TagsDialog(window, core, resources);
 
-        exportDialog = new ExportDialog(window, core, resources, Constants.COMMON_SOFT, processingBar);
+        exportDialog = new ExportDialog(window, core, resources, ProjectTarget.COMMON_SOFT, processingBar);
         importDialog = new ImportDialog(window, core, resources, processingBar, tempPath);
         eraseDialog = new EraseDialog(window, core, resources, processingBar);
 

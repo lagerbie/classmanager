@@ -31,27 +31,36 @@ import lombok.Data;
 public class ProjectFiles {
 
     /**
-     * Nom du fichier audio.
+     * Nom du logiciel de l'exportation
+     */
+    private ProjectTarget soft = ProjectTarget.COMMON_SOFT;
+    /**
+     * Nom du fichier audio
      */
     private String audioFile;
     /**
-     * Nom du fichier video.
+     * Nom du fichier video
      */
     private String videoFile;
     /**
-     * Nom du fichier d'index.
+     * Nom du fichier d'index
      */
     private String indexesFile;
     /**
-     * Nom du fichier de sous titres.
+     * Nom du fichier de sous titres
      */
     private String subtitleFile;
     /**
-     * Nom du fichier texte.
+     * Nom du fichier texte
      */
     private String textFile;
     /**
-     * Nom du fichier video originel (sans sous-titre incrustés).
+     * Nom du fichier des tags
+     */
+    private String tagFile;
+
+    /**
+     * Nom du fichier video originel (sans sous-titre incrustés)
      */
     private String videoOriginalFile;
 
@@ -59,18 +68,20 @@ public class ProjectFiles {
      * Réinitialise les fichiers.
      */
     public void clear() {
-        setAudioFile(null);
-        setVideoFile(null);
-        setTextFile(null);
-        setIndexesFile(null);
-        setSubtitleFile(null);
-        setVideoOriginalFile(null);
+        this.soft = ProjectTarget.COMMON_SOFT;
+        this.audioFile = null;
+        this.videoFile = null;
+        this.indexesFile = null;
+        this.subtitleFile = null;
+        this.textFile = null;
+        this.tagFile = null;
+        this.videoOriginalFile = null;
     }
 
     /**
      * Indique si le projet est vide.
      *
-     * @return <code>true</code> si le projet est vide.
+     * @return {@code true} si le projet est vide.
      */
     public boolean isEmptyProject() {
         return audioFile == null && videoFile == null && indexesFile == null && subtitleFile == null

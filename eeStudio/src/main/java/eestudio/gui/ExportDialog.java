@@ -12,8 +12,9 @@ import javax.swing.*;
 
 import eestudio.Constants;
 import eestudio.Core;
-import eestudio.ProjectFiles;
 import eestudio.utils.Utilities;
+import thot.model.ProjectFiles;
+import thot.model.ProjectTarget;
 
 /**
  * Fenêtre de dialogue pour l'exportation.
@@ -42,7 +43,7 @@ public class ExportDialog extends JDialog {
     /**
      * Logiciel de destination (easyLab ou commun)
      */
-    private String soft;
+    private ProjectTarget soft;
 
     /**
      * Fichier principal de l'exportation
@@ -116,7 +117,8 @@ public class ExportDialog extends JDialog {
      *
      * @since version 0.95 - version 0.99
      */
-    public ExportDialog(Window parent, Core core, Resources resources, String soft, ProcessingBar processingBar) {
+    public ExportDialog(Window parent, Core core, Resources resources, ProjectTarget soft,
+            ProcessingBar processingBar) {
         super(parent, resources.getString("exportTitle"), DEFAULT_MODALITY_TYPE);
 
         this.resources = resources;
@@ -153,9 +155,9 @@ public class ExportDialog extends JDialog {
         softGroup.add(commonSoftButton);
         softGroup.add(easyLabButton);
         softGroup.add(simpleExportButton);
-        if (soft.contentEquals(Constants.EASYLAB)) {
+        if (soft == ProjectTarget.EASYLAB) {
             softGroup.setSelected(easyLabButton.getModel(), true);
-        } else if (soft.contentEquals(Constants.SIMPLE_EXPORT)) {
+        } else if (soft == ProjectTarget.SIMPLE_EXPORT) {
             softGroup.setSelected(simpleExportButton.getModel(), true);
         } else {
             softGroup.setSelected(commonSoftButton.getModel(), true);
@@ -163,10 +165,10 @@ public class ExportDialog extends JDialog {
 
         indexesButton = new JCheckBox(String.format(resources.getString("indexesFile"), Constants.indexesExtension));
         subtitleButton = new JCheckBox(String.format(resources.getString("subtitleFile"),
-                soft.contentEquals(Constants.EASYLAB) ? Constants.LRC_extension : Constants.SRT_extension));
+                soft == ProjectTarget.EASYLAB ? Constants.LRC_extension : Constants.SRT_extension));
         audioButton = new JCheckBox(String.format(resources.getString("audioFile"), Constants.audioDefaultExtension));
         videoButton = new JCheckBox(String.format(resources.getString("videoFile"),
-                soft.contentEquals(Constants.EASYLAB) ? Constants.AVI_extension : Constants.videoDefaultExtension));
+                soft == ProjectTarget.EASYLAB ? Constants.AVI_extension : Constants.videoDefaultExtension));
         textButton = new JCheckBox(String.format(resources.getString("textFile"), Constants.textDefaultExtension));
 
         BackgroundPanel panel = new BackgroundPanel(width, height, 15);
@@ -286,33 +288,31 @@ public class ExportDialog extends JDialog {
                     int option = GuiUtilities
                             .showOptionDialog(getOwner(), resources.getString("easyLabCompatibility"), null, null);
                     if (option == GuiUtilities.YES_OPTION) {
-                        soft = Constants.EASYLAB;
+                        soft = ProjectTarget.EASYLAB;
                     } else {
-                        if (soft.contentEquals(Constants.SIMPLE_EXPORT)) {
+                        if (soft == ProjectTarget.SIMPLE_EXPORT) {
                             simpleExportButton.setSelected(true);
                         } else {
                             commonSoftButton.setSelected(true);
                         }
                     }
                 } else {
-                    soft = Constants.EASYLAB;
+                    soft = ProjectTarget.EASYLAB;
                 }
             } else if (simpleExportButton.isSelected()) {
-                soft = Constants.SIMPLE_EXPORT;
+                soft = ProjectTarget.SIMPLE_EXPORT;
             } else {
-                soft = Constants.COMMON_SOFT;
+                soft = ProjectTarget.COMMON_SOFT;
             }
 
             videoButton.setText(String.format(resources.getString("videoFile"),
-                    soft.contentEquals(Constants.EASYLAB) ? Constants.AVI_extension
-                            : Constants.videoDefaultExtension));
+                    soft == ProjectTarget.EASYLAB ? Constants.AVI_extension : Constants.videoDefaultExtension));
             textButton.setText(String.format(resources.getString("textFile"),
-                    soft.contentEquals(Constants.EASYLAB) ? Constants.TXT_extension
-                            : Constants.textDefaultExtension));
+                    soft == ProjectTarget.EASYLAB ? Constants.TXT_extension : Constants.textDefaultExtension));
             subtitleButton.setText(String.format(resources.getString("subtitleFile"),
-                    soft.contentEquals(Constants.EASYLAB) ? Constants.LRC_extension : Constants.SRT_extension));
+                    soft == ProjectTarget.EASYLAB ? Constants.LRC_extension : Constants.SRT_extension));
 
-            boolean hasIndex = (core.getIndexesCount() > 0) && !soft.contentEquals(Constants.SIMPLE_EXPORT);
+            boolean hasIndex = (core.getIndexesCount() > 0) && soft != ProjectTarget.SIMPLE_EXPORT;
             indexesButton.setEnabled(hasIndex);
             indexesButton.setSelected(hasIndex);
         };
@@ -338,16 +338,16 @@ public class ExportDialog extends JDialog {
                 project.setAudioFile(Constants.audioDefaultExtension);
             }
             if (videoButton.isSelected()) {
-                project.setVideoFile((soft.contentEquals(Constants.EASYLAB) ? Constants.AVI_extension
-                        : Constants.videoDefaultExtension));
+                project.setVideoFile(
+                        soft == ProjectTarget.EASYLAB ? Constants.AVI_extension : Constants.videoDefaultExtension);
             }
             if (textButton.isSelected()) {
-                project.setTextFile((soft.contentEquals(Constants.EASYLAB) ? Constants.TXT_extension
-                        : Constants.textDefaultExtension));
+                project.setTextFile(
+                        soft == ProjectTarget.EASYLAB ? Constants.TXT_extension : Constants.textDefaultExtension);
             }
             if (subtitleButton.isSelected()) {
-                project.setSubtitleFile((soft.contentEquals(Constants.EASYLAB) ? Constants.LRC_extension
-                        : Constants.SRT_extension));
+                project.setSubtitleFile(
+                        soft == ProjectTarget.EASYLAB ? Constants.LRC_extension : Constants.SRT_extension);
             }
             if (audioButton.isSelected() || videoButton.isSelected()) {
                 if (!core.getTags().isEmpty()) {
@@ -355,14 +355,13 @@ public class ExportDialog extends JDialog {
                 }
             }
 
-            if (soft.contentEquals(Constants.SIMPLE_EXPORT)) {
+            if (soft == ProjectTarget.SIMPLE_EXPORT) {
                 file = new File(file.getParentFile(), Utilities.getNameWithoutExtension(file));
             }
 
             Thread thread = new Thread(() -> {
                 processingBar.processBegin(true, resources.getString("conversionTitle"),
-                        resources.getString("conversionMessage"),
-                        (file == null) ? null : file.getAbsolutePath());
+                        resources.getString("conversionMessage"), (file == null) ? null : file.getAbsolutePath());
                 boolean success = core.saveProject(file, project);
                 close();
             });
@@ -390,12 +389,12 @@ public class ExportDialog extends JDialog {
 
         indexesButton.setText(String.format(resources.getString("indexesFile"), Constants.indexesExtension));
         subtitleButton.setText(String.format(resources.getString("subtitleFile"),
-                soft.contentEquals(Constants.EASYLAB) ? Constants.LRC_extension : Constants.SRT_extension));
+                soft == ProjectTarget.EASYLAB ? Constants.LRC_extension : Constants.SRT_extension));
         audioButton.setText(String.format(resources.getString("audioFile"), Constants.audioDefaultExtension));
         videoButton.setText(String.format(resources.getString("videoFile"),
-                soft.contentEquals(Constants.EASYLAB) ? Constants.AVI_extension : Constants.videoDefaultExtension));
+                soft == ProjectTarget.EASYLAB ? Constants.AVI_extension : Constants.videoDefaultExtension));
         textButton.setText(String.format(resources.getString("textFile"),
-                soft.contentEquals(Constants.EASYLAB) ? Constants.TXT_extension : Constants.textDefaultExtension));
+                soft == ProjectTarget.EASYLAB ? Constants.TXT_extension : Constants.textDefaultExtension));
     }
 
     /**
@@ -435,8 +434,8 @@ public class ExportDialog extends JDialog {
         }
 
         boolean hasIndex = (core.getIndexesCount() > 0);
-        indexesButton.setEnabled(hasIndex && !soft.contentEquals(Constants.SIMPLE_EXPORT));
-        indexesButton.setSelected(hasIndex && !soft.contentEquals(Constants.SIMPLE_EXPORT));
+        indexesButton.setEnabled(hasIndex && soft != ProjectTarget.SIMPLE_EXPORT);
+        indexesButton.setSelected(hasIndex && soft != ProjectTarget.SIMPLE_EXPORT);
         subtitleButton.setEnabled(hasIndex);
         subtitleButton.setSelected(hasIndex);
 

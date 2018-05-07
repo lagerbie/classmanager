@@ -33,207 +33,8 @@ import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
-
-/*
- * v0.95: ajout de private final File videoFileTemp;
- * v0.95: ajout de private FFMPEGutilities ffmpeg; pour la conversion de fichier
- * v0.95: supp de private Index currentMediaIndex; [gestion dans interface]
- * v0.95: supp de private MediaPlayer mediaPlayer; [gestion vidéos dans flash]
- * v0.95: modif de private Collection<Listener> listeners en private final
- *        EventListenerList listeners; -> modification de tous les fireXXX
- * v0.95: modif de private static final long TIME_MAX : de 30 min à 60 min
- * v0.95: modif de private static final long TIME_TEMP_MAX : de 6 min à 10 min
- * v0.95: ajout de private void fireInsertVoiceTimeChanged(long time)
- * v0.95: ajout de private void fireAudioDataChanged()
- * v0.95: ajout de private void fireAudioWaveFileChanged(File leftChannelFile,
- *        File rigthChannelFile)
- * v0.95: ajout de private void fireVideoFileChanged(File file)
- * v0.95: ajout de public void setProtectedTime(long time) en remplacement de
- *        setPosition(double position) pour la sécurisation de la modif du temps
- * v0.95: ajout de public void recordOnRange(long begin, long end)
- * v0.95: ajout de public Iterator<Index> indexesIterator()
- * v0.95: supp de private long getTimeAt(double position)
- * v0.95: supp de public int getAudioVolume()
- * v0.95: supp de private void fireCurrentIndexChanged(Index index)
- * v0.95: supp de public void setMediaRate(double position)
- * v0.95: supp de public void setMediaRateToNormal()
- * v0.95: supp de private void setRate(float rate)
- * v0.95: supp de public String getMediaIndexesXMLDescription()
- * v0.95: supp de public long getMediaIndexDuration(double position)
- * v0.95: supp de public void setTimeBeginIndex(double position)
- * v0.95: supp de public void setTimeEndIndex(double position)
- * v0.95: supp de public long getMaximalLengthFor(double position)
- * v0.95: supp de public void addMediaSubtitleIndex(double position)
- * v0.95: supp de public boolean addIndexAfterIndex(double position, long length)
- * v0.95: supp de public boolean addRepeatMediaIndex(double position)
- * v0.95: supp de public void setPosition(double position) (voir ci-dessous)
- * v0.95: supp de public void playOnIndex(double position)
- * v0.95: supp de public void recordOnIndex(double position)
- * v0.95: supp de private boolean updateSubtitleFile()
- * v0.95: supp de private void mediaPlayerInit()
- * v0.95: supp de private void mediaPlayerClose()
- * v0.95: supp de public void mediaPlayerSetVideoOutput(Canvas canvas)
- * v0.95: supp de private void mediaPlayerSetSubtitleFile(String fileName)
- * v0.95: supp de private boolean mediaPlayerSetFile(File file)
- * v0.95: supp de private void mediaPlayerPlay()
- * v0.95: supp de private void mediaPlayerPause()
- * v0.95: supp de private void mediaPlayerSetTime(long time)
- * v0.95: supp de public Index getMediaIndex(int indice)
- * v0.95: supp de public int getMediaIndexIndice(long time)
- * v0.95: modif de public Core() en public Core(File ffmepConverter):
- * v0.95: modif de private void initValues() [supp listeners;
- *        ajout ProcessingListener sur recorder et player]
- * v0.95: modif de public void closeApplication() [supp mediaPlayer]
- * v0.95: modif de public void eraseProject() pour tout réinitialiser
- * v0.95: modif de void addListener(Listener listener) [prise en compte ffmpeg]
- * v0.95: modif de void removeListener(Listener listener) [prise en compte ffmpeg]
- * v0.95: modif de fireIndexesChanged() en fireIndexesChanged(Indexes indexes)
- * v0.95: modif de getMediaIndex(double position) en getIndex(long time)
- * v0.95: modif de getMediaIndexIndice(double position) en getMediaIndexIndice(long time)
- * v0.95: modif de onMediaIndex(double position) en onIndex(long time)
- * v0.95: modif de removeMediaIndex(double position) en removeIndex(long time)
- * v0.95: modif de addMediaIndexAt(double position, ..) en addIndexAt(long time, ..)
- * v0.95: modif de addFileIndex(double position, ..) en addFileIndex(long time, ..)
- * v0.95: modif de addVoiceRecord(double position) en addVoiceRecord(long time)
- * v0.95: modif de updateData(Index newIndex, Index oldIndex) [supp mediaPlayer]
- * v0.95: modif de setTime(long time) (supp currentIndex et mediaPlayer)
- * v0.95: modif de timeToZero() [setPosition(0) en setProtectedTime(0))
- * v0.95: modif de loadFile(File file, double position) en loadFile(File file, long time)
- * v0.95: modif de loadSubtitleFile(File file) [supp mediaPlayer]
- * v0.95: modif de saveSubtitleFile(File file) [format LRC]
- * v0.95: modif de audioPlay() [supp mediaPlayer]
- * v0.95: modif de audioPause() [supp mediaPlayer]
- * v0.95: modif de audioRecord() [supp mediaPlayer]
- * v0.95: modif de executeConverter(File srcFile, File destFile) [modif
- *        convertisseur de VLC par FFMPEG]
- * v0.95: modif de eraseIndexRecord(double position) en eraseIndexRecord(long time)
- * v0.95: modif de setByteBufferLimit(ByteBuffer byteBuffer, long time)
- * v0.95: modif de fireProcessTimeChanged(long time) [prise en compte du
- *        changement du temps lors de l'insertion de voix]
- * v0.95: modif de loadText(File file) [conversion rtf -> html]
- * v0.95: modif de saveText(File file) [conversion html -> rtf]
- *
- * v0.96: ajout de private MEncoderUtilities converter;
- * v0.96: supp de private FFMPEGutilities ffmpeg;
- * v0.96: supp de private final String defaultFileName;
- * v0.96: modif de private int audioVolume (50 -> 75)
- * v0.96: ajout de private void eraseInsertionDataIndexes()
- * v0.96: ajout de public void removeIndex(List<Long> ids)
- * v0.96: ajout de public void cancelConversion()
- * v0.96: supp de public String getDefaultFileName()
- * v0.96: supp de public void eraseProject()
- * v0.96: supp de public boolean onIndex(long time)
- * v0.96: supp de private boolean loadSubtitleFile(File file)
- * v0.96: supp de public boolean saveFile(File file)
- * v0.96: modif de Core(File ffmpegConverter) en Core(File converter, File player)
- *        throws Exception
- * v0.96: modif de initValues() [ajout de throws Exception]
- * v0.96: modif de eraseIndexes() [supp données insérées, mise à jour temps max]
- * v0.96: modif de fireTextLoaded(String text) en
- *        fireTextLoaded(String text, boolean styled)
- * v0.96: modif de void removeIndex(long id) [public -> private, supp de
- *        fireIndexesChanged(mediaIndexes);]
- * v0.96: modif de updateData(Index newIndex, Index oldIndex) en
- *        updateData(Index newIndex, Index oldIndex, boolean update)
- * v0.96: modif de setRecordTimeMax(long time) [public -> private]
- * v0.96: modif de loadProject(ProjectFiles project) [effacement des données
- *        lors de chargement de nouvelles, videoOriginalFile, supp index en dernier]
- * v0.96: modif de loadFile(...) en insertFile(...)
- * v0.96: modif de loadText(File file) [fireTextLoaded avec boolean styled]
- * v0.96: modif de loadAudio(File file, ByteBuffer byteBuffer) [gestion de
- *        BufferOverflowException, flip() et write = limit() dans finally]
- * v0.96: modif de saveProject(File file, ProjectFiles project, String soft) en
- *        saveProject(File file, ProjectFiles project) [soft dans project, sous-
- *        titres en SRT si vidéo (même poue easyLab), converter avec fichier de
- *        sous-titres, save videoOriginal pour easyLab]
- * v0.96: modif de saveText(File file) [public -> private]
- * v0.96: modif de saveVideo(File file) [ne fait plus rien]
- * v0.96: modif de converter(File destFile, File audioFile, File videoFile,
- *        String soft) en converter(File destFile, File audioFile, File videoFile,
- *        File subtitleFile, String soft)
- * v0.96: modif de fireProcessTimeChanged(long time) [public -> private]
- * v0.96: modif de fireProcessEnded(final boolean running) [public -> private]
- *
- * v0.97: ajout de private static final String videoImagePath
- *        = "eestudio/resources/images/videoImage.jpg";
- * v0.97: supp de private boolean onIndex = false;
- * v0.97: ajout de private void insertBlankVideo(long begin, long duration)
- * v0.97: ajout de private void insertDuplicatedVideo(long begin, long end)
- * v0.97: ajout de private void insertVideo(long begin, File file)
- * v0.97: ajout de private void createBlankVideo(File destFile, long duration)
- * v0.97: ajout de private void removeVideo(long begin, long end)
- * v0.97: ajout de private void moveVideoAndResize(long begin, long end,
- *        long newBegin, long duration)
- * v0.97: supp de private void audioRecord()
- * v0.97: supp de private boolean loadDiaporama(File file)
- * v0.97: supp de private boolean saveDiaporama(File file)
- * v0.97: supp de private boolean saveVideo(File file)
- * v0.97: supp de private synchronized void waitInMillisecond(long millisecond)
- * v0.97: modif de void setMediaIndex(...) en public Index setMediaIndex(...)
- * v0.97: modif de addFileIndex(long time, File file) [gestion vidéo]
- * v0.97: modif de addVoiceIndex(long time) [gestion vidéo, état RECORDING_INSERT]
- * v0.97: modif de updateData(...) [gestion vidéo]
- * v0.97: modif de setProtectedTime(long time) [gestion état RECORDING_INSERT]
- * v0.97: modif de playOnRange(long begin, long end) [supp onIndex]
- * v0.97: modif de public void recordOnRange(long begin, long end) [supp
- *        onIndex et supp audioRecord()]
- * v0.97: modif de saveProject(File file, ProjectFiles project) [supp saveVideo();
- *        sauvegarde images originales]
- * v0.97: modif de audioPlay() [gestion état RECORDING_INSERT]
- * v0.97: modif de audioPause() [gestion état RECORDING_INSERT]
- * v0.97: modif de fireProcessTimeChanged(long time) [état RECORDING_INSERT]
- * v0.97: modif de private void fireProcessEnded(final boolean running) [gestion
- *        état RECORDING_INSERT]
- * v0.97: modif de loadAudio(File file, ByteBuffer byteBuffer) [test du format
- *        de fichier avant, supp flip() dans finally]
- *
- * v0.98: modif de saveProject(File file, ProjectFiles project) [export en
- *        simples fichiers et effacement des fichiers dans le répertoire de
- *        destination]
- *
- * v0.99: supp de implements Constants
- * v0.99: ajout de private TagList tags;
- * v0.99: modif de MEncoderUtilities converter en private Converter converter;
- * v0.99: ajout de public Mp3Tags getTags()
- * v0.99: ajout de public void setTags(Mp3Tags tags)
- * v0.99: modif de Core(File converter, File player) en Core(Converter converter)
- * v0.99: modif de initValues() [tags]
- * v0.99: modif de addFileIndex(long time, File file) [boolean for tag]
- * v0.99: modif de loadAudio(File file, ByteBuffer byteBuffer) [boolean for tag]
- * v0.99: modif de loadVideo(File file) [boolean for tag]
- * v0.99: modif de saveProject(File file, ProjectFiles project) [boolean for tag]
- * v0.99: modif de saveAudio(File file) [boolean for tag]
- * v0.99: modif de converter(File, File) en converter((File, File, boolean withTags)
- * v0.99: modif de converter(File, File, File, File, String) [tags]
- * v0.99: modif de insertBlankVideo(long begin, long duration) [Converter]
- * v0.99: modif de insertDuplicatedVideo(long begin, long end) [Converter]
- * v0.99: modif de insertVideo(long begin, File file) [Converter]
- * v0.99: modif de createBlankVideo(File destFile, long duration) [Converter]
- * v0.99: modif de removeVideo(long begin, long end) [Converter]
- * v0.99: modif de moveVideoAndResize(begin, end, newBegin, duration) [Converter]
- *
- * v1.00: modif de saveProject(File file, ProjectFiles project) [add tagFile]
- * v1.00: modif de loadProject(ProjectFiles project) [add tagFile]
- * v1.00: modif de insertFile(File file, long time) [supp Utilities.getFileType]
- *
- * v1.01: supp de public static final float RATE_MIN = 0.5f;
- * v1.01: supp de public static final float RATE_MAX = 2.0f;
- * v1.01: ajout de public boolean hasStudentRecordIndex()
- * v1.01: ajout de private void setIndexAudioRate(Index index, float oldRate,
- *        float newRate)
- * v1.01: ajout de private void saveAudioData(byte[] data, float rate, File file)
- * v1.01: ajout de private void setIndexVideoRate(Index index, float oldRate,
- *        float newRate)
- * v1.01: modif de setMediaIndex(...) en setMediaIndex(..., float speed) [speed]
- * v1.01: modif de updateData(...) [speed]
- * v1.01: modif de loadProject(ProjectFiles project) [gestion durées différentes]
- * v1.01: modif de saveProject(File file, ProjectFiles project) [test création
- *        du répertoire]
- * v1.01: modif de insertBlankVideo(long begin, long duration) [vidéo du flash]
- * v1.01: modif de insertDuplicatedVideo(long begin, long end) [vidéo du flash]
- * v1.01: modif de moveVideoAndResize(...) [vidéo du flash]
- * v1.01: modif de fireProcessEnded(...) [test running pour mettre en pause]
- */
+import thot.model.ProjectFiles;
+import thot.model.ProjectTarget;
 
 /**
  * Noyau de l'application.
@@ -1942,9 +1743,9 @@ public class Core {
      * @since version 0.95 - version 1.01
      */
     public boolean saveProject(File file, ProjectFiles project) {
-        String soft = project.getSoft();
+        ProjectTarget soft = project.getSoft();
         if (soft == null) {
-            soft = Constants.COMMON_SOFT;
+            soft = ProjectTarget.COMMON_SOFT;
         }
         //le nom sans extension du fichier principal pour le nom du répertoire
         String name = Utilities.getNameWithoutExtension(file);
@@ -2014,7 +1815,7 @@ public class Core {
                 converter(videoFile, audioFileTemp, videoFileTemp, subtitleFile, soft);
                 savedFiles.setVideoFile(videoFile.getName());
             }
-            if (soft.contentEquals(Constants.EASYLAB)) {
+            if (soft == ProjectTarget.EASYLAB) {
                 File videoOriginalFile = new File(path, name + "_original" + project.getVideoFile());
                 Utilities.fileCopy(videoFileTemp, videoOriginalFile);
                 savedFiles.setVideoOriginalFile(videoOriginalFile.getName());
@@ -2051,7 +1852,7 @@ public class Core {
 
         //sauvegarde du fichier projet et compression
         if (!savedFiles.isEmptyProject()) {
-            if (soft.contentEquals(Constants.SIMPLE_EXPORT)) {
+            if (soft == ProjectTarget.SIMPLE_EXPORT) {
                 Utilities.fileDirectoryCopy(path, file);
             } else {
                 File projectFile = new File(path, name + Constants.projectExtension);
@@ -2379,9 +2180,9 @@ public class Core {
      * @since version 0.95 - version 1.03
      */
     private int converter(File destFile, File audioFile, File videoFile,
-            File subtitleFile, String soft) {
+            File subtitleFile, ProjectTarget soft) {
         int result;
-        if (soft.contentEquals(Constants.EASYLAB)) {
+        if (soft == ProjectTarget.EASYLAB) {
             converter.setVideoSize(320, 240);
             result = converter.convert(destFile, audioFile, videoFile, subtitleFile, tags);
         } else {

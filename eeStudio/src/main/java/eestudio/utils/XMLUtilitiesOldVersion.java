@@ -4,11 +4,11 @@ import java.io.File;
 
 import eestudio.Index;
 import eestudio.Indexes;
-import eestudio.ProjectFiles;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import thot.model.ProjectFiles;
 
 /**
  * Parse XML pour les fichiers d'index et projet créer avant la version 0.94

@@ -14,13 +14,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import eestudio.Index;
 import eestudio.IndexFile;
 import eestudio.Indexes;
-import eestudio.ProjectFiles;
 import eestudio.flash.Command;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import thot.model.ProjectFiles;
+import thot.model.ProjectTarget;
 
 /**
  * Utilitaires pour la manipulation de fichier XML.
@@ -623,7 +624,7 @@ public class XMLUtilities {
         element.append(createElementStart(element_project));
 
         if (project.getSoft() != null) {
-            element.append(createCDATAElement(element_soft, project.getSoft()));
+            element.append(createCDATAElement(element_soft, project.getSoft().getName()));
         }
         if (project.getVideoFile() != null) {
             element.append(createCDATAElement(element_videoFile, project.getVideoFile()));
@@ -1044,7 +1045,7 @@ public class XMLUtilities {
                 }
                 String name = child.getNodeName();
                 if (name.equals(element_soft)) {
-                    project.setSoft(child.getFirstChild().getNodeValue());
+                    project.setSoft(ProjectTarget.getProjectTarget(child.getFirstChild().getNodeValue()));
                 }
                 if (name.equals(element_videoFile)) {
                     project.setVideoFile(child.getFirstChild().getNodeValue());
