@@ -6,7 +6,7 @@
 
     <groupId>fr.lgp.classmanager</groupId>
     <artifactId>classmanager</artifactId>
-    <version>1.8.3-SNAPSHOT</version>
+    <version>1.8.3</version>
 
     <packaging>pom</packaging>
 
