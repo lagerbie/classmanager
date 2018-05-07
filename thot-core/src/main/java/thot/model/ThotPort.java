@@ -25,7 +25,6 @@ package thot.model;
  * @author Fabrice Alleau
  * @version 1.90
  */
-@Deprecated
 public interface ThotPort {
 
     /**

@@ -46,19 +46,17 @@ public class Command {
     /**
      * Liste de paramètres de la commande.
      */
-    private Map<CommandParamater, String> parameters;
+    private Map<CommandParamater, String> parameters = new HashMap<>(8);
 
     /**
      * Initialistion du type de la commande et l'action de la commande.
      *
-     * @param type le type de la commande (soit <code>TYPE_ACTION</code>,
-     *         <code>TYPE_SUPERVISION</code> ou <code>TYPE_LABO</code>.
-     * @param action le nom de la commande.
+     * @param type le type de la commande.
+     * @param action l'action de la commande.
      */
     public Command(CommandType type, CommandAction action) {
         this.type = type;
         this.action = action;
-        this.parameters = new HashMap<>(8);
     }
 
     /**
