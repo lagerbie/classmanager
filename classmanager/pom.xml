@@ -26,11 +26,6 @@
             </dependency>
             <dependency>
                 <groupId>fr.lgp.classmanager</groupId>
-                <artifactId>thumb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fr.lgp.classmanager</groupId>
                 <artifactId>laboratory</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -42,6 +37,16 @@
             <dependency>
                 <groupId>fr.lgp.classmanager</groupId>
                 <artifactId>master</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>eeStudio</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>thumb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -119,7 +124,6 @@
                 <module>../laboratory</module>
                 <module>../thot-core</module>
             </modules>
-
         </profile>
 
         <profile>
@@ -134,6 +138,14 @@
             <id>master</id>
             <modules>
                 <module>../master</module>
+                <module>../thot-core</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>eeStudio</id>
+            <modules>
+                <module>../eeStudio</module>
                 <module>../thot-core</module>
             </modules>
         </profile>
