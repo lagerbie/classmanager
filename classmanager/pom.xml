@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>fr.lgp.classmanager</groupId>
+    <artifactId>classmanager</artifactId>
+    <version>1.8.3-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>supervision-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>thot-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>thumb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>laboratory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>student</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>master</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>sound-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>launcher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.lgp.classmanager</groupId>
+                <artifactId>eev-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>4.5.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.7.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>laboratory</id>
+            <modules>
+                <module>../laboratory</module>
+                <module>../thot-core</module>
+            </modules>
+
+        </profile>
+
+        <profile>
+            <id>student</id>
+            <modules>
+                <module>../student</module>
+                <module>../supervision-core</module>
+                <module>../thot-core</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>master</id>
+            <modules>
+                <module>../master</module>
+                <module>../supervision-core</module>
+                <module>../thot-core</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>thumb</id>
+            <modules>
+                <module>../thumb</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>sound-server</id>
+            <modules>
+                <module>../sound-server</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>launcher</id>
+            <modules>
+                <module>../launcher</module>
+            </modules>
+        </profile>
+    </profiles>
+
+
+</project>
