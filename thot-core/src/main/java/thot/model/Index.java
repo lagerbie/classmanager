@@ -19,86 +19,69 @@
  */
 package thot.model;
 
+import lombok.Data;
+
 /**
  * Classe représentant un index soit de lecture ou soit d'enregistrement.
  *
  * @author Fabrice Alleau
  * @version 1.90
  */
+@Data
 public class Index implements Cloneable {
 
     /**
-     * Indentifiant inconu.
+     * Indentifiant pour un index de la voix du professeur
      */
-    public static final String UNKNOWN = "unknown";
+    public static final float NORMAL_RATE = 1;
     /**
-     * Indentifiant pour un index de lecture.
+     * Minimum rate pour la vitesse de lecture du média
      */
-    public static final String PLAY = "play";
+    public static final float RATE_MIN = 0.5f;
     /**
-     * Indentifiant pour un index d'enregistrement.
+     * Maximum rate pour la vitesse de lecture du média
      */
-    public static final String RECORD = "record";
-    /**
-     * Indentifiant pour un index de blanc.
-     */
-    public static final String BLANK = "blank";
-    /**
-     * Indentifiant pour un index de blanc avec beep.
-     */
-    public static final String BLANK_BEEP = "blankWithBeep";
-    /**
-     * Indentifiant pour un index de répétition.
-     */
-    public static final String REPEAT = "repeat";
-    /**
-     * Indentifiant pour un index de la voix du professeur.
-     */
-    public static final String VOICE = "voice";
-    /**
-     * Indentifiant pour un index d'incertion de fichier.
-     */
-    public static final String FILE = "file";
-    /**
-     * Indentifiant pour un index de la voix du professeur.
-     */
-    public static final String IMAGE = "image";
-    /**
-     * Indentifiant pour un index d'incertion de fichier.
-     */
-    public static final String SPEED = "speed";
-    /**
-     * Indentifiant pour un index de la voix du professeur.
-     */
-    public static final String SELECTION = "selection";
+    public static final float RATE_MAX = 2.0f;
 
     /**
-     * Référence pour les ids unique.
+     * Référence pour les ids unique
      */
     private static long idNumber = -1;
 
     /**
-     * id unique de l'index.
+     * id unique de l'index
      */
     private transient long id;
+
     /**
-     * Temps de départ de l'index.
+     * Temps de départ de l'index
      */
     private long initialTime;
     /**
-     * Temps de fin de l'index.
+     * Temps de fin de l'index
      */
     private long finalTime;
+
     /**
-     * Type de l'index.
+     * Type de l'index
      */
-    private String type;
+    private IndexType type;
     /**
-     * Commentaire de l'index.
+     * Commentaire de l'index
      */
     private String subtitle;
+
     /**
-     * Nombre de lectures effectuées.
+     * Vitesse de l'index par rapport à la vitesse originelle
+     */
+    private float rate;
+    /**
+     * Fichier image associés à l'index
+     */
+    private String image;
+
+    /**
+     * Nombre de lectures effectuées
      */
     private int read;
 
@@ -106,8 +89,10 @@ public class Index implements Cloneable {
      * Initilise un index sans temps initial.
      *
      * @param type le type d'index.
+     *
+     * @since version 0.90 - version 0.94
      */
-    public Index(String type) {
+    public Index(IndexType type) {
         this(type, -1);
     }
 
@@ -116,8 +101,10 @@ public class Index implements Cloneable {
      *
      * @param type le type d'index.
      * @param initialTime le temps initial.
+     *
+     * @since version 0.90 - version 1.01
      */
-    public Index(String type, long initialTime) {
+    public Index(IndexType type, long initialTime) {
         idNumber++;
         this.id = idNumber;
         this.initialTime = initialTime;
@@ -125,39 +112,15 @@ public class Index implements Cloneable {
         this.type = type;
         this.subtitle = null;
         this.read = 0;
-    }
-
-    /**
-     * Retourne l'id unique de l'index.
-     *
-     * @return l'id.
-     */
-    public long getId() {
-        return id;
-    }
-
-    /**
-     * Retourne le temps de début.
-     *
-     * @return le temps de début.
-     */
-    public long getInitialTime() {
-        return initialTime;
-    }
-
-    /**
-     * Retourne le temps de fin.
-     *
-     * @return le temps de fin.
-     */
-    public long getFinalTime() {
-        return finalTime;
+        this.rate = NORMAL_RATE;
     }
 
     /**
      * Retourne la durée de l'index.
      *
      * @return la durée de l'index.
+     *
+     * @since version 0.93
      */
     public long getLength() {
         if (finalTime < initialTime) {
@@ -168,81 +131,11 @@ public class Index implements Cloneable {
     }
 
     /**
-     * Retourne le type de cet index.
-     *
-     * @return le type.
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * Retourne le commentaire.
-     *
-     * @return le commentaire.
-     */
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    /**
-     * Modifie le temps de début.
-     *
-     * @param initialTime le nouveau temps de début.
-     */
-    public void setInitialTime(long initialTime) {
-        this.initialTime = initialTime;
-    }
-
-    /**
-     * Modifie le temps de fin.
-     *
-     * @param finalTime le nouveau temps de fin.
-     */
-    public void setFinalTime(long finalTime) {
-        this.finalTime = finalTime;
-    }
-
-    /**
-     * Modifie le type de cet index.
-     *
-     * @param type le type de l'index.
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * Modifie le commentaire.
-     *
-     * @param subtitle le commentaire.
-     */
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
-    /**
-     * Retourne combien de fois l'index à été utilisé.
-     *
-     * @return le nombre de lectures effectuées.
-     */
-    public int getRead() {
-        return read;
-    }
-
-    /**
-     * Modifie le nombre de lectures de l'index.
-     *
-     * @param read le nombre de lectures de l'index.
-     */
-    public void setRead(int read) {
-        this.read = read;
-    }
-
-    /**
      * Déplace l'index dans le temps d'un certaine valeur.
      *
      * @param timeOffset l'offset de déplacement.
+     *
+     * @since version 0.93
      */
     public void move(long timeOffset) {
         this.initialTime += timeOffset;
@@ -253,97 +146,107 @@ public class Index implements Cloneable {
      * Indique si l'index est un index de soustitre (Lecture ou Enregistrement).
      *
      * @return si c'est un index de soustitre.
+     *
+     * @since version 0.90 - version 0.94
      */
     public boolean isSubtitleType() {
-        return (type.contentEquals(PLAY) || type.contentEquals(RECORD));
+        return type == IndexType.PLAY || type == IndexType.RECORD;
     }
 
     /**
      * Indique si l'index est un index de blanc.
      *
      * @return si c'est un index de blanc.
+     *
+     * @since version 0.90 - version 0.94
      */
     public boolean isBlankType() {
-        return (type.contentEquals(BLANK) || type.contentEquals(BLANK_BEEP));
+        return type == IndexType.BLANK || type == IndexType.BLANK_BEEP;
     }
 
     /**
      * Indique si l'index est un index de voix.
      *
      * @return si c'est un index de voix professeur.
+     *
+     * @since version 0.90 - version 0.94
      */
     public boolean isVoiceType() {
-        return type.contentEquals(VOICE);
+        return type == IndexType.VOICE;
     }
 
     /**
      * Indique si l'index est un index de fichier.
      *
      * @return si c'est un index de voix professeur.
+     *
+     * @since version 0.94 - version 1.02
      */
     public boolean isFileType() {
-        return (type.contentEquals(FILE) || type.contentEquals(IMAGE));
+        return type == IndexType.FILE;
     }
 
     /**
      * Indique si l'index est un index de fichier.
      *
      * @return si c'est un index de voix professeur.
+     *
+     * @since version 0.97 - version 1.02
      */
-    public boolean isImageType() {
-        return type.contentEquals(IMAGE);
+    public boolean hasImage() {
+        return image != null;
     }
 
     /**
      * Indique si l'index est un index de fichier.
      *
      * @return si c'est un index de voix professeur.
-     */
-    public boolean isSpeedType() {
-        return type.contentEquals(SPEED);
-    }
-
-    /**
-     * Indique si l'index est un index de fichier.
      *
-     * @return si c'est un index de voix professeur.
+     * @since version 0.94
      */
     public boolean isSelectionType() {
-        return type.contentEquals(SELECTION);
+        return type == IndexType.SELECTION;
     }
 
     /**
      * Indique si l'index rajoute du temps.
      *
      * @return si c'est un index qui modifie la durée de la bande.
+     *
+     * @since version 0.94
      */
     public boolean isAllowedChildrenType() {
-        return (type.contentEquals(FILE) || type.contentEquals(SELECTION));
+        return type == IndexType.FILE || type == IndexType.SELECTION;
     }
 
     /**
      * Indique si l'index rajoute du temps.
      *
      * @return si c'est un index qui modifie la durée de la bande.
+     *
+     * @since version 0.93 - version 1.01
      */
     public boolean isTimeLineModifier() {
-        return (type.contentEquals(BLANK) || type.contentEquals(BLANK_BEEP)
-                || type.contentEquals(VOICE) || type.contentEquals(FILE)
-                || type.contentEquals(REPEAT));
+        return type == IndexType.BLANK || type == IndexType.BLANK_BEEP || type == IndexType.VOICE
+                || type == IndexType.FILE || type == IndexType.REPEAT || rate != NORMAL_RATE;
     }
 
     /**
      * Indique si l'index demande une phase d'enregistrement sur l'élève.
      *
      * @return si c'est un index qui modifie la durée de la bande.
+     *
+     * @since version 0.95
      */
     public boolean isStudentRecord() {
-        return (type.contentEquals(RECORD) || type.contentEquals(REPEAT)
-                || type.contentEquals(BLANK) || type.contentEquals(BLANK_BEEP));
+        return type == IndexType.RECORD || type == IndexType.REPEAT || type == IndexType.BLANK
+                || type == IndexType.BLANK_BEEP;
     }
 
     /**
      * Nettoyage des références en vue d'une suppresion.
+     *
+     * @since version 0.96
      */
     public void clean() {
         this.subtitle = null;
@@ -353,10 +256,12 @@ public class Index implements Cloneable {
      * Clone de l'index.
      *
      * @return un nouveau Index avec les même propriété.
+     *
+     * @since version 0.93 - version 0.95
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        Object o = null;
+        Object o;
         try {
             o = super.clone();
         } catch (CloneNotSupportedException e) {

@@ -1,5 +1,8 @@
 package eestudio;
 
+import thot.model.Index;
+import thot.model.IndexType;
+
 /**
  * Index d'insertion de fichier.
  *
@@ -34,7 +37,7 @@ public class IndexFile extends Index {
      * @since version 0.90
      */
     public IndexFile(String fileName, long initialTime) {
-        super(FILE, initialTime);
+        super(IndexType.FILE, initialTime);
         this.fileName = fileName;
     }
 
@@ -71,4 +74,4 @@ public class IndexFile extends Index {
         this.fileName = null;
     }
 
-}//end
+}

@@ -24,9 +24,10 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
 import eestudio.Core;
-import eestudio.Index;
 import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
+import thot.model.Index;
+import thot.model.IndexType;
 
 /**
  * Boite de dialogue pour l'édition des index.
@@ -68,11 +69,11 @@ public class BlankDialog extends JDialog {
     /**
      * Map pour donner la référence de texte selon le type de l'index
      */
-    private Map<String, String> indexTypes;
+    private Map<IndexType, String> indexTypes;
     /**
      * Map pour donner le type d'index selon le texte de la langue
      */
-    private Map<String, String> indexTypesRevert;
+    private Map<String, IndexType> indexTypesRevert;
 
     /**
      * Séparateur pour les chiffres
@@ -173,7 +174,7 @@ public class BlankDialog extends JDialog {
      *
      * @since version 1.00 - version 1.01
      */
-    public BlankDialog(Window parent, Core core, Resources resources, Map<String, String> indexTypes,
+    public BlankDialog(Window parent, Core core, Resources resources, Map<IndexType, String> indexTypes,
             StyledEditorKit editorKit, StyledDocument styledDocument) {
         super(parent, resources.getString("blankTitle"), DEFAULT_MODALITY_TYPE);
 
@@ -187,9 +188,9 @@ public class BlankDialog extends JDialog {
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         indexTypesRevert = new HashMap<>(indexTypes.size());
-        for (String integer : indexTypes.keySet()) {
-            String typeInLanguage = resources.getString(indexTypes.get(integer));
-            indexTypesRevert.put(typeInLanguage, integer);
+        for (IndexType type : indexTypes.keySet()) {
+            String typeInLanguage = resources.getString(indexTypes.get(type));
+            indexTypesRevert.put(typeInLanguage, type);
         }
 
         initComponents();
@@ -426,9 +427,9 @@ public class BlankDialog extends JDialog {
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         indexTypesRevert.clear();
-        for (String integer : indexTypes.keySet()) {
-            String typeInLanguage = resources.getString(indexTypes.get(integer));
-            indexTypesRevert.put(typeInLanguage, integer);
+        for (IndexType type : indexTypes.keySet()) {
+            String typeInLanguage = resources.getString(indexTypes.get(type));
+            indexTypesRevert.put(typeInLanguage, type);
         }
 
         FontMetrics metrics = getFontMetrics(messageLabel.getFont());
@@ -584,7 +585,7 @@ public class BlankDialog extends JDialog {
      *
      * @since version 1.00
      */
-    private void updateTypeList(String type, JComboBox typeList) {
+    private void updateTypeList(IndexType type, JComboBox typeList) {
         typeList.setSelectedItem(resources.getString(indexTypes.get(type)));
     }
 
@@ -797,7 +798,7 @@ public class BlankDialog extends JDialog {
         boolean[] check = new boolean[capacity];
         String[] begin = new String[capacity];
         String[] length = new String[capacity];
-        String[] type = new String[capacity];
+        IndexType[] type = new IndexType[capacity];
         String[] subtitle = new String[capacity];
 
         for (int i = 0; i < capacity; i++) {
@@ -901,7 +902,7 @@ public class BlankDialog extends JDialog {
             IndexFields indexFields = indexesFields.get(i);
             long begin = getValue(indexFields.beginField);
             long length = getValue(indexFields.lengthField);
-            String type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
+            IndexType type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
             String subtitle = indexFields.subtitleField.getText();
             if (subtitle != null && subtitle.isEmpty()) {
                 subtitle = null;
@@ -1029,9 +1030,9 @@ public class BlankDialog extends JDialog {
             typeList = new JComboBox();
             subtitleField = new JTextField();
 
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK)));
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK_BEEP)));
-            updateTypeList(Index.BLANK, typeList);
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK)));
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK_BEEP)));
+            updateTypeList(IndexType.BLANK, typeList);
 
             Dimension dim = new Dimension(40, textHeight);
             checkBox.setMinimumSize(dim);

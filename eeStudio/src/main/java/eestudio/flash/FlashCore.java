@@ -9,12 +9,12 @@ import java.util.Locale;
 
 import eestudio.Constants;
 import eestudio.Core;
-import eestudio.Index;
 import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
 import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import thot.model.Index;
 
 /**
  * Fenêtre principale du poste élève.

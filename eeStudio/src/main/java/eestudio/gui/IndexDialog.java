@@ -17,9 +17,10 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.MaskFormatter;
 
 import eestudio.Core;
-import eestudio.Index;
 import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
+import thot.model.Index;
+import thot.model.IndexType;
 
 /**
  * Boite de dialogue pour redimensionner un index.
@@ -48,11 +49,11 @@ public class IndexDialog extends JDialog {
     /**
      * Map pour donner la référence de texte selon le type de l'index
      */
-    private Map<String, String> indexTypes;
+    private Map<IndexType, String> indexTypes;
     /**
      * Map pour donner le type d'index selon le texte de la langue
      */
-    private Map<String, String> indexTypesRevert;
+    private Map<String, IndexType> indexTypesRevert;
 
     /**
      * Séparateur pour les chiffres
@@ -79,7 +80,7 @@ public class IndexDialog extends JDialog {
     /**
      * Type initial de l'index
      */
-    private String initialType;
+    private IndexType initialType;
     /**
      * Soustitre initial de l'index
      */
@@ -224,7 +225,7 @@ public class IndexDialog extends JDialog {
      *
      * @since version 0.94 - version 0.99
      */
-    public IndexDialog(Window parent, Core core, Resources resources, Map<String, String> indexTypes) {
+    public IndexDialog(Window parent, Core core, Resources resources, Map<IndexType, String> indexTypes) {
         super(parent, resources.getString("indexTitle"), DEFAULT_MODALITY_TYPE);
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -300,7 +301,7 @@ public class IndexDialog extends JDialog {
         dim = new Dimension(width - 2 * margin, timeHeight);
         typeList.setMinimumSize(dim);
         typeList.setPreferredSize(dim);
-        for (String type : indexTypes.keySet()) {
+        for (IndexType type : indexTypes.keySet()) {
             String typeInLanguage = resources.getString(indexTypes.get(type));
             indexTypesRevert.put(typeInLanguage, type);
         }
@@ -839,9 +840,9 @@ public class IndexDialog extends JDialog {
             Edu4Logger.error(e);
         }
 
-        String currentType = indexTypesRevert.get((String) typeList.getSelectedItem());
+        IndexType currentType = indexTypesRevert.get((String) typeList.getSelectedItem());
         indexTypesRevert.clear();
-        for (String type : indexTypes.keySet()) {
+        for (IndexType type : indexTypes.keySet()) {
             String typeInLanguage = resources.getString(indexTypes.get(type));
             indexTypesRevert.put(typeInLanguage, type);
         }
@@ -924,14 +925,14 @@ public class IndexDialog extends JDialog {
      *
      * @since version 0.95.10 - version 1.01
      */
-    private void updateTypeList(String type) {
+    private void updateTypeList(IndexType type) {
         typeList.removeAllItems();
-        if (type.contentEquals(Index.PLAY) || type.contentEquals(Index.RECORD)) {
-            typeList.addItem(resources.getString(indexTypes.get(Index.PLAY)));
-            typeList.addItem(resources.getString(indexTypes.get(Index.RECORD)));
-        } else if (type.contentEquals(Index.BLANK) || type.contentEquals(Index.BLANK_BEEP)) {
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK)));
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK_BEEP)));
+        if (type == IndexType.PLAY || type == IndexType.RECORD) {
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.PLAY)));
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.RECORD)));
+        } else if (type == IndexType.BLANK || type == IndexType.BLANK_BEEP) {
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK)));
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK_BEEP)));
         } else {
             typeList.addItem(resources.getString(indexTypes.get(type)));
         }
@@ -940,7 +941,7 @@ public class IndexDialog extends JDialog {
         typeList.setEnabled(typeList.getItemCount() > 1);
 
         boolean modifTime = true;
-        if (type.contentEquals(Index.FILE) || type.contentEquals(Index.REPEAT)) {
+        if (type == IndexType.FILE || type == IndexType.REPEAT) {
             //|| type.contentEquals(Index.SPEED)
             //pas de modification de la durée
             modifTime = false;
@@ -967,8 +968,7 @@ public class IndexDialog extends JDialog {
      *
      * @since version 0.94 - version 1.01
      */
-    private boolean saveIndex(long begin, long end, String type,
-            String subtitle, float speed) {
+    private boolean saveIndex(long begin, long end, IndexType type, String subtitle, float speed) {
         if (end < begin) {
             GuiUtilities.showMessageDialog(this, resources.getString("beginEndError"));
             return false;
@@ -1000,7 +1000,7 @@ public class IndexDialog extends JDialog {
      * @since version 0.94 - version 1.01
      */
     private boolean saveIndex(long begin, long end) {
-        String type = indexTypesRevert.get((String) typeList.getSelectedItem());
+        IndexType type = indexTypesRevert.get((String) typeList.getSelectedItem());
         String subtitle = subtitleField.getText();
         if (subtitle != null && subtitle.isEmpty()) {
             subtitle = null;
@@ -1017,46 +1017,43 @@ public class IndexDialog extends JDialog {
      * @since version 0.97 _ version 1.01
      */
     private void action(final Object source) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (source == validButton) {
-                    saveIndex(begin, end);
-                } else if (source == cancelButton) {
-                    saveIndex(initialBeginTime, initialEndTime, initialType, initialSubtitle, initialSpeed);
-                } else if (source == previousButton) {
-                    if (isChanged()) {
-                        int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if (option == GuiUtilities.YES_OPTION) {
-                            saveIndex(begin, end);
-                        } else if (option != GuiUtilities.NO_OPTION) {
-                            return;
-                        }
+        Thread thread = new Thread(() -> {
+            if (source == validButton) {
+                saveIndex(begin, end);
+            } else if (source == cancelButton) {
+                saveIndex(initialBeginTime, initialEndTime, initialType, initialSubtitle, initialSpeed);
+            } else if (source == previousButton) {
+                if (isChanged()) {
+                    int option = showCancelableMessage(resources.getString("modifIndex"));
+                    if (option == GuiUtilities.YES_OPTION) {
+                        saveIndex(begin, end);
+                    } else if (option != GuiUtilities.NO_OPTION) {
+                        return;
                     }
-                    initValues(core.previousIndex(currentIndex));
-                } else if (source == nextButton) {
-                    if (isChanged()) {
-                        int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if (option == GuiUtilities.YES_OPTION) {
-                            saveIndex(begin, end);
-                        } else if (option != GuiUtilities.NO_OPTION) {
-                            return;
-                        }
-                    }
-                    initValues(core.nextIndex(currentIndex));
-                } else if (source instanceof IndexDialog) {
-                    fieldUpdateDialog();
-                    if (isChanged()) {
-                        int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if (option == GuiUtilities.YES_OPTION) {
-                            saveIndex(begin, end);
-                        } else if (option != GuiUtilities.NO_OPTION) {
-                            return;
-                        }
-                    }
-                    setVisible(false);
-                    dispose();
                 }
+                initValues(core.previousIndex(currentIndex));
+            } else if (source == nextButton) {
+                if (isChanged()) {
+                    int option = showCancelableMessage(resources.getString("modifIndex"));
+                    if (option == GuiUtilities.YES_OPTION) {
+                        saveIndex(begin, end);
+                    } else if (option != GuiUtilities.NO_OPTION) {
+                        return;
+                    }
+                }
+                initValues(core.nextIndex(currentIndex));
+            } else if (source instanceof IndexDialog) {
+                fieldUpdateDialog();
+                if (isChanged()) {
+                    int option = showCancelableMessage(resources.getString("modifIndex"));
+                    if (option == GuiUtilities.YES_OPTION) {
+                        saveIndex(begin, end);
+                    } else if (option != GuiUtilities.NO_OPTION) {
+                        return;
+                    }
+                }
+                setVisible(false);
+                dispose();
             }
         });
         thread.start();
@@ -1077,8 +1074,8 @@ public class IndexDialog extends JDialog {
             return true;
         }
 
-        String type = indexTypesRevert.get((String) typeList.getSelectedItem());
-        if (!type.contentEquals(currentIndex.getType())) {
+        IndexType type = indexTypesRevert.get((String) typeList.getSelectedItem());
+        if (type!=currentIndex.getType()) {
             return true;
         }
 

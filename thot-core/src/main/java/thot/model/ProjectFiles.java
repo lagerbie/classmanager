@@ -25,7 +25,6 @@ import lombok.Data;
  * Cette classe regroupant les fichiers du projet.
  *
  * @author Fabrice Alleau
- * @version 1.90
  */
 @Data
 public class ProjectFiles {

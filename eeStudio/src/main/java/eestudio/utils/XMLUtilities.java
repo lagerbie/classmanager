@@ -11,7 +11,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import eestudio.Index;
 import eestudio.IndexFile;
 import eestudio.Indexes;
 import eestudio.flash.Command;
@@ -20,6 +19,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import thot.model.Index;
+import thot.model.IndexType;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
 
@@ -584,10 +585,10 @@ public class XMLUtilities {
      */
     public static String getXMLDescription(Index index) {
         if (index == null) {
-            return getXMLDescription(new Index(Index.UNKNOWN));
+            return getXMLDescription(new Index(IndexType.UNKNOWN));
         }
         StringBuilder attributes = new StringBuilder(256);
-        attributes.append(createAttribute(attribut_type, index.getType()));
+        attributes.append(createAttribute(attribut_type, index.getType().getName()));
         attributes.append(createAttribute(attribut_initialTime, Long.toString(index.getInitialTime())));
         attributes.append(createAttribute(attribut_finalTime, Long.toString(index.getFinalTime())));
         attributes.append(createAttribute(attribut_read, Integer.toString(index.getRead())));
@@ -980,14 +981,14 @@ public class XMLUtilities {
     private static Index parseNodeAsIndex(Node node) {
         Index index = null;
         if (node.getNodeName().equals(element_index)) {
-            index = new Index(Index.UNKNOWN);
+            index = new Index(IndexType.UNKNOWN);
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 for (int i = 0; i < attributes.getLength(); i++) {
                     Node attribute = attributes.item(i);
                     String name = attribute.getNodeName();
                     if (name.equals(attribut_type)) {
-                        index.setType(attribute.getNodeValue());
+                        index.setType(IndexType.getIndexType(attribute.getNodeValue()));
                         if (index.isFileType()) {
                             index = convertToIndexFile(index);
                         }

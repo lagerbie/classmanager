@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import thot.model.Index;
+import thot.model.IndexType;
+
 /**
  * Classes regroupant une suite d'index.
  *
@@ -44,7 +47,7 @@ public class Indexes {
     public Indexes() {
         mode = OPEN_MODE;
         mediaLength = 0;
-        indexes = new ArrayList<Index>(32);
+        indexes = new ArrayList<>(32);
     }
 
     /**
@@ -130,7 +133,6 @@ public class Indexes {
      *
      * @return <code>true</true> si l'index a été ajouté.
      *
-     * @see #add(eestudio.Index)
      * @since version 0.94
      */
     public boolean add(Index index) {
@@ -159,7 +161,7 @@ public class Indexes {
      * @since version 0.94 - version 0.95
      */
     public long addNullIndex() {
-        Index index = new Index(Index.PLAY);
+        Index index = new Index(IndexType.PLAY);
         indexes.add(index);
         return index.getId();
     }
@@ -177,7 +179,7 @@ public class Indexes {
         boolean added = true;
         Index index = getHalfIndex();
         if (index == null) {
-            added = indexes.add(new Index(Index.PLAY, time));
+            added = indexes.add(new Index(IndexType.PLAY, time));
         } else {
             long begin = index.getInitialTime();
             if (begin > time) {

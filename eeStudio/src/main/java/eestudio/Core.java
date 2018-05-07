@@ -33,6 +33,8 @@ import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
+import thot.model.Index;
+import thot.model.IndexType;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
 
@@ -717,7 +719,7 @@ public class Core {
      *
      * @since version 0.95 - version 1.01
      */
-    public Index setMediaIndex(long id, long begin, long end, String type, String subtitle, float speed) {
+    public Index setMediaIndex(long id, long begin, long end, IndexType type, String subtitle, float speed) {
         Index oldIndex = mediaIndexes.getIndexWithId(id);
         if (oldIndex == null) {
             return null;
@@ -727,7 +729,7 @@ public class Core {
         boolean dataMove = (oldIndex.isTimeLineModifier() && (begin != oldIndex.getInitialTime() || end != oldIndex
                 .getFinalTime()));
         //changement dans les donnée: changement de type modifiant des données
-        boolean dataChanged = (oldIndex.isBlankType() && !oldIndex.getType().contentEquals(type)) || (speed > 0
+        boolean dataChanged = (oldIndex.isBlankType() && oldIndex.getType() != type) || (speed > 0
                 && speed != oldIndex.getRate());
 
         Index newIndex = null;
@@ -775,7 +777,7 @@ public class Core {
      *
      * @since version 0.95
      */
-    private boolean addMediaIndex(long begin, long end, String type, String subtitle, String fileName) {
+    private boolean addMediaIndex(long begin, long end, IndexType type, String subtitle, String fileName) {
         Index index = new Index(type);
         if (fileName != null) {
             index = new IndexFile(fileName);
@@ -802,8 +804,7 @@ public class Core {
      *
      * @since version 0.95
      */
-    public boolean addMediaIndexAt(long time, long length, String type,
-            String subtitle) {
+    public boolean addMediaIndexAt(long time, long length, IndexType type, String subtitle) {
         if (recordTimeMax == 0) {
             setRecordTimeMax(length);
         }
@@ -841,7 +842,7 @@ public class Core {
                     duration = (long) (tempBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
                             * 1000);
 
-                    addMediaIndex(begin, begin + duration, Index.FILE, null, file.getAbsolutePath());
+                    addMediaIndex(begin, begin + duration, IndexType.FILE, null, file.getAbsolutePath());
                 }
             }
         } else {
@@ -856,7 +857,7 @@ public class Core {
                 duration = (long) (tempBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
                         * 1000);
 
-                addMediaIndex(begin, begin + duration, Index.FILE, null, file.getAbsolutePath());
+                addMediaIndex(begin, begin + duration, IndexType.FILE, null, file.getAbsolutePath());
             }
         }
 
@@ -925,7 +926,7 @@ public class Core {
         int write = insertData(time, tempBuffer);
         if (write > 0) {
             long lenght = (long) (tempBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate() * 1000);
-            addMediaIndex(time, time + lenght, Index.VOICE, null, null);
+            addMediaIndex(time, time + lenght, IndexType.VOICE, null, null);
 
             if (projectFiles.getVideoFile() != null) {
                 insertBlankVideo(time, lenght);
@@ -963,7 +964,7 @@ public class Core {
                 if (projectFiles.getVideoFile() != null) {
                     insertBlankVideo(newIndex.getInitialTime(), newIndex.getFinalTime() - newIndex.getInitialTime());
                 }
-            } else if (newIndex.getType().contentEquals(Index.REPEAT)) {
+            } else if (newIndex.getType() == IndexType.REPEAT) {
                 long end = newIndex.getInitialTime();
                 long begin = end - newIndex.getLength();
                 //remplisage de blanc de l'index courant
@@ -1006,8 +1007,7 @@ public class Core {
                     removeVideo(oldIndex.getInitialTime(), oldIndex.getFinalTime());
                 }
             }
-        } else if (oldIndex.getRate() != Index.NORMAL_RATE
-                || newIndex.getRate() != Index.NORMAL_RATE) {
+        } else if (oldIndex.getRate() != Index.NORMAL_RATE || newIndex.getRate() != Index.NORMAL_RATE) {
             //modification de la vitesse et possiblement des bornes
             long begin = oldIndex.getInitialTime();
             long end = oldIndex.getFinalTime();
@@ -1097,7 +1097,7 @@ public class Core {
             }
         }
 
-        if (newIndex != null && newIndex.getType().contentEquals(Index.BLANK_BEEP)) {
+        if (newIndex != null && newIndex.getType() == IndexType.BLANK_BEEP) {
             insertBeep(newIndex.getInitialTime());
         }
 

@@ -11,10 +11,11 @@ import javax.swing.*;
 
 import eestudio.Constants;
 import eestudio.Core;
-import eestudio.Index;
 import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import thot.model.Index;
+import thot.model.IndexType;
 import thot.model.ProjectTarget;
 
 /**
@@ -47,7 +48,7 @@ public class GuiFlashResource {
     /**
      * Références des textes des index pour récupérer les traduction en fonction du type
      */
-    private Map<String, String> indexTypesMap;
+    private Map<IndexType, String> indexTypesMap;
 
     /**
      * Fenêtre pour le texte
@@ -114,16 +115,16 @@ public class GuiFlashResource {
         tempPath.mkdirs();
 
         indexTypesMap = new HashMap<>(5);
-        indexTypesMap.put(Index.PLAY, "playType");
-        indexTypesMap.put(Index.RECORD, "recordType");
-        indexTypesMap.put(Index.BLANK, "blankType");
-        indexTypesMap.put(Index.BLANK_BEEP, "blankBeepType");
-        indexTypesMap.put(Index.VOICE, "voiceType");
-        indexTypesMap.put(Index.REPEAT, "repeatType");
-        indexTypesMap.put(Index.FILE, "fileType");
-//        indexTypesMap.put(Index.IMAGE, "imageType");
-//        indexTypesMap.put(Index.SPEED, "speedType");
-        indexTypesMap.put(Index.SELECTION, "selectionType");
+        indexTypesMap.put(IndexType.PLAY, "playType");
+        indexTypesMap.put(IndexType.RECORD, "recordType");
+        indexTypesMap.put(IndexType.BLANK, "blankType");
+        indexTypesMap.put(IndexType.BLANK_BEEP, "blankBeepType");
+        indexTypesMap.put(IndexType.VOICE, "voiceType");
+        indexTypesMap.put(IndexType.REPEAT, "repeatType");
+        indexTypesMap.put(IndexType.FILE, "fileType");
+//        indexTypesMap.put(IndexType.IMAGE, "imageType");
+//        indexTypesMap.put(IndexType.SPEED, "speedType");
+        indexTypesMap.put(IndexType.SELECTION, "selectionType");
 
         initComponents();
     }
@@ -428,7 +429,7 @@ public class GuiFlashResource {
      */
     public void flashIndexSubtitle(long begin, long end) {
         long length = end - begin;
-        core.addMediaIndexAt(begin, length, Index.PLAY, null);
+        core.addMediaIndexAt(begin, length, IndexType.PLAY, null);
         core.sortIndexes();
         flashIndexEdit(begin + length / 2);
     }
@@ -467,7 +468,7 @@ public class GuiFlashResource {
             } else {
                 if (length > 0) {
                     processBegin(false, "processingTitle", "processingMessage");
-                    boolean success = core.addMediaIndexAt(begin, (long) length, Index.BLANK, null);
+                    boolean success = core.addMediaIndexAt(begin, (long) length, IndexType.BLANK, null);
                     processEnded();
                 }
             }
@@ -555,7 +556,7 @@ public class GuiFlashResource {
             String value = (String) input;
             length = Utilities.parseStringAsDouble(value.replace(',', '.')) * 1000;
             if (length > 0) {
-                core.addMediaIndexAt(end, (long) length, Index.PLAY, null);
+                core.addMediaIndexAt(end, (long) length, IndexType.PLAY, null);
             }
         }
     }
@@ -577,7 +578,7 @@ public class GuiFlashResource {
                     String.format(resources.getString("insertionDurationMessage"), length / 1000, timeMax / 1000,
                             core.getDurationMax() / 1000));
         } else {
-            core.addMediaIndexAt(end, length, Index.REPEAT, subtitle);
+            core.addMediaIndexAt(end, length, IndexType.REPEAT, subtitle);
         }
     }
 

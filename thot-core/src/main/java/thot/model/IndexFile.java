@@ -48,7 +48,7 @@ public class IndexFile extends Index {
      * @param initialTime le temps initial.
      */
     public IndexFile(String fileName, long initialTime) {
-        super(FILE, initialTime);
+        super(IndexType.FILE, initialTime);
         this.fileName = fileName;
     }
 

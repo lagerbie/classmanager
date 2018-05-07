@@ -2,12 +2,13 @@ package eestudio.utils;
 
 import java.io.File;
 
-import eestudio.Index;
 import eestudio.Indexes;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import thot.model.Index;
+import thot.model.IndexType;
 import thot.model.ProjectFiles;
 
 /**
@@ -309,7 +310,7 @@ public class XMLUtilitiesOldVersion {
                 Node attribute = attributes.item(i);
                 String name = attribute.getNodeName();
                 if (name.contentEquals(attribut_class) && attribute.getNodeValue().contentEquals(class_index)) {
-                    index = new Index(Index.UNKNOWN);
+                    index = new Index(IndexType.UNKNOWN);
                 }
             }
         }
@@ -366,14 +367,14 @@ public class XMLUtilitiesOldVersion {
      *
      * @since version 0.95
      */
-    private static String getType(int oldType) {
-        String type = Index.UNKNOWN;
+    private static IndexType getType(int oldType) {
+        IndexType type = IndexType.UNKNOWN;
         switch (oldType) {
             case 0:
-                type = Index.PLAY;
+                type = IndexType.PLAY;
                 break;
             case 1:
-                type = Index.RECORD;
+                type = IndexType.RECORD;
                 break;
         }
 

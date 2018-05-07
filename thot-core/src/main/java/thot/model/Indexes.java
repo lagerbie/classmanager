@@ -139,11 +139,12 @@ public class Indexes {
     }
 
     /**
-     * Ajoute un index. WARNING: pas de changements pour les index modifiant la
-     * durée.
+     * Ajoute un index. WARNING: pas de changements pour les index modifiant la durée.
      *
      * @param index l'index à ajouter.
+     *
      * @return <code>true</true> si l'index a été ajouté.
+     *
      * @warning pas de changements pour les index modifiant la durée.
      * @see public boolean addIndex(Index index)
      */
@@ -157,7 +158,7 @@ public class Indexes {
      * @return l'identifiant de l'index.
      */
     public long addNullIndex() {
-        Index index = new Index(Index.PLAY);
+        Index index = new Index(IndexType.PLAY);
         indexes.add(index);
         return index.getId();
     }
@@ -166,7 +167,9 @@ public class Indexes {
      * Ajoute un demi-index de soustitre au temps voulu.
      *
      * @param time le temps voulu.
+     *
      * @return si le demi index a été ajouté.
+     *
      * @deprecated
      */
     @Deprecated
@@ -174,7 +177,7 @@ public class Indexes {
         boolean added = true;
         Index index = getLast();
         if (index == null) {
-            added = indexes.add(new Index(Index.PLAY, time));
+            added = indexes.add(new Index(IndexType.PLAY, time));
         } else {
             long begin = index.getInitialTime();
             if (begin > time) {
@@ -189,8 +192,7 @@ public class Indexes {
     }
 
     /**
-     * Ajoute un demi-index de fin de soustitre au temps voulu. Supprime et
-     * fusionne les index si nécessaire.
+     * Ajoute un demi-index de fin de soustitre au temps voulu. Supprime et fusionne les index si nécessaire.
      *
      * @param beginTime le temps de départ initial.
      * @param endTime le temps de fin de l'index.
@@ -249,6 +251,7 @@ public class Indexes {
      * Enleve l'index.
      *
      * @param index l'index à enlever.
+     *
      * @return si l'index supprimé.
      */
     public boolean removeIndex(Index index) {
@@ -265,6 +268,7 @@ public class Indexes {
      * Enleve l'index contenant le temps ou le demi index le plus proche.
      *
      * @param time le temps compris dans l'index.
+     *
      * @return l'index supprimé.
      */
     public Index removeIndexAtTime(long time) {
@@ -291,8 +295,7 @@ public class Indexes {
     }
 
     /**
-     * Supprime les index dont le temps final est inférieur ou égal au temps
-     * initial.
+     * Supprime les index dont le temps final est inférieur ou égal au temps initial.
      */
     public void removeNullIndex() {
         List<Index> removeIndexes = new ArrayList<>(indexes.size());
@@ -326,6 +329,7 @@ public class Indexes {
      *
      * @param beginTime le temps de départ initial.
      * @param endTime le temps de fin de l'index.
+     *
      * @deprecated
      */
     @Deprecated
@@ -356,6 +360,7 @@ public class Indexes {
      * Retourne l'index avec l'id.
      *
      * @param id l'id de l'index.
+     *
      * @return l'index.
      */
     public Index getIndexWithId(long id) {
@@ -371,6 +376,7 @@ public class Indexes {
      * Retourne le premier Index qui contient le temps demandé.
      *
      * @param time le temps demandé.
+     *
      * @return l'index.
      */
     public Index getIndexAtTime(long time) {
@@ -403,6 +409,7 @@ public class Indexes {
      * Retoune le dernier index créé (pas de temps de fin).
      *
      * @return le dernier index créé.
+     *
      * @deprecated
      */
     @Deprecated
@@ -419,7 +426,9 @@ public class Indexes {
      * Retourne l'index le plus proche du temps demandé.
      *
      * @param time time le temps demandé.
+     *
      * @return l'index.
+     *
      * @deprecated
      */
     @Deprecated
@@ -445,6 +454,7 @@ public class Indexes {
      * Retourne le temps minimum pour le temps de départ de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps minimum pour le début de l'index.
      */
     public long getMinimalTime(Index currentIndex) {
@@ -462,6 +472,7 @@ public class Indexes {
      * Retourne le temps maximum pour le temps de fin de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps maximum pour le temps de fin de l'index.
      */
     public long getMaximalTime(Index currentIndex) {
@@ -479,6 +490,7 @@ public class Indexes {
      * Retourne le temps minimum pour le temps de départ de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps minimum pour le début de l'index.
      */
     public Index previousIndex(Index currentIndex) {
@@ -498,6 +510,7 @@ public class Indexes {
      * Retourne le temps maximum pour le temps de fin de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps maximum pour le temps de fin de l'index.
      */
     public Index nextIndex(Index currentIndex) {
@@ -575,7 +588,9 @@ public class Indexes {
      * Indique si l'index à une durée nulle.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code>si l'index à une durée nulle.
+     *
      * @deprecated
      */
     @Deprecated
@@ -589,7 +604,9 @@ public class Indexes {
      * Indique si l'index est compris en partie dans un autre index.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code>si l'index est à cheval avec un autre index.
+     *
      * @deprecated
      */
     @Deprecated
@@ -612,7 +629,9 @@ public class Indexes {
      * Indique si un index est identique à un autre index.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code> si l'index est identique à un autre index.
+     *
      * @deprecated
      */
     @Deprecated
@@ -635,7 +654,9 @@ public class Indexes {
      * Retourne la validité de l'index.
      *
      * @param currentIndex l'index.
+     *
      * @return la validité de l'index (NORMAL, NULL_SIZE, OVERLAP, IDENTICAL).
+     *
      * @deprecated
      */
     @Deprecated

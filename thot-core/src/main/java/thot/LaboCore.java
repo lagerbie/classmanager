@@ -47,6 +47,7 @@ import thot.audio.AudioRecorder;
 import thot.audio.TimeProcessingListener;
 import thot.model.Constants;
 import thot.model.Index;
+import thot.model.IndexType;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 import thot.utils.Converter;
@@ -1511,7 +1512,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         //si on est pas sur un index, ou que l'index n'est pas un index
         //d'enregistrement alors on crée un index d'enregistrement.
         if (!onRecordIndex(currentTime)) {
-            recordIndexes.add(new Index(Index.RECORD, currentTime));
+            recordIndexes.add(new Index(IndexType.RECORD, currentTime));
             fireIndexesChanged();
         }
 
@@ -1782,7 +1783,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         @Override
         public void run() {
             int timeIndex;
-            String type;
+            IndexType type;
 
             AudioProcessing process;
 
@@ -1790,7 +1791,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
             List<Long> stopTimes = new ArrayList<>(mediaIndexes.getIndexesCount());
             //Type de chaque plage avec l'impératif que types(i) != types(i+1)
             //pour éviter un grand nombre de pauses
-            List<String> types = new ArrayList<>(mediaIndexes.getIndexesCount());
+            List<IndexType> types = new ArrayList<>(mediaIndexes.getIndexesCount());
 
             //remplisage des différentes plage de lecture et enregistrement avec
             //fusion des plages consécutives.
@@ -1806,8 +1807,8 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
                     timeIndex = types.size();
                     if (timeIndex == 0) {//si premier index
                         stopTimes.add(index.getInitialTime());
-                        types.add(Index.PLAY);
-                    } else if (types.get(timeIndex - 1).contentEquals(Index.PLAY)) {
+                        types.add(IndexType.PLAY);
+                    } else if (types.get(timeIndex - 1) == IndexType.PLAY) {
                         //si la précende plage est une plage de lecture,
                         //on fusionne avec l'ancienne
                         oldTime = index.getInitialTime();
@@ -1816,23 +1817,23 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
                         //si la précende plage n'est pas une plage de lecture,
                         //on rajoute une plage de lecture
                         stopTimes.add(index.getInitialTime());
-                        types.add(Index.PLAY);
+                        types.add(IndexType.PLAY);
                     }
                 }
 
                 //insertion de l'index
                 timeIndex = types.size();
                 if (index.isStudentRecord()) {
-                    type = Index.RECORD;
+                    type = IndexType.RECORD;
                 } else {
-                    type = Index.PLAY;
+                    type = IndexType.PLAY;
                 }
 
                 if (timeIndex == 0) {//si premier index
                     oldTime = index.getFinalTime();
                     stopTimes.add(oldTime);
                     types.add(type);
-                } else if (types.get(timeIndex - 1).contentEquals(type)) {
+                } else if (types.get(timeIndex - 1) == type) {
                     //si l'index est du même type que la plage présédente,
                     //on fusionne avec l'ancienne
                     oldTime = index.getFinalTime();
@@ -1849,9 +1850,9 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
             //de fin de la dernière plage.
             if (oldTime < recordTimeMax) {
                 timeIndex = types.size();
-                if (types.get(timeIndex - 1).contentEquals(Index.RECORD)) {
+                if (types.get(timeIndex - 1) == IndexType.RECORD) {
                     stopTimes.add(recordTimeMax);
-                    types.add(Index.PLAY);
+                    types.add(IndexType.PLAY);
                 } else {
                     stopTimes.set(timeIndex - 1, recordTimeMax);
                 }
@@ -1881,11 +1882,11 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
                 //lancement de l'enregistrement ou la lecture suivant le type de
                 //la piste et on attend la fin de la piste.
                 switch (type) {
-                    case Index.PLAY:
+                    case PLAY:
                         process = audioPlayer;
                         audioPlay();
                         break;
-                    case Index.RECORD:
+                    case RECORD:
                         process = audioRecorder;
                         audioRecord();
                         break;

@@ -44,6 +44,7 @@ import thot.model.CommandParamater;
 import thot.model.CommandType;
 import thot.model.Index;
 import thot.model.IndexFile;
+import thot.model.IndexType;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 
@@ -516,10 +517,10 @@ public class XMLUtilities {
      */
     public static String getXMLDescription(Index index) {
         if (index == null) {
-            return getXMLDescription(new Index(Index.UNKNOWN));
+            return getXMLDescription(new Index(IndexType.UNKNOWN));
         }
         StringBuilder attributes = new StringBuilder(256);
-        attributes.append(createAttribute(attribut_type, index.getType()));
+        attributes.append(createAttribute(attribut_type, index.getType().getName()));
         attributes.append(createAttribute(attribut_initialTime, Long.toString(index.getInitialTime())));
         attributes.append(createAttribute(attribut_finalTime, Long.toString(index.getFinalTime())));
         attributes.append(createAttribute(attribut_read, Integer.toString(index.getRead())));
@@ -969,7 +970,7 @@ public class XMLUtilities {
     protected static Index parseNodeAsIndex(Node node) {
         Index index = null;
         if (node.getNodeName().equals(element_index)) {
-            index = new Index(Index.UNKNOWN);
+            index = new Index(IndexType.UNKNOWN);
             if (node.hasAttributes()) {
                 NamedNodeMap attributes = node.getAttributes();
                 Node attribute;
@@ -981,7 +982,7 @@ public class XMLUtilities {
                     nodeValue = attribute.getNodeValue();
                     switch (name) {
                         case attribut_type:
-                            index.setType(nodeValue);
+                            index.setType(IndexType.getIndexType(nodeValue));
                             if (index.isFileType()) {
                                 index = convertToIndexFile(index);
                             }

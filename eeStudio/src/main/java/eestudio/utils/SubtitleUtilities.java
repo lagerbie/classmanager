@@ -2,8 +2,8 @@ package eestudio.utils;
 
 import java.util.Iterator;
 
-import eestudio.Index;
 import eestudio.Indexes;
+import thot.model.Index;
 
 /**
  * Utilitaires pour la conversion des soustitres.

@@ -26,9 +26,10 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
 import eestudio.Core;
-import eestudio.Index;
 import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
+import thot.model.Index;
+import thot.model.IndexType;
 
 /**
  * Boite de dialogue pour l'édition des index.
@@ -74,11 +75,11 @@ public class IndexesDialog extends JDialog {
     /**
      * Map pour donner la référence de texte selon le type de l'index
      */
-    private Map<String, String> indexTypes;
+    private Map<IndexType, String> indexTypes;
     /**
      * Map pour donner le type d'index selon le texte de la langue
      */
-    private Map<String, String> indexTypesRevert;
+    private Map<String, IndexType> indexTypesRevert;
 
     /**
      * Séparateur pour les chiffres
@@ -190,7 +191,7 @@ public class IndexesDialog extends JDialog {
      *
      * @since version 0.94 - version 1.01
      */
-    public IndexesDialog(Window parent, Core core, Resources resources, Map<String, String> indexTypes,
+    public IndexesDialog(Window parent, Core core, Resources resources, Map<IndexType, String> indexTypes,
             StyledEditorKit editorKit, StyledDocument styledDocument) {
         super(parent, resources.getString("indexesTitle"), DEFAULT_MODALITY_TYPE);
 
@@ -204,9 +205,9 @@ public class IndexesDialog extends JDialog {
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         indexTypesRevert = new HashMap<>(indexTypes.size());
-        for (String integer : indexTypes.keySet()) {
-            String typeInLanguage = resources.getString(indexTypes.get(integer));
-            indexTypesRevert.put(typeInLanguage, integer);
+        for (IndexType type : indexTypes.keySet()) {
+            String typeInLanguage = resources.getString(indexTypes.get(type));
+            indexTypesRevert.put(typeInLanguage, type);
         }
 
         initComponents();
@@ -580,9 +581,9 @@ public class IndexesDialog extends JDialog {
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         indexTypesRevert.clear();
-        for (String integer : indexTypes.keySet()) {
-            String typeInLanguage = resources.getString(indexTypes.get(integer));
-            indexTypesRevert.put(typeInLanguage, integer);
+        for (IndexType type : indexTypes.keySet()) {
+            String typeInLanguage = resources.getString(indexTypes.get(type));
+            indexTypesRevert.put(typeInLanguage, type);
         }
 
         FontMetrics metrics = getFontMetrics(messageLabel.getFont());
@@ -607,14 +608,14 @@ public class IndexesDialog extends JDialog {
      *
      * @since version 0.95.10 - version 1.01
      */
-    private boolean updateTypeList(String type, JComboBox typeList) {
+    private boolean updateTypeList(IndexType type, JComboBox typeList) {
         typeList.removeAllItems();
-        if (type.contentEquals(Index.PLAY) || type.contentEquals(Index.RECORD)) {
-            typeList.addItem(resources.getString(indexTypes.get(Index.PLAY)));
-            typeList.addItem(resources.getString(indexTypes.get(Index.RECORD)));
-        } else if (type.contentEquals(Index.BLANK) || type.contentEquals(Index.BLANK_BEEP)) {
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK)));
-            typeList.addItem(resources.getString(indexTypes.get(Index.BLANK_BEEP)));
+        if (type == IndexType.PLAY || type == IndexType.RECORD) {
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.PLAY)));
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.RECORD)));
+        } else if (type == IndexType.BLANK || type == IndexType.BLANK_BEEP) {
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK)));
+            typeList.addItem(resources.getString(indexTypes.get(IndexType.BLANK_BEEP)));
         } else {
             typeList.addItem(resources.getString(indexTypes.get(type)));
         }
@@ -623,7 +624,7 @@ public class IndexesDialog extends JDialog {
         typeList.setEnabled(typeList.getItemCount() > 1);
 
         boolean enableTimeField = true;
-        if (type.contentEquals(Index.FILE) || type.contentEquals(Index.REPEAT)) {
+        if (type == IndexType.FILE || type == IndexType.REPEAT) {
             //|| type.contentEquals(Index.SPEED)
             //pas de modification de la durée
             enableTimeField = false;
@@ -779,7 +780,7 @@ public class IndexesDialog extends JDialog {
             IndexFields indexFields = indexesFields.get(i);
             long begin = getValue(indexFields.beginField);
             long end = getValue(indexFields.endField);
-            String type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
+            IndexType type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
             String subtitle = indexFields.subtitleField.getText();
             if (subtitle != null && subtitle.isEmpty()) {
                 subtitle = null;
@@ -845,7 +846,7 @@ public class IndexesDialog extends JDialog {
         long begin = getValue(indexFields.beginField);
         long end = getValue(indexFields.endField);
 
-        String type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
+        IndexType type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
 
         String subtitle = indexFields.subtitleField.getText();
         if (subtitle != null && subtitle.isEmpty()) {
@@ -861,7 +862,7 @@ public class IndexesDialog extends JDialog {
             return true;
         }
 
-        if (!type.contentEquals(index.getType())) {
+        if (type != index.getType()) {
             return true;
         }
 
@@ -970,7 +971,7 @@ public class IndexesDialog extends JDialog {
      *
      * @since version 0.94 - version 1.02
      */
-    private void addIndex(long id, long begin, long end, String type, String subtitle) {
+    private void addIndex(long id, long begin, long end, IndexType type, String subtitle) {
         IndexFields fields = new IndexFields(id);
         boolean enableTimeField = updateTypeList(type, fields.typeList);
         fields.beginField.setEnabled(enableTimeField);
@@ -1003,7 +1004,7 @@ public class IndexesDialog extends JDialog {
     private void addIndexes(int cnt) {
         for (int i = 0; i < cnt; i++) {
             long id = core.addNullIndex();
-            addIndex(id, 0, 0, Index.PLAY, null);
+            addIndex(id, 0, 0, IndexType.PLAY, null);
         }
 
         int nb = mainPanel.getComponentCount();
@@ -1054,7 +1055,7 @@ public class IndexesDialog extends JDialog {
         boolean[] check = new boolean[capacity];
         String[] begin = new String[capacity];
         String[] end = new String[capacity];
-        String[] type = new String[capacity];
+        IndexType[] type = new IndexType[capacity];
         String[] subtitle = new String[capacity];
 
         for (int i = 0; i < capacity; i++) {
