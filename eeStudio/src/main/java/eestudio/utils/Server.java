@@ -5,42 +5,45 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-/*
- * v0.96: modif de stop() [libération mémoire de severSocket]
- * 
- * v0.98: ajout de public int getPort()
- * v0.98: modif de run() [libération mémoire de severSocket et socket]
- * 
- * v0.99: modif de stop() [test != null avent le try]
- * v0.99: supp de public int getPort()
- */
-
 /**
  * Gestion d'un serveur socket.
- * 
+ *
  * @author Fabrice Alleau
- * @since version 0.95
  * @version 0.99
+ * @since version 0.95
  */
 public abstract class Server implements Runnable {
-    /** Numéro de port du serveur */
+    /**
+     * Numéro de port du serveur
+     */
     private int port;
-    /** ServerSocket pour la réception des ordres */
+    /**
+     * ServerSocket pour la réception des ordres
+     */
     private ServerSocket serverSocket;
-    /** Temps d'attente maximum (0 = indéfiniment) */
+    /**
+     * Temps d'attente maximum (0 = indéfiniment)
+     */
     private int timeout = 0;
 
-    /** Thread principale */
+    /**
+     * Thread principale
+     */
     private Thread thread;
-    /** Priorité de la thread */
+    /**
+     * Priorité de la thread
+     */
     private int priority = Thread.NORM_PRIORITY;
-    /** Etat de la thread */
+    /**
+     * Etat de la thread
+     */
     private boolean run = false;
 
     /**
      * Initialisation.
      *
      * @param port le numéro de port.
+     *
      * @since version 0.95
      */
     public Server(int port) {
@@ -51,14 +54,15 @@ public abstract class Server implements Runnable {
      * Modifie le temps d'attente de connection.
      *
      * @param timeout le temps d'attente.
+     *
      * @since version 0.95
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;
-        if(serverSocket != null) {
+        if (serverSocket != null) {
             try {
                 serverSocket.setSoTimeout(timeout);
-            } catch(SocketException e) {
+            } catch (SocketException e) {
                 Edu4Logger.error(e);
             }
         }
@@ -68,11 +72,12 @@ public abstract class Server implements Runnable {
      * Modifie la priorité de la thread.
      *
      * @param priority la priorité de la thread.
+     *
      * @since version 0.95
      */
     public void setPriority(int priority) {
         this.priority = priority;
-        if(thread != null) {
+        if (thread != null) {
             thread.setPriority(priority);
         }
     }
@@ -81,13 +86,14 @@ public abstract class Server implements Runnable {
      * Démarage du serveur.
      *
      * @return si le SeverSocket est initialisé.
+     *
      * @since version 0.95
      */
     public boolean start() {
         try {
             serverSocket = new ServerSocket(port);
             serverSocket.setSoTimeout(timeout);
-        } catch(IOException e) {
+        } catch (IOException e) {
             Edu4Logger.error(e);
             return false;
         }
@@ -106,10 +112,10 @@ public abstract class Server implements Runnable {
      */
     public void stop() {
         run = false;
-        if(serverSocket != null) {
+        if (serverSocket != null) {
             try {
                 serverSocket.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 Edu4Logger.error(e);
             }
         }
@@ -118,8 +124,9 @@ public abstract class Server implements Runnable {
 
     /**
      * Retourne si la thread est en tratement.
-     * 
+     *
      * @return si la thread est en tratement.
+     *
      * @since version 0.95
      */
     public boolean isRun() {
@@ -130,6 +137,7 @@ public abstract class Server implements Runnable {
      * Traitement spécifique des données sur la socket connecté.
      *
      * @param socket la connexion établie.
+     *
      * @throws IOException
      * @since version 0.95
      */
@@ -145,7 +153,7 @@ public abstract class Server implements Runnable {
         Socket socket = null;
 
         try {
-            while(run) {
+            while (run) {
                 //attente de la connection
                 Edu4Logger.debug("wait connection on " + this.getClass());
                 socket = serverSocket.accept();
@@ -158,31 +166,31 @@ public abstract class Server implements Runnable {
                 socket.close();
                 socket = null;
             }//end while
-        } catch(IOException e) {
+        } catch (IOException e) {
             Edu4Logger.error(e);
         } finally {
-            if(socket != null) {
+            if (socket != null) {
                 try {
                     socket.close();
-                } catch(IOException e) {
+                } catch (IOException e) {
                     Edu4Logger.error(e);
                 }//end catch
             }
 
-            if(serverSocket != null) {
+            if (serverSocket != null) {
                 try {
                     serverSocket.close();
                     serverSocket = null;
-                } catch(IOException e) {
+                } catch (IOException e) {
                     Edu4Logger.error(e);
                 }
             }
 
-            if(run) {
+            if (run) {
                 Edu4Logger.warning("redémarrage de Server: " + this.getClass());
                 start();
             }
         }
-    }//end run()
+    }
 
-}//end
+}

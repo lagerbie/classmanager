@@ -5,45 +5,22 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
-/*
- * v0.95.10: modif de center() en update()
- * v0.95.10: modif de show() [add setValue(0)]
- * 
- * v0.95.12: modif de ProcessingBar(Window owner, Image icone)
- *           en ProcessingBar(Window owner, List<Image> icones)
- * v0.95.12: ajout de public boolean isVisible()
- * v0.95.12: ajout de public void processBegin(boolean determinated, String title,
- *           String message, Object... formatValue)
- * v0.95.12: ajout de public void processBegin(boolean determinated)
- * 
- * v0.96: ajout de public void addWindowListener(WindowListener listener)
- * v0.96: modif de ProcessingBar(..) [DISPOSE_ON_CLOSE -> DO_NOTHING_ON_CLOSE]
- * v0.96: modif de setDeterminate(boolean determinated) [toujours
- *        setStringPainted(true), sinon hauteur différente]
- * v0.96: modif de setValue(int total) [ajout de progressBar.setString(" ");]
- * v0.96: modif de processBegin(boolean determinated) [supp setValue(0);]
- * 
- * v0.97: modif de show() [setVisible dans invokeLater, alwaysOnTop, toFront]
- * v0.97: modif de close() [setVisible dans invokeLater, dispose()]
- * v0.97: modif de ProcessingBar(Window owner, List<Image> icones) en
- *        public ProcessingBar(List<Image> icones) [setModality to DEFAULT_MODALITY_TYPE]
- * 
- * v0.99: modif de ProcessingBar(List<Image> icones) en ProcessingBar()
- * v0.99: supp de public boolean isVisible()
- */
-
 /**
  * Classe présentant une barre de progression.
  *
  * @author Fabrice Alleau
- * @since version 0.95
  * @version 0.99
+ * @since version 0.95
  */
 public class ProcessingBar {
     private JDialog frame;
-    /** Barre de progression affichant le pourcentage */
+    /**
+     * Barre de progression affichant le pourcentage
+     */
     private JProgressBar progressBar;
-    /** Label affichant un message */
+    /**
+     * Label affichant un message
+     */
     private JLabel label;
 
     /**
@@ -62,8 +39,7 @@ public class ProcessingBar {
         progressBar = new JProgressBar(JProgressBar.HORIZONTAL, 0, 100);
         progressBar.setStringPainted(true);
 
-        BoxLayout layout
-                = new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS);
+        BoxLayout layout = new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS);
         frame.getContentPane().setLayout(layout);
         frame.getContentPane().add(label);
         frame.getContentPane().add(progressBar);
@@ -73,6 +49,7 @@ public class ProcessingBar {
      * Change le titre de la barre de progression.
      *
      * @param title le nouveau titre.
+     *
      * @since version 0.95
      */
     private void setTitle(String title) {
@@ -83,6 +60,7 @@ public class ProcessingBar {
      * Change le message affiché dans la barre de progression.
      *
      * @param message le nouveau message.
+     *
      * @since version 0.95
      */
     private void setMessage(String message) {
@@ -94,21 +72,24 @@ public class ProcessingBar {
      * Change la valeur de la barre de progression.
      *
      * @param total la nouvelle valeur de progression totale en pourcentage.
+     *
      * @since version 0.95 - version 0.96
      */
     public void setValue(int total) {
         progressBar.setValue(total);
-        if(progressBar.isIndeterminate())
+        if (progressBar.isIndeterminate()) {
             progressBar.setString(" ");
-        else
+        } else {
             progressBar.setString(total + " %");
+        }
     }
 
     /**
      * Change le statut déterminé de la barre de progression.
      *
      * @param determinated <code>true</code> pour le mode déterminé, ou
-     *        <code>false</code> pour le mode indéterminé.
+     *         <code>false</code> pour le mode indéterminé.
+     *
      * @since version 0.95 - version 0.96
      */
     private void setDeterminate(boolean determinated) {
@@ -123,28 +104,22 @@ public class ProcessingBar {
     public void show() {
         setValue(0);
         update();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                frame.setAlwaysOnTop(true);
-                frame.setVisible(true);
-                frame.toFront();
-            }
+        SwingUtilities.invokeLater(() -> {
+            frame.setAlwaysOnTop(true);
+            frame.setVisible(true);
+            frame.toFront();
         });
     }
 
     /**
      * Ferme la barre de progression.
-     * 
+     *
      * @since version 0.95 - version 0.97
      */
     public void close() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                frame.setVisible(false);
-                frame.dispose();
-            }
+        SwingUtilities.invokeLater(() -> {
+            frame.setVisible(false);
+            frame.dispose();
         });
     }
 
@@ -160,8 +135,9 @@ public class ProcessingBar {
 
     /**
      * Ajoute d'une écoute du type WindowListener à la fenêtre principale.
-     * 
+     *
      * @param listener l'écoute à ajouter.
+     *
      * @since version 0.96
      */
     public void addWindowListener(WindowListener listener) {
@@ -170,7 +146,7 @@ public class ProcessingBar {
 
     /**
      * Met à jour les dimensions et la postion de la fenêtre.
-     * 
+     *
      * @since version 0.95
      */
     private void update() {
@@ -178,7 +154,7 @@ public class ProcessingBar {
         Dimension dim = new Dimension(1024, 768);
 
         //centrage de la fenêtre
-        frame.setLocation((dim.width-frame.getWidth())/2, (dim.height-frame.getHeight())/2);
+        frame.setLocation((dim.width - frame.getWidth()) / 2, (dim.height - frame.getHeight()) / 2);
     }
 
     /**
@@ -188,22 +164,24 @@ public class ProcessingBar {
      * @param message le message pour la barre de progression.
      * @param formatValue les objets pour le message si il est formaté
      * @param determinated si le processus à un poucentage déterminé.
+     *
      * @since version 0.95.12
      */
-    public void processBegin(boolean determinated, String title,
-            String message, Object... formatValue) {
+    public void processBegin(boolean determinated, String title, String message, Object... formatValue) {
         setTitle(title);
-        if(formatValue == null)
+        if (formatValue == null) {
             setMessage(message);
-        else
+        } else {
             setMessage(String.format(message, formatValue));
+        }
         processBegin(determinated);
     }
 
     /**
      * Débute un processus d'attente.
-     * 
+     *
      * @param determinated indique si le processus à un poucentage déterminé.
+     *
      * @since version 0.95.10 - version 0.96
      */
     public void processBegin(boolean determinated) {
@@ -211,4 +189,4 @@ public class ProcessingBar {
         show();
     }
 
-}//end
+}

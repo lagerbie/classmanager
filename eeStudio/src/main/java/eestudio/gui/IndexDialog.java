@@ -1,7 +1,6 @@
 package eestudio.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -22,193 +21,197 @@ import eestudio.Index;
 import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
 
-/*
- * v0.95.10: Listes de types différentes suivant le type d'index initial.
- * v0.95.10: ajout de private void updateTypeList(String type) [liste de types]
- * v0.95.10: ajout de private JButton beginPlus;
- * v0.95.10: ajout de private JButton beginMinus;
- * v0.95.10: ajout de private JButton endPlus;
- * v0.95.10: ajout de private JButton endMinus;
- * v0.95.10: modif de int currentIndex en Index currentIndex
- * v0.95.10: modif de initComponents() [liste de types, JButton, decimalSeparator]
- * v0.95.10: modif de updateLanguage() [liste de types, decimalSeparator]
- * v0.95.10: modif de initValues(int indice) en initValues(Index index) [liste de types]
- * v0.95.10: modif de saveIndex(long begin, long end, String type, String subtitle)
- *        [vérification longueur index pour la taille de la bande]
- * 
- * v0.95.11: ajout de private boolean isChanged()
- * v0.95.11: ajout de private int showCancelableMessage(String message)
- * v0.95.11: supp de private JButton stopButton;
- * v0.95.11: supp de private JButton closeButton;
- * v0.95.11: modif de tous les boutons (réprésentation sous forme d'images)
- * v0.95.11: modif de IndexDialog(.., Image icone) en IndexDialog(.., List<Image> icones)
- * v0.95.11: modif de initComponents() [supp JB, images JB, action listeners test:
- *           enabled -> selected, test changement sur next, previous, close,
- *           default close operation: hide -> nothing]
- * v0.95.11: modif de updateLanguage() [supp JB, images JB]
- * v0.95.11: modif de updateButtons(boolean playing) [playButton=stopButton,
- *           test: enabled -> selected]
- * v0.95.11: modif de saveIndex(long begin, long end) [test soutitre isEmpty()]
- * 
- * v0.95.12: modif de IndexDialog(Core core, Map<String, String> indexTypes,
- *           Resources resources, Window parent, List<Image> icones) en
- *           IndexDialog(Window parent, List<Image> icones, Core core,
- *           Resources resources, Map<String, String> indexTypes)
- * 
- * v0.96: modif de initComponents() [fixe la largeur des champs texte à 100
- *        (plus de calcul de longueur de chaînes de caractères)]
- * v0.96: modif de updateLanguage() [supp redimensionnement des champs]
- * 
- * v0.97: ajout de private MaskFormatter beginFormatter;
- * v0.97: ajout de private MaskFormatter endFormatter;
- * v0.97: ajout de private void action(final Object source)
- * v0.97: ajout de private void initListener() [même listener validButton,
- *        cancelButton, previousButton, nextButton et windowClosing ;
- *        supp core.audioPause() ; utilisation de dispose()]
- * v0.97: modif de IndexDialog(...) [defaultCloseOperation = DO_NOTHING_ON_CLOSE]
- * v0.97: modif de initComponents() [listeners à part et MaskFormatter]
- * v0.97: modif de updateLanguage() [modif MaskFormatter]
- * v0.97: modif de updateButtons(boolean playing) [mise à jour des boutons
- *        validButton, cancelButton, previousButton, nextButton]
- * v0.97: modif de saveIndex(long begin, long end, String type, String subtitle)
- *        [récupération de l'index modifié]
- * 
- * v0.98: modif de getValue(String value) [use Utilities.parseStringAsLong]
- * 
- * v0.99: ajout de private void setValue(JTextField textField, long value)
- * v0.99: modif de IndexDialog(Window parent, List<Image> icones, ...) en
- *        IndexDialog(Window parent, ...)
- * v0.99: modif de initComponents() [GuiUtilities.getImageIcon]
- * v0.99: modif de getValue(String value) en getValue(JTextField field)
- * v0.99: modif de fieldUpdateDialog() [getValue]
- * v0.99: modif de updateDialog() [setValue]
- * 
- * v1.01: ajout de private float initialSpeed;
- * v1.01: ajout de private JLabel speedLabel;
- * v1.01: ajout de private HorizontalSlider speedSlider;
- * v1.01: ajout de private float getSpeed()
- * v1.01: ajout de private void setSpeed(float speed)
- * v1.01: modif de initComponents() [GridBagLayout, BackgroundPanel, speed]
- * v1.01: modif de initListener() [ajout de ComboBox listener]
- * v1.01: modif de updateLanguage() [add speedLabel et modif noms ressources]
- * v1.01: modif de updateTypeList(String type) [supp test SPEED]
- * v1.01: modif de initValues(Index index) [speed]
- * v1.01: modif de saveIndex(long, long, ..) en saveIndex(long, long, .., float speed)
- * v1.01: modif de saveIndex(long, long) [speed]
- * v1.01: modif de action(final Object source) [speed]
- * v1.01: modif de isChanged() [speed]
- * 
- * v1.02: modif de initComponents() [gestion des poids pour agrrandir la zone de
- *        texte]
- */
-
 /**
  * Boite de dialogue pour redimensionner un index.
  *
  * @author Fabrice Alleau
- * @since version 0.94
  * @version 1.02
+ * @since version 0.94
  */
 public class IndexDialog extends JDialog {
     private static final long serialVersionUID = 10100L;
 
-    /** Position par défaut dans les champs de temps */
+    /**
+     * Position par défaut dans les champs de temps
+     */
     private final int defautCaretPosition = 3;
 
-    /** Resources textuelles */
+    /**
+     * Resources textuelles
+     */
     private Resources resources;
-    /** Noyau pour la création des index */
+    /**
+     * Noyau pour la création des index
+     */
     private Core core;
 
-    /** Map pour donner la référence de texte selon le type de l'index */
+    /**
+     * Map pour donner la référence de texte selon le type de l'index
+     */
     private Map<String, String> indexTypes;
-    /** Map pour donner le type d'index selon le texte de la langue */
+    /**
+     * Map pour donner le type d'index selon le texte de la langue
+     */
     private Map<String, String> indexTypesRevert;
 
-    /** Séparateur pour les chiffres */
+    /**
+     * Séparateur pour les chiffres
+     */
     private char decimalSeparator;
 
-    /** Pas pour les boutons plus et moins */
+    /**
+     * Pas pour les boutons plus et moins
+     */
     private final long STEP = 500;//en millisecondes
 
-    /** Numéro de l'index courant */
+    /**
+     * Numéro de l'index courant
+     */
     private Index currentIndex;
-    /** Temps de départ initial de l'index */
+    /**
+     * Temps de départ initial de l'index
+     */
     private long initialBeginTime;
-    /** Temps de fin initial de l'index */
+    /**
+     * Temps de fin initial de l'index
+     */
     private long initialEndTime;
-    /** Type initial de l'index */
+    /**
+     * Type initial de l'index
+     */
     private String initialType;
-    /** Soustitre initial de l'index */
+    /**
+     * Soustitre initial de l'index
+     */
     private String initialSubtitle;
-    /** Vitesse initiale de l'index */
+    /**
+     * Vitesse initiale de l'index
+     */
     private float initialSpeed;
 
-    /** Temps minimal pour le temps de début de l'index */
+    /**
+     * Temps minimal pour le temps de début de l'index
+     */
     private long beginMin;
-    /** Temps maximal pour le temps de fin de l'index */
+    /**
+     * Temps maximal pour le temps de fin de l'index
+     */
     private long endMax;
 
-    /** Temps de départ dans la fenêtre */
+    /**
+     * Temps de départ dans la fenêtre
+     */
     private long begin;
-    /** Temps de fin dans la fenêtre */
+    /**
+     * Temps de fin dans la fenêtre
+     */
     private long end;
 
-    /** Masque pour modifier le temps de départ */
+    /**
+     * Masque pour modifier le temps de départ
+     */
     private MaskFormatter beginFormatter;
-    /** Masque pour modifier le temps de fin */
+    /**
+     * Masque pour modifier le temps de fin
+     */
     private MaskFormatter endFormatter;
 
-    /** Message explicatif */
+    /**
+     * Message explicatif
+     */
     private JLabel messageLabel;
-    /** Label pour le temps de départ de l'index */
+    /**
+     * Label pour le temps de départ de l'index
+     */
     private JLabel beginLabel;
-    /** Label pour le temps de fin de l'index */
+    /**
+     * Label pour le temps de fin de l'index
+     */
     private JLabel endLabel;
-    /** Label pour la durée de l'index */
+    /**
+     * Label pour la durée de l'index
+     */
     private JLabel lengthLabel;
-    /** Label pour le type de l'index */
+    /**
+     * Label pour le type de l'index
+     */
     private JLabel typeLabel;
-    /** Label pour la vitesse de l'index */
+    /**
+     * Label pour la vitesse de l'index
+     */
     private JLabel speedLabel;
-    /** Label pour le soustitre de l'index */
+    /**
+     * Label pour le soustitre de l'index
+     */
     private JLabel subtitleLabel;
 
-    /** Champ formaté pour le temps de départ de l'index */
+    /**
+     * Champ formaté pour le temps de départ de l'index
+     */
     private JFormattedTextField beginField;
-    /** Champ formaté pour le temps de fin de l'index */
+    /**
+     * Champ formaté pour le temps de fin de l'index
+     */
     private JFormattedTextField endField;
-    /** Champ non modifiable pour la durée de l'index */
+    /**
+     * Champ non modifiable pour la durée de l'index
+     */
     private JTextField lengthField;
-    /** Liste déroulante pour le type de l'index */
+    /**
+     * Liste déroulante pour le type de l'index
+     */
     private JComboBox typeList;
-    /** Slider pour la vitesse sur l'index */
+    /**
+     * Slider pour la vitesse sur l'index
+     */
     private HorizontalSlider speedSlider;
-    /** Zone de texte pour le soustitre de l'index */
+    /**
+     * Zone de texte pour le soustitre de l'index
+     */
     private JTextArea subtitleField;
 
-    /** Bouton pour aller à l'index précédent */
+    /**
+     * Bouton pour aller à l'index précédent
+     */
     private JButton previousButton;
-    /** Bouton pour aller à l'index suivant */
+    /**
+     * Bouton pour aller à l'index suivant
+     */
     private JButton nextButton;
 
-    /** Bouton pour lire l'index */
+    /**
+     * Bouton pour lire l'index
+     */
     private JButton playButton;
-    /** Bouton pour aller au début de l'index */
+    /**
+     * Bouton pour aller au début de l'index
+     */
     private JButton beginIndexButton;
 
-    /** Bouton pour augmenter le temps de départ */
+    /**
+     * Bouton pour augmenter le temps de départ
+     */
     private JButton beginPlus;
-    /** Bouton pour diminuer le temps de départ */
+    /**
+     * Bouton pour diminuer le temps de départ
+     */
     private JButton beginMinus;
-    /** Bouton pour augmenter le temps de fin */
+    /**
+     * Bouton pour augmenter le temps de fin
+     */
     private JButton endPlus;
-    /** Bouton pour diminuer le temps de fin */
+    /**
+     * Bouton pour diminuer le temps de fin
+     */
     private JButton endMinus;
 
-    /** Bouton pour valider les changements sur l'index */
+    /**
+     * Bouton pour valider les changements sur l'index
+     */
     private JButton validButton;
-    /** Bouton pour annuler les changements sur l'index */
+    /**
+     * Bouton pour annuler les changements sur l'index
+     */
     private JButton cancelButton;
 
     /**
@@ -218,17 +221,17 @@ public class IndexDialog extends JDialog {
      * @param indexTypes map pour les resources textuelles suivant le type d'index.
      * @param resources les resources pour les textes.
      * @param parent la fenêtre parente (peut être null).
+     *
      * @since version 0.94 - version 0.99
      */
-    public IndexDialog(Window parent, Core core, Resources resources,
-            Map<String, String> indexTypes) {
+    public IndexDialog(Window parent, Core core, Resources resources, Map<String, String> indexTypes) {
         super(parent, resources.getString("indexTitle"), DEFAULT_MODALITY_TYPE);
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         this.resources = resources;
         this.core = core;
         this.indexTypes = indexTypes;
-        indexTypesRevert = new HashMap<String, String>(indexTypes.size());
+        indexTypesRevert = new HashMap<>(indexTypes.size());
 
         initComponents();
         initListener();
@@ -260,11 +263,11 @@ public class IndexDialog extends JDialog {
 //        decimalSeparator = resources.getString("decimalSeparator");
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
         try {
-            beginFormatter = new MaskFormatter("##:##"+ decimalSeparator +"###");
+            beginFormatter = new MaskFormatter("##:##" + decimalSeparator + "###");
             beginFormatter.setPlaceholderCharacter('0');
-            endFormatter = new MaskFormatter("##:##"+ decimalSeparator +"###");
+            endFormatter = new MaskFormatter("##:##" + decimalSeparator + "###");
             endFormatter.setPlaceholderCharacter('0');
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             Edu4Logger.error(e);
         }//end try
 
@@ -284,25 +287,25 @@ public class IndexDialog extends JDialog {
         lengthField.setPreferredSize(dim);
         lengthField.setMinimumSize(dim);
 
-        beginPlus = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("plus"), null, resources.getString("plus"));
-        beginMinus = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("minus"), null, resources.getString("minus"));
-        endPlus = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("plus"), null, resources.getString("plus"));
-        endMinus = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("minus"), null, resources.getString("minus"));
+        beginPlus = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("plus"), null, resources.getString("plus"));
+        beginMinus = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("minus"), null, resources.getString("minus"));
+        endPlus = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("plus"), null, resources.getString("plus"));
+        endMinus = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("minus"), null, resources.getString("minus"));
 
         typeList = new JComboBox();
-        dim = new Dimension(width-2*margin, timeHeight);
+        dim = new Dimension(width - 2 * margin, timeHeight);
         typeList.setMinimumSize(dim);
         typeList.setPreferredSize(dim);
-        for(String type : indexTypes.keySet()) {
+        for (String type : indexTypes.keySet()) {
             String typeInLanguage = resources.getString(indexTypes.get(type));
             indexTypesRevert.put(typeInLanguage, type);
         }
 
-        dim = new Dimension(width-2*margin, 18);
+        dim = new Dimension(width - 2 * margin, 18);
         speedSlider = new HorizontalSlider(this, dim.width, dim.height);
         speedSlider.setTickBounds(Index.RATE_MIN, Index.RATE_MAX, true);
         speedSlider.setPreferredSize(dim);
@@ -312,41 +315,34 @@ public class IndexDialog extends JDialog {
         subtitleField.setLineWrap(true);//retour à la ligne autaumatique
         subtitleField.setWrapStyleWord(true);//ne découpe pas les mots en fin de ligne
         subtitleField.setRows(5);
-        JScrollPane scrollPane = new JScrollPane(subtitleField, 
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+        JScrollPane scrollPane = new JScrollPane(subtitleField, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(true);
         scrollPane.setBorder(null);
-        dim = new Dimension(width-2*margin, 150);
+        dim = new Dimension(width - 2 * margin, 150);
         scrollPane.setMinimumSize(dim);
         scrollPane.setPreferredSize(dim);
 
-        playButton = GuiUtilities.getSelectableButton(this,
-                GuiUtilities.getImageIcon("play"),
-                GuiUtilities.getImageIcon("pause"),
-                resources.getString("play"));
-        beginIndexButton = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("back"),
-                GuiUtilities.getImageIcon("backOff"),
-                resources.getString("beginIndex"));
+        playButton = GuiUtilities
+                .getSelectableButton(this, GuiUtilities.getImageIcon("play"), GuiUtilities.getImageIcon("pause"),
+                        resources.getString("play"));
+        beginIndexButton = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("back"), GuiUtilities.getImageIcon("backOff"),
+                        resources.getString("beginIndex"));
 
-        validButton = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("valid"),
-                GuiUtilities.getImageIcon("validOff"),
-                resources.getString("valid"));
-        cancelButton = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("cancel"),
-                GuiUtilities.getImageIcon("cancelOff"),
-                resources.getString("cancel"));
+        validButton = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("valid"), GuiUtilities.getImageIcon("validOff"),
+                        resources.getString("valid"));
+        cancelButton = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("cancel"), GuiUtilities.getImageIcon("cancelOff"),
+                        resources.getString("cancel"));
 
-        previousButton = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("previous"),
-                GuiUtilities.getImageIcon("previousOff"),
-                resources.getString("previous"));
-        nextButton = GuiUtilities.getActionButton(this,
-                GuiUtilities.getImageIcon("next"),
-                GuiUtilities.getImageIcon("nextOff"),
-                resources.getString("next"));
+        previousButton = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("previous"), GuiUtilities.getImageIcon("previousOff"),
+                        resources.getString("previous"));
+        nextButton = GuiUtilities
+                .getActionButton(this, GuiUtilities.getImageIcon("next"), GuiUtilities.getImageIcon("nextOff"),
+                        resources.getString("next"));
 
         playButton.setEnabled(true);
 
@@ -521,13 +517,13 @@ public class IndexDialog extends JDialog {
         constraints.gridy += 1;
         constraints.gridwidth = 3;
         constraints.anchor = GridBagConstraints.BASELINE_LEADING;
-        constraints.insets = new Insets(0, margin+1, margin, 0);
+        constraints.insets = new Insets(0, margin + 1, margin, 0);
         layout.setConstraints(previousButton, constraints);
         panel.add(previousButton);
 
         constraints.gridx = 9;
         constraints.gridwidth = 3;
-        constraints.insets = new Insets(0, 0, margin, margin+1);
+        constraints.insets = new Insets(0, 0, margin, margin + 1);
         constraints.anchor = GridBagConstraints.BASELINE_TRAILING;
         layout.setConstraints(nextButton, constraints);
         panel.add(nextButton);
@@ -579,69 +575,62 @@ public class IndexDialog extends JDialog {
 
         this.getContentPane().add(panel);
         this.pack();
-    }//end initComponents()
+    }
 
     /**
      * Initialisation des listeners.
-     * 
+     *
      * @since version 0.97 - version 1.01
      */
     private void initListener() {
-        //pour éviter d'avoir un reste d'image quand le programme affiche ou
-        //masque la liste
+        //pour éviter d'avoir un reste d'image quand le programme affiche ou masque la liste
         typeList.addPopupMenuListener(new PopupMenuListener() {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
                 getContentPane().repaint();
             }
+
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                 getContentPane().repaint();
             }
+
             @Override
             public void popupMenuCanceled(PopupMenuEvent e) {
             }
         });
 
-        beginPlus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                begin += STEP;
-                if(begin > end)
-                    begin = end;
-                updateDialog();
+        beginPlus.addActionListener(e -> {
+            begin += STEP;
+            if (begin > end) {
+                begin = end;
             }
-        });//end beginPlus
+            updateDialog();
+        });
 
-        beginMinus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                begin -= STEP;
-                if(begin < beginMin)
-                    begin = beginMin;
-                updateDialog();
+        beginMinus.addActionListener(e -> {
+            begin -= STEP;
+            if (begin < beginMin) {
+                begin = beginMin;
             }
-        });//end beginMinus
+            updateDialog();
+        });
 
-        endPlus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                end += STEP;
-                if(end > endMax)
-                    end = endMax;
-                updateDialog();
+        endPlus.addActionListener(e -> {
+            end += STEP;
+            if (end > endMax) {
+                end = endMax;
             }
-        });//end endPlus
+            updateDialog();
+        });
 
-        endMinus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                end -= STEP;
-                if(end < begin)
-                    end = begin;
-                updateDialog();
+        endMinus.addActionListener(e -> {
+            end -= STEP;
+            if (end < begin) {
+                end = begin;
             }
-        });//end endMinus
+            updateDialog();
+        });
 
         beginField.addFocusListener(new FocusAdapter() {
             @Override
@@ -655,7 +644,7 @@ public class IndexDialog extends JDialog {
                 fieldUpdateDialog();
                 beginField.setCaretPosition(caretPosition);
             }
-        });//end beginField
+        });
 
         endField.addFocusListener(new FocusAdapter() {
             @Override
@@ -669,58 +658,47 @@ public class IndexDialog extends JDialog {
                 fieldUpdateDialog();
                 endField.setCaretPosition(caretPosition);
             }
-        });//end endField
+        });
 
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                action(e.getSource());
-            }
-        };
+        ActionListener listener = e -> action(e.getSource());
 
         validButton.addActionListener(listener);
         cancelButton.addActionListener(listener);
         previousButton.addActionListener(listener);
         nextButton.addActionListener(listener);
 
-        playButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(!playButton.isSelected()) {
-                    if(saveIndex(begin, end)) {
-                        long beginTime = core.getCurrentTime();
-                        if(beginTime < begin || beginTime >= end)
-                            beginTime = begin;
-
-                        core.playOnRange(beginTime, end);
+        playButton.addActionListener(e -> {
+            if (!playButton.isSelected()) {
+                if (saveIndex(begin, end)) {
+                    long beginTime = core.getCurrentTime();
+                    if (beginTime < begin || beginTime >= end) {
+                        beginTime = begin;
                     }
-                }
-                else {
-                    core.audioPause();
-                }
-            }
-        });//end playButton
 
-        beginIndexButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                core.setProtectedTime(begin);
+                    core.playOnRange(beginTime, end);
+                }
+            } else {
+                core.audioPause();
             }
-        });//end beginIndexButton
+        });
+
+        beginIndexButton.addActionListener(e -> core.setProtectedTime(begin));
 
         this.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {        
+            public void windowClosing(WindowEvent e) {
                 action(e.getSource());
             }
         });
-    }//end initListener()
+    }
 
     /**
      * Convertie la chaîne de caractères représentant le temps en millisecondes.
      *
      * @param field le champ texte contenat le temps formaté.
+     *
      * @return le temps en millisecondes.
+     *
      * @since version 0.94 - version 0.99
      */
     private long getValue(JTextField field) {
@@ -737,17 +715,18 @@ public class IndexDialog extends JDialog {
      *
      * @param textField le champ texte contenat le temps formaté.
      * @param value le temps en millisecondes.
+     *
      * @since version 0.99
      */
     private void setValue(JTextField textField, long value) {
-        textField.setText(
-                String.format("%1$tM:%1$tS" + decimalSeparator + "%1$tL", value));
+        textField.setText(String.format("%1$tM:%1$tS" + decimalSeparator + "%1$tL", value));
     }
 
     /**
      * Récupère la vitesse affichée sur le slider.
-     * 
+     *
      * @return la vitesse.
+     *
      * @since version 1.01
      */
     private float getSpeed() {
@@ -762,8 +741,9 @@ public class IndexDialog extends JDialog {
 
     /**
      * Modifie la vitesse affichée sur le slider.
-     * 
+     *
      * @param speed la vitesse.
+     *
      * @since version 1.01
      */
     private void setSpeed(float speed) {
@@ -783,19 +763,19 @@ public class IndexDialog extends JDialog {
         begin = getValue(beginField);
         end = getValue(endField);
 
-        if(begin < beginMin || begin > endMax) {
+        if (begin < beginMin || begin > endMax) {
             begin = beginMin;
             updateDialog();
             GuiUtilities.showMessageDialog(this, resources.getString("beginError"));
         }//end if
 
-        if(end > endMax) {
+        if (end > endMax) {
             end = endMax;
             updateDialog();
             GuiUtilities.showMessageDialog(this, resources.getString("endError"));
         }//end if
 
-        if(end < begin) {
+        if (end < begin) {
             end = begin;
             updateDialog();
             GuiUtilities.showMessageDialog(this, resources.getString("beginEndError"));
@@ -814,7 +794,7 @@ public class IndexDialog extends JDialog {
         int endCaretPosition = endField.getCaretPosition();
         setValue(beginField, begin);
         setValue(endField, end);
-        setValue(lengthField, end-begin);
+        setValue(lengthField, end - begin);
         beginField.setCaretPosition(beginCaretPosition);
         endField.setCaretPosition(endCaretPosition);
     }
@@ -823,19 +803,19 @@ public class IndexDialog extends JDialog {
      * Affiche la boite de dialogue.
      *
      * @param index le numero de l'index initial.
+     *
      * @since version 0.94
      */
     public void showDialog(Index index) {
         initValues(index);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(
-                (dim.width - getWidth()) / 2, (dim.height - getHeight()) / 4);
+        this.setLocation((dim.width - getWidth()) / 2, (dim.height - getHeight()) / 4);
         this.setVisible(true);
     }
 
     /**
      * Modifie les textes suivant
-     * 
+     *
      * @since version 0.94 - version 1.01
      */
     public void updateLanguage() {
@@ -853,19 +833,19 @@ public class IndexDialog extends JDialog {
         decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         try {
-            beginFormatter.setMask("##:##"+ decimalSeparator +"###");
-            endFormatter.setMask("##:##"+ decimalSeparator +"###");
-        } catch(ParseException e) {
+            beginFormatter.setMask("##:##" + decimalSeparator + "###");
+            endFormatter.setMask("##:##" + decimalSeparator + "###");
+        } catch (ParseException e) {
             Edu4Logger.error(e);
         }
 
-        String currentType = indexTypesRevert.get((String)typeList.getSelectedItem());
+        String currentType = indexTypesRevert.get((String) typeList.getSelectedItem());
         indexTypesRevert.clear();
-        for(String type : indexTypes.keySet()) {
+        for (String type : indexTypes.keySet()) {
             String typeInLanguage = resources.getString(indexTypes.get(type));
             indexTypesRevert.put(typeInLanguage, type);
         }
-        if(currentType != null) {
+        if (currentType != null) {
             updateTypeList(currentType);
             typeList.setSelectedItem(resources.getString(indexTypes.get(currentType)));
         }
@@ -884,14 +864,14 @@ public class IndexDialog extends JDialog {
 
         this.pack();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation((dim.width-this.getWidth())/2,
-                (dim.height-this.getHeight())/2);
+        this.setLocation((dim.width - this.getWidth()) / 2, (dim.height - this.getHeight()) / 2);
     }
 
     /**
      * Initialise les valeurs initiales et courantes.
      *
      * @param index l'index courant.
+     *
      * @since version 0.94 - version 1.01
      */
     private void initValues(Index index) {
@@ -925,6 +905,7 @@ public class IndexDialog extends JDialog {
      * Mise à jour de l'états des boutons suivant qu'il est en lecture ou non.
      *
      * @param playing <code>true</code> si le poste est en lecture.
+     *
      * @since version 0.94 - version 0.97
      */
     public void updateButtons(boolean playing) {
@@ -938,21 +919,20 @@ public class IndexDialog extends JDialog {
 
     /**
      * Mise à jour de la liste des types possibles avec un type initial.
-     * 
+     *
      * @param type le type initial.
+     *
      * @since version 0.95.10 - version 1.01
      */
     private void updateTypeList(String type) {
         typeList.removeAllItems();
-        if(type.contentEquals(Index.PLAY)|| type.contentEquals(Index.RECORD)) {
+        if (type.contentEquals(Index.PLAY) || type.contentEquals(Index.RECORD)) {
             typeList.addItem(resources.getString(indexTypes.get(Index.PLAY)));
             typeList.addItem(resources.getString(indexTypes.get(Index.RECORD)));
-        }
-        else if(type.contentEquals(Index.BLANK)||type.contentEquals(Index.BLANK_BEEP)) {
+        } else if (type.contentEquals(Index.BLANK) || type.contentEquals(Index.BLANK_BEEP)) {
             typeList.addItem(resources.getString(indexTypes.get(Index.BLANK)));
             typeList.addItem(resources.getString(indexTypes.get(Index.BLANK_BEEP)));
-        }
-        else {
+        } else {
             typeList.addItem(resources.getString(indexTypes.get(type)));
         }
 
@@ -960,7 +940,7 @@ public class IndexDialog extends JDialog {
         typeList.setEnabled(typeList.getItemCount() > 1);
 
         boolean modifTime = true;
-        if(type.contentEquals(Index.FILE) || type.contentEquals(Index.REPEAT)) {
+        if (type.contentEquals(Index.FILE) || type.contentEquals(Index.REPEAT)) {
             //|| type.contentEquals(Index.SPEED)
             //pas de modification de la durée
             modifTime = false;
@@ -982,30 +962,28 @@ public class IndexDialog extends JDialog {
      * @param type le type.
      * @param subtitle le soustitre.
      * @param speed la vitesse.
+     *
      * @return si la sauvegarde a été effectuée.
+     *
      * @since version 0.94 - version 1.01
      */
     private boolean saveIndex(long begin, long end, String type,
             String subtitle, float speed) {
-        if(end < begin) {
+        if (end < begin) {
             GuiUtilities.showMessageDialog(this, resources.getString("beginEndError"));
             return false;
-        }
-        else if(initialEndTime-initialBeginTime - (end-begin) > core.getRemainingTime()) {
-            GuiUtilities.showMessageDialog(
-                    this, resources.getString("insertionDurationMessage"),
-                    (end-begin)/1000+1,
-                    core.getRemainingTime()/1000, core.getDurationMax()/1000);
+        } else if (initialEndTime - initialBeginTime - (end - begin) > core.getRemainingTime()) {
+            GuiUtilities
+                    .showMessageDialog(this, resources.getString("insertionDurationMessage"), (end - begin) / 1000 + 1,
+                            core.getRemainingTime() / 1000, core.getDurationMax() / 1000);
             return false;
         }
 
-        this.currentIndex = core.setMediaIndex(currentIndex.getId(), begin, end,
-                type, subtitle, speed);
+        this.currentIndex = core.setMediaIndex(currentIndex.getId(), begin, end, type, subtitle, speed);
 
         this.begin = currentIndex.getInitialTime();
         this.end = currentIndex.getFinalTime();
-        typeList.setSelectedItem(
-                resources.getString(indexTypes.get(currentIndex.getType())));
+        typeList.setSelectedItem(resources.getString(indexTypes.get(currentIndex.getType())));
         subtitleField.setText(currentIndex.getSubtitle());
         setSpeed(currentIndex.getRate());
         updateDialog();
@@ -1018,66 +996,61 @@ public class IndexDialog extends JDialog {
      *
      * @param begin le temps de début.
      * @param end le temps de fin.
+     *
      * @since version 0.94 - version 1.01
      */
     private boolean saveIndex(long begin, long end) {
-        String type = indexTypesRevert.get((String)typeList.getSelectedItem());
+        String type = indexTypesRevert.get((String) typeList.getSelectedItem());
         String subtitle = subtitleField.getText();
-        if(subtitle != null && subtitle.isEmpty())
+        if (subtitle != null && subtitle.isEmpty()) {
             subtitle = null;
+        }
         float speed = getSpeed();
         return saveIndex(begin, end, type, subtitle, speed);
     }
 
     /**
      * Traitement des actions longues dans un thread séparée.
-     * 
+     *
      * @param source la source de l'action.
+     *
      * @since version 0.97 _ version 1.01
      */
     private void action(final Object source) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if(source == validButton) {
+                if (source == validButton) {
                     saveIndex(begin, end);
-                }
-                else if(source == cancelButton) {
-                    saveIndex(initialBeginTime, initialEndTime, initialType,
-                            initialSubtitle, initialSpeed);
-                }
-                else if(source == previousButton) {
-                    if(isChanged()) {
+                } else if (source == cancelButton) {
+                    saveIndex(initialBeginTime, initialEndTime, initialType, initialSubtitle, initialSpeed);
+                } else if (source == previousButton) {
+                    if (isChanged()) {
                         int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if(option == GuiUtilities.YES_OPTION) {
+                        if (option == GuiUtilities.YES_OPTION) {
                             saveIndex(begin, end);
-                        }
-                        else if(option != GuiUtilities.NO_OPTION) {
+                        } else if (option != GuiUtilities.NO_OPTION) {
                             return;
                         }
                     }
                     initValues(core.previousIndex(currentIndex));
-                }
-                else if(source == nextButton) {
-                    if(isChanged()) {
+                } else if (source == nextButton) {
+                    if (isChanged()) {
                         int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if(option == GuiUtilities.YES_OPTION) {
+                        if (option == GuiUtilities.YES_OPTION) {
                             saveIndex(begin, end);
-                        }
-                        else if(option != GuiUtilities.NO_OPTION) {
+                        } else if (option != GuiUtilities.NO_OPTION) {
                             return;
                         }
                     }
                     initValues(core.nextIndex(currentIndex));
-                }
-                else if(source instanceof IndexDialog) {
+                } else if (source instanceof IndexDialog) {
                     fieldUpdateDialog();
-                    if(isChanged()) {
+                    if (isChanged()) {
                         int option = showCancelableMessage(resources.getString("modifIndex"));
-                        if(option == GuiUtilities.YES_OPTION) {
+                        if (option == GuiUtilities.YES_OPTION) {
                             saveIndex(begin, end);
-                        }
-                        else if(option != GuiUtilities.NO_OPTION) {
+                        } else if (option != GuiUtilities.NO_OPTION) {
                             return;
                         }
                     }
@@ -1091,41 +1064,50 @@ public class IndexDialog extends JDialog {
 
     /**
      * Retourne si l'index a changé depuis la dernière validation.
-     * 
+     *
      * @return si l'index a changé.
+     *
      * @since version 0.95.11 - version 1.01
      */
     private boolean isChanged() {
-        if(begin != currentIndex.getInitialTime())
+        if (begin != currentIndex.getInitialTime()) {
             return true;
-        if(end != currentIndex.getFinalTime())
+        }
+        if (end != currentIndex.getFinalTime()) {
             return true;
+        }
 
-        String type = indexTypesRevert.get((String)typeList.getSelectedItem());
-        if(!type.contentEquals(currentIndex.getType()))
+        String type = indexTypesRevert.get((String) typeList.getSelectedItem());
+        if (!type.contentEquals(currentIndex.getType())) {
             return true;
+        }
 
         float speed = getSpeed();
-        if(speed != currentIndex.getRate())
+        if (speed != currentIndex.getRate()) {
             return true;
+        }
 
         String subtitle = subtitleField.getText();
-        if(subtitle != null && subtitle.isEmpty())
+        if (subtitle != null && subtitle.isEmpty()) {
             subtitle = null;
+        }
 
-        if(subtitle == null)
+        if (subtitle == null) {
             return (currentIndex.getSubtitle() != null);
-        else if(currentIndex.getSubtitle() == null)
+        } else if (currentIndex.getSubtitle() == null) {
             return true;
-        else
+        } else {
             return !subtitle.contentEquals(currentIndex.getSubtitle());
+        }
     }
 
     /**
      * Affiche un message avec les options oui, non, cancel.
-     * 
+     *
      * @param message le message.
+     *
      * @return l'option choisie.
+     *
      * @since version 0.95.11
      */
     private int showCancelableMessage(String message) {
@@ -1168,4 +1150,4 @@ public class IndexDialog extends JDialog {
 //        }
 //    }
 
-}//end
+}

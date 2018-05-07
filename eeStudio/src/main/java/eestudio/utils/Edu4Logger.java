@@ -7,34 +7,33 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
-/*
- * v0.98: modif de print(final Throwable error) [mémoire]
- * 
- * v0.99: supp de private static int level = 0;
- * v0.99: supp de public static void setLevel(int level)
- * v0.99: ajout de public static void debug()
- * v0.99: modif de setLogFile(File file) [ajout de logger.setLevel(Level.INFO);]
- */
-
 /**
  * Gestion des logs.
  *
  * @author Fabrice Alleau
- * @since version 0.94
  * @version 0.99
+ * @since version 0.94
  */
+@Deprecated
 public class Edu4Logger {
-    /** Logger */
+    /**
+     * Logger
+     */
     private static final Logger logger = Logger.getLogger("edu4logger");
-    /** Mode debug */
+    /**
+     * Mode debug
+     */
     private static boolean debug = false;
-    /** Zone de texte */
+    /**
+     * Zone de texte
+     */
     private static JTextArea text;
 
     /**
      * Ajoute un fichier de log.
      *
      * @param file le fichier.
+     *
      * @since version 0.94 - version 0.99
      */
     public static void setLogFile(File file) {
@@ -44,7 +43,7 @@ public class Edu4Logger {
             FileHandler fileHandler = new FileHandler(file.getAbsolutePath());
             logger.addHandler(fileHandler);
             logger.setLevel(Level.INFO);
-        } catch(Exception e) {
+        } catch (Exception e) {
             error(e);
         }
     }
@@ -75,66 +74,77 @@ public class Edu4Logger {
      * Mesage d'erreur.
      *
      * @param message le message.
+     *
      * @since version 0.94
      */
     public static void error(String message) {
         logger.severe(message);
-        if(debug)
+        if (debug) {
             print(message);
+        }
     }
 
     /**
      * Message d'avertisssement.
      *
      * @param message le message.
+     *
      * @since version 0.94
      */
     public static void warning(String message) {
         logger.warning(message);
-        if(debug)
+        if (debug) {
             print(message);
+        }
     }
 
     /**
      * Message d'information.
      *
      * @param message le message.
+     *
      * @since version 0.94
      */
     public static void info(String message) {
         logger.info(message);
-        if(debug)
+        if (debug) {
             print(message);
+        }
     }
 
     /**
      * Message de debbogage.
      *
      * @param message le message.
+     *
      * @since version 0.94
      */
     public static void debug(String message) {
         logger.fine(message);
-        if(debug)
+        if (debug) {
             print(message);
+        }
     }
 
     /**
      * Affichage de la trace de l'erreur.
      *
      * @param error l'erreur.
+     *
      * @since version 0.94
      */
     public static void error(Throwable error) {
         logger.log(Level.SEVERE, error.getMessage(), error);
-        if(debug)
+        if (debug) {
             print(error);
+        }
     }
 
     /**
      * Affichage d'un message texte.
      *
      * @param message le message.
+     *
      * @since version 0.94
      */
     private static void print(final String message) {
@@ -150,6 +160,7 @@ public class Edu4Logger {
      * Affichage d'une erreur.
      *
      * @param error l'erreur.
+     *
      * @since version 0.94 - version 0.98
      */
     private static void print(final Throwable error) {
@@ -158,7 +169,7 @@ public class Edu4Logger {
             public void run() {
                 text.append(error.toString() + "\n");
                 StackTraceElement[] elements = error.getStackTrace();
-                for(StackTraceElement stackTraceElement : elements) {
+                for (StackTraceElement stackTraceElement : elements) {
                     text.append("\t" + stackTraceElement.toString() + "\n");
                 }
             }

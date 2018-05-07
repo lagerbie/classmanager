@@ -18,41 +18,6 @@ import eestudio.utils.MEncoder;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
 
-/*
- * v0.95: ajout de private static JFrame window = null;
- * v0.95: ajout de private static void showMessage(String message)
- * v0.95: supp de private static final String imageResources = "eestudio.gui.images";
- * v0.95: modif de textResources [use GuiResourceWithFlash.eeStudioResources]
- * v0.95: modif de printUsage() [add options --path, --flash et --ffmpeg]
- * v0.95: modif de main(String[] args) [add options --path, --flash, --ffmpeg et
- *        --language; lancement du flash, test présence des exécutables]
- *
- * v0.96: modif de main(String[] args) [supp options -flash et --ffmpeg;
- *        remplacement de ffmpeg par Mplayer/Mencoder; initialisation du noyau
- *        avant de lancer l'interface flash]
- * v0.96: modif de printUsage() [add --language; supp --flash et --ffmpeg]
- *
- * v0.97: supp de private static final String softName = "eeStudio";
- * v0.97: ajout de private static Core core = null;
- * v0.97: modif de showMessage(String message) [add window.setUndecorated(true)]
- * v0.97: modif de main(String[] args) [add listener pour l'arrêt du flash; prise
- *        en compte de lancement par un ficchier]
- *
- * v0.99: supp de private static String textResources = GuiResourceWithFlash.eeStudioResources;
- * v0.99: modif de printUsage() [supp options --language et --verbose]
- * v0.99: modif de main(String[] args) [supp Core.version; load fichier langue;
- *        compatibilité Linux pour Mplayer/Mencoder; use eestudio.utils.Resources
- *        et eestudio.utils.Converter; supp options --language et --verbose;
- *        mod option --debug; kill flash au démarrage]
- *
- * v1.01: modif de main(...) [gestion création du cache de Mplayer/Mencoder,
- *        déplacement de l'envoi de la langue et du chargement de fichier à la
- *        fin de la fonction]
- *
- * v1.02: ajout de private static String getWindowsFileVersion(File filever, File file)
- * v1.02: modif de main(...) [gestion des numéro de version sur les exe avec filever]
- */
-
 /**
  * Initialisation et lancement de l'application.
  *
@@ -230,7 +195,7 @@ public class Main {
         }
 
         flashCore.sendVersionToFlash(versions);
-    }//end main
+    }
 
     /**
      * Récupère le numéro de version d'un fichier sous Windows.

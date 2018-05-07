@@ -10,20 +10,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/*
- * v0.99: supp de public static final String element_java = "java";
- * v0.99: supp de public static final String element_object = "object";
- * v0.99: supp de public static final String element_void = "void";
- * v0.99: supp de public static final String attribut_method = "method";
- * v0.99: supp de public static final String property_mediaLength = "mediaLength";
- */
-
 /**
  * Parse XML pour les fichiers d'index et projet créer avant la version 0.94
  *
  * @author Fabrice Alleau
- * @since version 0.95
  * @version 0.99
+ * @since version 0.95
  */
 public class XMLUtilitiesOldVersion {
     /*
@@ -76,36 +68,58 @@ public class XMLUtilitiesOldVersion {
 //    private static final String element_java = "java";
 //    /** Balise pour l'élément object (unused) */
 //    private static final String element_object = "object";
-    /** Balise d'attribut class */
+    /**
+     * Balise d'attribut class
+     */
     private static final String attribut_class = "class";
-     /** Nom de la classe pour le décodeur */
+    /**
+     * Nom de la classe pour le décodeur
+     */
     private static final String class_XMLDecoder = "java.beans.XMLDecoder";
 
 //    /** Balise pour l'élément void (unused) */
 //    private static final String element_void = "void";
-    /** Balise d'attribut property */
+    /**
+     * Balise d'attribut property
+     */
     private static final String attribut_property = "property";
 //    /** Balise d'attribut method (unused) */
 //    private static final String attribut_method = "method";
 
-    /** Nom de la classe pour la liste d'index */
+    /**
+     * Nom de la classe pour la liste d'index
+     */
     private static final String class_indexes = "labo.Indexes";
-    /** Nom de la propriété pour la liste stricte */
+    /**
+     * Nom de la propriété pour la liste stricte
+     */
     private static final String property_indexes = "indexes";
-    /** Nom de la propriété pour la durée */
+    /**
+     * Nom de la propriété pour la durée
+     */
     private static final String property_length = "length";
 //    /** Nom de la propriété pour la durée du media */
 //    private static final String property_mediaLength = "mediaLength";
 
-    /** Nom de la classe pour un index */
+    /**
+     * Nom de la classe pour un index
+     */
     private static final String class_index = "labo.Index";
-    /** Nom de la propriété pour le type */
+    /**
+     * Nom de la propriété pour le type
+     */
     private static final String property_type = "type";
-    /** Nom de la propriété pour le temps de départ */
+    /**
+     * Nom de la propriété pour le temps de départ
+     */
     private static final String property_initialTime = "initialTime";
-    /** Nom de la propriété pour le temps de fin */
+    /**
+     * Nom de la propriété pour le temps de fin
+     */
     private static final String property_finalTime = "finalTime";
-    /** Nom de la propriété pour de soustitre */
+    /**
+     * Nom de la propriété pour de soustitre
+     */
     private static final String property_subtitle = "subtitle";
 
     /*
@@ -132,17 +146,29 @@ public class XMLUtilitiesOldVersion {
      *     </object>
      * </java>
      */
-    /** Nom de la classe pour un projet */
+    /**
+     * Nom de la classe pour un projet
+     */
     private static final String class_project = "labo.ProjectFiles";
-    /** Nom de la propriété pour le fichier audio */
+    /**
+     * Nom de la propriété pour le fichier audio
+     */
     private static final String property_audioFile = "audioFile";
-    /** Nom de la propriété pour le fichier multimédia */
+    /**
+     * Nom de la propriété pour le fichier multimédia
+     */
     private static final String property_multimediaFile = "multimediaFile";
-    /** Nom de la propriété pour le fichier d'index */
+    /**
+     * Nom de la propriété pour le fichier d'index
+     */
     private static final String property_indexesFile = "indexesFile";
-    /** Nom de la propriété pour le fichier de soustitres */
+    /**
+     * Nom de la propriété pour le fichier de soustitres
+     */
     private static final String property_subtitleFile = "subtitleFile";
-    /** Nom de la propriété pour le fichier texte */
+    /**
+     * Nom de la propriété pour le fichier texte
+     */
     private static final String property_textFile = "textFile";
 
 
@@ -150,7 +176,9 @@ public class XMLUtilitiesOldVersion {
      * Retourne la liste d'index contenue dans le fichier.
      *
      * @param file le fichier contenant la liste d'index.
+     *
      * @return la liste d'index contenue dans le fichier ou une liste vide.
+     *
      * @since version 0.95
      */
     public static Indexes loadIndexes(File file) {
@@ -159,11 +187,13 @@ public class XMLUtilitiesOldVersion {
         Document document = XMLUtilities.getDocument(file);
 
         //traitement du document
-        if(document != null)
+        if (document != null) {
             indexes = parseNodeAsIndexes(document.getDocumentElement());
+        }
 
-        if(indexes == null)
+        if (indexes == null) {
             indexes = new Indexes();
+        }
 
         return indexes;
     }
@@ -172,7 +202,9 @@ public class XMLUtilitiesOldVersion {
      * Retourne le projet contenu dans le fichier.
      *
      * @param file le fichier contenant le projet.
+     *
      * @return le projet contenu dans le fichier ou un projet vide.
+     *
      * @since version 0.95
      */
     public static ProjectFiles loadProject(File file) {
@@ -181,11 +213,13 @@ public class XMLUtilitiesOldVersion {
         Document document = XMLUtilities.getDocument(file);
 
         //traitement du document
-        if(document != null)
+        if (document != null) {
             project = parseNodeAsProject(document.getDocumentElement());
+        }
 
-        if(project == null)
+        if (project == null) {
             project = new ProjectFiles();
+        }
 
         return project;
     }
@@ -194,59 +228,60 @@ public class XMLUtilitiesOldVersion {
      * Parse le noeud xml comme si c'était une liste d'index.
      *
      * @param node le noeud xml.
+     *
      * @return la liste d'index ou <code>null</code>.
+     *
      * @since version 0.95
      */
     private static Indexes parseNodeAsIndexes(Node node) {
         Indexes indexes = null;
 
-        if(node.hasAttributes()) {
+        if (node.hasAttributes()) {
             NamedNodeMap attributes = node.getAttributes();
-            for(int i=0; i<attributes.getLength(); i++) {
+            for (int i = 0; i < attributes.getLength(); i++) {
                 Node attribute = attributes.item(i);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_class)
-                        && attribute.getNodeValue().contentEquals(class_indexes)) {
+                if (name.contentEquals(attribut_class) && attribute.getNodeValue().contentEquals(class_indexes)) {
                     indexes = new Indexes();
-                }
-                else if(name.contentEquals(attribut_class)
-                        && attribute.getNodeValue().contentEquals(class_XMLDecoder)) {
-                    if(node.hasChildNodes()) {
+                } else if (name.contentEquals(attribut_class) && attribute.getNodeValue()
+                        .contentEquals(class_XMLDecoder)) {
+                    if (node.hasChildNodes()) {
                         return parseNodeAsIndexes(node.getFirstChild());
                     }
                 }
             }
         }
 
-        if(indexes == null)
+        if (indexes == null) {
             return null;
+        }
 
         NodeList children = node.getChildNodes();
-        for(int i=0; i<children.getLength(); i++) {
+        for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
             NamedNodeMap attributes = child.getAttributes();
-            for(int j=0; j<attributes.getLength(); j++) {
+            for (int j = 0; j < attributes.getLength(); j++) {
                 Node attribute = attributes.item(j);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_property)) {
-                    if(attribute.getNodeValue().contentEquals(property_length)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            long value = Utilities.parseStringAsLong(
-                                    child.getFirstChild().getFirstChild().getNodeValue());
+                if (name.contentEquals(attribut_property)) {
+                    if (attribute.getNodeValue().contentEquals(property_length)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            long value = Utilities
+                                    .parseStringAsLong(child.getFirstChild().getFirstChild().getNodeValue());
                             indexes.setMediaLength(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_indexes)) {
+                    } else if (attribute.getNodeValue().contentEquals(property_indexes)) {
                         NodeList indexesChildren = child.getChildNodes();
-                        for(int k=0; k<indexesChildren.getLength(); k++) {
-                            if(!indexesChildren.item(k).hasChildNodes())
+                        for (int k = 0; k < indexesChildren.getLength(); k++) {
+                            if (!indexesChildren.item(k).hasChildNodes()) {
                                 continue;
+                            }
 
-                            Index index = parseNodeAsIndex(
-                                    indexesChildren.item(k).getFirstChild());
-                            if(index != null)
+                            Index index = parseNodeAsIndex(indexesChildren.item(k).getFirstChild());
+                            if (index != null) {
                                 indexes.add(index);
+                            }
                         }
                     }
                 }
@@ -260,59 +295,58 @@ public class XMLUtilitiesOldVersion {
      * Parse le noeud xml comme si c'était un index.
      *
      * @param node le noeud xml.
+     *
      * @return l'index ou <code>null</code>.
+     *
      * @since version 0.95
      */
     private static Index parseNodeAsIndex(Node node) {
         Index index = null;
 
-        if(node.hasAttributes()) {
+        if (node.hasAttributes()) {
             NamedNodeMap attributes = node.getAttributes();
-            for(int i=0; i<attributes.getLength(); i++) {
+            for (int i = 0; i < attributes.getLength(); i++) {
                 Node attribute = attributes.item(i);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_class)
-                        && attribute.getNodeValue().contentEquals(class_index))
+                if (name.contentEquals(attribut_class) && attribute.getNodeValue().contentEquals(class_index)) {
                     index = new Index(Index.UNKNOWN);
+                }
             }
         }
 
-        if(index == null)
+        if (index == null) {
             return null;
+        }
 
         NodeList children = node.getChildNodes();
-        for(int i=0; i<children.getLength(); i++) {
+        for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             NamedNodeMap attributes = child.getAttributes();
-            for(int j=0; j<attributes.getLength(); j++) {
+            for (int j = 0; j < attributes.getLength(); j++) {
                 Node attribute = attributes.item(j);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_property)) {
-                    if(attribute.getNodeValue().contentEquals(property_initialTime)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            long value = Utilities.parseStringAsLong(
-                                    child.getFirstChild().getFirstChild().getNodeValue());
+                if (name.contentEquals(attribut_property)) {
+                    if (attribute.getNodeValue().contentEquals(property_initialTime)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            long value = Utilities
+                                    .parseStringAsLong(child.getFirstChild().getFirstChild().getNodeValue());
                             index.setInitialTime(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_finalTime)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            long value = Utilities.parseStringAsLong(
-                                    child.getFirstChild().getFirstChild().getNodeValue());
+                    } else if (attribute.getNodeValue().contentEquals(property_finalTime)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            long value = Utilities
+                                    .parseStringAsLong(child.getFirstChild().getFirstChild().getNodeValue());
                             index.setFinalTime(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_subtitle)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                    } else if (attribute.getNodeValue().contentEquals(property_subtitle)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             index.setSubtitle(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_type)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            int value = Utilities.parseStringAsInt(
-                                    child.getFirstChild().getFirstChild().getNodeValue());
+                    } else if (attribute.getNodeValue().contentEquals(property_type)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            int value = Utilities
+                                    .parseStringAsInt(child.getFirstChild().getFirstChild().getNodeValue());
                             index.setType(getType(value));
                         }
                     }
@@ -327,12 +361,14 @@ public class XMLUtilitiesOldVersion {
      * Convertie l'ancien type pour le nouveau type.
      *
      * @param oldType l'ancien type.
+     *
      * @return le type actuel correspondant.
+     *
      * @since version 0.95
      */
     private static String getType(int oldType) {
         String type = Index.UNKNOWN;
-        switch(oldType) {
+        switch (oldType) {
             case 0:
                 type = Index.PLAY;
                 break;
@@ -348,73 +384,65 @@ public class XMLUtilitiesOldVersion {
      * Parse le noeud xml comme si c'était un projet.
      *
      * @param node le noeud xml.
+     *
      * @return le projet ou <code>null</code>.
+     *
      * @since version 0.95
      */
     private static ProjectFiles parseNodeAsProject(Node node) {
         ProjectFiles project = null;
 
-        if(node.hasAttributes()) {
+        if (node.hasAttributes()) {
             NamedNodeMap attributes = node.getAttributes();
-            for(int i=0; i<attributes.getLength(); i++) {
+            for (int i = 0; i < attributes.getLength(); i++) {
                 Node attribute = attributes.item(i);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_class)
-                        && attribute.getNodeValue().contentEquals(class_project)) {
+                if (name.contentEquals(attribut_class) && attribute.getNodeValue().contentEquals(class_project)) {
                     project = new ProjectFiles();
-                }
-                else if(name.contentEquals(attribut_class)
+                } else if (name.contentEquals(attribut_class)
                         && attribute.getNodeValue().contentEquals(class_XMLDecoder)) {
-                    if(node.hasChildNodes()) {
+                    if (node.hasChildNodes()) {
                         return parseNodeAsProject(node.getFirstChild());
                     }
                 }
             }
         }
 
-        if(project == null)
+        if (project == null) {
             return null;
+        }
 
         NodeList children = node.getChildNodes();
-        for(int i=0; i<children.getLength(); i++) {
+        for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             NamedNodeMap attributes = child.getAttributes();
-            for(int j=0; j<attributes.getLength(); j++) {
+            for (int j = 0; j < attributes.getLength(); j++) {
                 Node attribute = attributes.item(j);
                 String name = attribute.getNodeName();
-                if(name.contentEquals(attribut_property)){
-                    if(attribute.getNodeValue().contentEquals(property_audioFile)) {
-                         if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                if (name.contentEquals(attribut_property)) {
+                    if (attribute.getNodeValue().contentEquals(property_audioFile)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             project.setAudioFile(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_multimediaFile)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                    } else if (attribute.getNodeValue().contentEquals(property_multimediaFile)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             project.setVideoFile(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_indexesFile)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                    } else if (attribute.getNodeValue().contentEquals(property_indexesFile)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             project.setIndexesFile(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_subtitleFile)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                    } else if (attribute.getNodeValue().contentEquals(property_subtitleFile)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             project.setSubtitleFile(value);
                         }
-                    }
-                    else if(attribute.getNodeValue().contentEquals(property_textFile)) {
-                        if(child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
-                            String value
-                                    = child.getFirstChild().getFirstChild().getNodeValue();
+                    } else if (attribute.getNodeValue().contentEquals(property_textFile)) {
+                        if (child.hasChildNodes() && child.getFirstChild().hasChildNodes()) {
+                            String value = child.getFirstChild().getFirstChild().getNodeValue();
                             project.setTextFile(value);
                         }
                     }
@@ -425,4 +453,4 @@ public class XMLUtilitiesOldVersion {
         return project;
     }
 
-}//end
+}

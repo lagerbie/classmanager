@@ -7,30 +7,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-/*
- * v0.95: supp de private Core core;
- * v0.95: modif de BUFFER_SIZE = 1024 en 1024*8
- * v0.95: modif de Recorder(Core core, ByteBuffer recordBuffer, AudioFormat
- *        audioFormat) en Recorder(ByteBuffer recordBuffer, AudioFormat audioFormat)
- *        throws LineUnavailableException, IllegalArgumentException
- * v0.95: private void fireTimeChanged(long time) géré dans Processing
- * v0.95: private void fireEndProcess(boolean running) géré dans Processing
- *
- * v0.96: modif de run() [remplacement de data.length par BUFFER_SIZE]
- *
- * v0.97: public static final int BUFFER_SIZE géré dans AudioProcessing
- * v0.97: private byte data[] géré dans AudioProcessing
- * v0.97: private AudioFormat audioFormat géré dans AudioProcessing
- * v0.97: private ByteBuffer buffer géré dans AudioProcessing
- * v0.97: private long initTime géré dans AudioProcessing
- * v0.97: private long stopTime géré dans AudioProcessing
- * v0.97: public void setRecordBuffer(ByteBuffer buffer) géré dans AudioProcessing
- * v0.97: public void start(long initTime, long stopTime) géré dans AudioProcessing
- * v0.97: supp de @Override public void start()
- * v0.97: modif de Recorder(...) [use super(...)]
- * v0.97: modif de run() [supp utilisation variable locale initTime]
- */
-
 /**
  * Classe pour capturer des données.
  *

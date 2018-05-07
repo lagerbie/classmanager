@@ -4,59 +4,36 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/*
- * v0.95: ajout de public void addHalfSubtitleIndex(long beginTime, long endTime)
- * v0.95: ajout de private void removeIndexesIn(long beginTime, long endTime)
- * v0.95: ajout de public Index getIndexWithId(long id)
- * v0.95: ajout de public Index previousIndex(Index currentIndex)
- * v0.95: ajout de public Index nextIndex(Index currentIndex)
- * v0.95: ajout de public Iterator<Index> iterator()
- * v0.95: supp de public Index getIndex(int indice)
- * v0.95: supp de public int getIndexIndice(long time)
- * v0.95: supp de public long getMaximalLenghtFor(long currentTime)
- * v0.95: supp de public int getValidity(Index currentIndex)
- * v0.95: supp de public int getGlobalValidity()
- * v0.95: modif de void addNullIndex() en long addNullIndex()
- * 
- * v0.96: modif de removeNullIndex() [vidage liste]
- * v0.96: modif de removeAll() [vidage liste]
- * v0.96: modif de removeIndexesIn(long beginTime, long endTime) [vidage liste]
- * 
- * v0.97: supp de public static final int NORMAL = 0;
- * v0.97: supp de public static final int NULL_SIZE = 2;
- * v0.97: supp de public static final int OVERLAP = 4;
- * v0.97: supp de public static final int IDENTICAL = 8;
- * v0.97: supp de public void addHalfSubtitleIndex(long beginTime, long endTime)
- * v0.97: supp de private void removeIndexesIn(long beginTime, long endTime)
- * 
- * v0.99: ajout de private boolean checkValidity(Index currentIndex)
- * v0.99: ajout de public boolean checkValidity()
- * 
- * v1.01: ajout de public boolean hasStudentRecordIndex()
- * v1.01: modif de getLength() [add rate]
- * v1.01: modif de updateIndexes(Index newIndex, Index oldIndex) [add rate]
- */
-
 /**
  * Classes regroupant une suite d'index.
  *
  * @author Fabrice Alleau
- * @since version 0.94
  * @version 1.01
+ * @since version 0.94
  */
 @Deprecated
 public class Indexes {
-    /** Mode d'examin (une seule lecture) */
+    /**
+     * Mode d'examin (une seule lecture)
+     */
     public static final String EXAMEN_MODE = "examen";
-    /** Mode libre (plusieurs lectures possibles) */
+    /**
+     * Mode libre (plusieurs lectures possibles)
+     */
     public static final String OPEN_MODE = "libre";
 
-    /** Mode d'utilisation */
+    /**
+     * Mode d'utilisation
+     */
     private String mode;
-    /** Durée totale du média */
+    /**
+     * Durée totale du média
+     */
     private long mediaLength;
 
-    /** Sauvegarde la liste des index */
+    /**
+     * Sauvegarde la liste des index
+     */
     private List<Index> indexes;
 
     /**
@@ -74,6 +51,7 @@ public class Indexes {
      * Retourne le mode d'utilisation.
      *
      * @return le mode d'utilisation.
+     *
      * @since version 0.94
      */
     public String getMode() {
@@ -84,6 +62,7 @@ public class Indexes {
      * Modifie le mode d'utilisation.
      *
      * @param mode le mode d'utilisation.
+     *
      * @since version 0.94
      */
     public void setMode(String mode) {
@@ -94,6 +73,7 @@ public class Indexes {
      * Retourne la durée totale du média sans les insertions.
      *
      * @return la durée totale en millisecondes.
+     *
      * @since version 0.94
      */
     public long getMediaLength() {
@@ -104,6 +84,7 @@ public class Indexes {
      * Modifie la durée totale.
      *
      * @param length la durée totale en millisecondes.
+     *
      * @since version 0.94
      */
     public void setMediaLength(long length) {
@@ -114,16 +95,18 @@ public class Indexes {
      * Retourne la durée totale du média avec les insertions.
      *
      * @return la durée totale en millisecondes.
+     *
      * @since version 0.94 - version 1.01
      */
     public long getLength() {
         long length = mediaLength;
-        for(Index index : indexes) {
-            if(index.isTimeLineModifier()) {
-                if(index.getRate() == Index.NORMAL_RATE)
+        for (Index index : indexes) {
+            if (index.isTimeLineModifier()) {
+                if (index.getRate() == Index.NORMAL_RATE) {
                     length += index.getLength();
-                else
+                } else {
                     length += index.getLength() * (1 - index.getRate());
+                }
             }
         }
         return length;
@@ -133,6 +116,7 @@ public class Indexes {
      * Retourne le nombre d'index.
      *
      * @return le nombre d'index.
+     *
      * @since version 0.94
      */
     public int getIndexesCount() {
@@ -140,11 +124,12 @@ public class Indexes {
     }
 
     /**
-     * Ajoute un index.
-     * WARNING: pas de changements pour les index modifiant la durée.
+     * Ajoute un index. WARNING: pas de changements pour les index modifiant la durée.
      *
      * @param index l'index à ajouter.
+     *
      * @return <code>true</true> si l'index a été ajouté.
+     *
      * @see #add(eestudio.Index)
      * @since version 0.94
      */
@@ -156,7 +141,9 @@ public class Indexes {
      * Ajoute un index.
      *
      * @param index l'index à ajouter.
+     *
      * @return <code>true</true> si l'index a été ajouté.
+     *
      * @since version 0.94
      */
     public boolean addIndex(Index index) {
@@ -168,6 +155,7 @@ public class Indexes {
      * Ajoute un index sans valeur de type lecture.
      *
      * @return l'id de l'index crée.
+     *
      * @since version 0.94 - version 0.95
      */
     public long addNullIndex() {
@@ -180,22 +168,24 @@ public class Indexes {
      * Ajoute un demi-index de soustitre au temps voulu.
      *
      * @param time le temps voulu.
+     *
      * @return si le demi index a été ajouté.
+     *
      * @since version 0.94
      */
     public boolean addHalfSubtitleIndexAtTime(long time) {
         boolean added = true;
         Index index = getHalfIndex();
-        if(index == null) {
+        if (index == null) {
             added = indexes.add(new Index(Index.PLAY, time));
         } else {
             long begin = index.getInitialTime();
-            if(begin > time) {
+            if (begin > time) {
                 index.setInitialTime(time);
                 index.setFinalTime(begin);
-            }
-            else
+            } else {
                 index.setFinalTime(time);
+            }
         }
         return added;
     }
@@ -204,12 +194,14 @@ public class Indexes {
      * Retoune le dernier index créé (pas de temps de fin).
      *
      * @return le dernier index créé.
+     *
      * @since version 0.94
      */
     private Index getHalfIndex() {
-        for(Index index : indexes) {
-            if(index.getFinalTime() < 0)
+        for (Index index : indexes) {
+            if (index.getFinalTime() < 0) {
                 return index;
+            }
         }
         return null;
     }
@@ -279,14 +271,17 @@ public class Indexes {
      * Enleve l'index.
      *
      * @param index l'index à enlever.
+     *
      * @return si l'index supprimé.
+     *
      * @since version 0.94
      */
     public boolean removeIndex(Index index) {
         boolean remove = indexes.remove(index);
 
-        if(remove)
+        if (remove) {
             updateIndexes(null, index);
+        }
 
         return remove;
     }
@@ -295,24 +290,28 @@ public class Indexes {
      * Enleve l'index contenant le temps ou le demi index le plus proche.
      *
      * @param time le temps compris dans l'index.
+     *
      * @return l'index supprimé.
+     *
      * @since version 0.94
      */
     public Index removeIndexAtTime(long time) {
         Index index = getIndexAtTime(time);
         boolean remove = false;
 
-        if(index != null) {//si on est sur un index
+        if (index != null) {//si on est sur un index
             remove = indexes.remove(index);
         } else {
             index = getNearestIndexAtTime(time);
             //si c'est le dernier index
-            if(index != null && index.getFinalTime() < 0)
+            if (index != null && index.getFinalTime() < 0) {
                 remove = indexes.remove(index);
+            }
         }//end if
 
-        if(!remove)
+        if (!remove) {
             index = null;
+        }
 
         updateIndexes(null, index);
 
@@ -327,12 +326,13 @@ public class Indexes {
     public void removeNullIndex() {
         List<Index> removeIndexes = new ArrayList<Index>(indexes.size());
 
-        for(Index index : indexes) {
-            if(index.getFinalTime() <= index.getInitialTime())
+        for (Index index : indexes) {
+            if (index.getFinalTime() <= index.getInitialTime()) {
                 removeIndexes.add(index);
+            }
         }
 
-        for(Index index : removeIndexes) {
+        for (Index index : removeIndexes) {
             indexes.remove(index);
             index.clean();
         }
@@ -342,11 +342,11 @@ public class Indexes {
 
     /**
      * Réinitialise la liste des index.
-     * 
+     *
      * @since version 0.94 - version 0.96
      */
     public void removeAll() {
-        for(Index index : indexes) {
+        for (Index index : indexes) {
             index.clean();
         }
         indexes.clear();
@@ -356,13 +356,16 @@ public class Indexes {
      * Retourne l'index avec l'id.
      *
      * @param id l'id de l'index.
+     *
      * @return l'index.
+     *
      * @since version 0.95
      */
     public Index getIndexWithId(long id) {
-        for(Index index : indexes) {
-            if(id == index.getId())
+        for (Index index : indexes) {
+            if (id == index.getId()) {
                 return index;
+            }
         }
         return null;
     }
@@ -371,13 +374,16 @@ public class Indexes {
      * Retourne le premier Index qui contient le temps demandé.
      *
      * @param time le temps demandé.
+     *
      * @return l'index.
+     *
      * @since version 0.94
      */
     public Index getIndexAtTime(long time) {
-        for(Index index : indexes) {
-            if(time >= index.getInitialTime() && time <= index.getFinalTime())
+        for (Index index : indexes) {
+            if (time >= index.getInitialTime() && time <= index.getFinalTime()) {
                 return index;
+            }
         }
         return null;
     }
@@ -386,13 +392,14 @@ public class Indexes {
      * Retourne le premier index dans le temps.
      *
      * @return le premier index.
+     *
      * @since version 0.94
      */
     private Index getFirstIndex() {
         Index first = null;
         long time = Long.MAX_VALUE;
-        for(Index index : indexes) {
-            if(index.getInitialTime() < time) {
+        for (Index index : indexes) {
+            if (index.getInitialTime() < time) {
                 first = index;
                 time = first.getInitialTime();
             }
@@ -405,21 +412,23 @@ public class Indexes {
      * Retourne l'index le plus proche du temps demandé.
      *
      * @param time time le temps demandé.
+     *
      * @return l'index.
+     *
      * @since version 0.94
      */
     private Index getNearestIndexAtTime(long time) {
         Index nearestIndex = null;
         long min = Long.MAX_VALUE;
 
-        for(Index index : indexes) {
-            if(Math.abs(time-index.getInitialTime()) < min) {
-                min = Math.abs(time-index.getInitialTime());
+        for (Index index : indexes) {
+            if (Math.abs(time - index.getInitialTime()) < min) {
+                min = Math.abs(time - index.getInitialTime());
                 nearestIndex = index;
             }
 
-            if(Math.abs(index.getFinalTime()-time) < min) {
-                min = Math.abs(index.getFinalTime()-time);
+            if (Math.abs(index.getFinalTime() - time) < min) {
+                min = Math.abs(index.getFinalTime() - time);
                 nearestIndex = index;
             }
         }
@@ -430,15 +439,18 @@ public class Indexes {
      * Retourne le temps minimum pour le temps de départ de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps minimum pour le début de l'index.
+     *
      * @since version 0.94
      */
     public long getMinimalTime(Index currentIndex) {
         long timeMin = 0;
-        for(Index index : indexes) {
+        for (Index index : indexes) {
             long time = index.getFinalTime();
-            if(time > timeMin && time <= currentIndex.getInitialTime())
+            if (time > timeMin && time <= currentIndex.getInitialTime()) {
                 timeMin = time;
+            }
         }
         return timeMin;
     }
@@ -447,15 +459,18 @@ public class Indexes {
      * Retourne le temps maximum pour le temps de fin de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps maximum pour le temps de fin de l'index.
+     *
      * @since version 0.94
      */
     public long getMaximalTime(Index currentIndex) {
         long timeMax = getLength();
-        for(Index index : indexes) {
+        for (Index index : indexes) {
             long time = index.getInitialTime();
-            if(time < timeMax && time >= currentIndex.getFinalTime() )
+            if (time < timeMax && time >= currentIndex.getFinalTime()) {
                 timeMax = time;
+            }
         }
         return timeMax;
     }
@@ -464,15 +479,17 @@ public class Indexes {
      * Retourne le temps minimum pour le temps de départ de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps minimum pour le début de l'index.
+     *
      * @since version 0.95
      */
     public Index previousIndex(Index currentIndex) {
         Index previousIndex = null;
         long timeMin = 0;
-        for(Index index : indexes) {
+        for (Index index : indexes) {
             long time = index.getFinalTime();
-            if(time > timeMin && time <= currentIndex.getInitialTime()) {
+            if (time > timeMin && time <= currentIndex.getInitialTime()) {
                 timeMin = time;
                 previousIndex = index;
             }
@@ -484,15 +501,17 @@ public class Indexes {
      * Retourne le temps maximum pour le temps de fin de l'index.
      *
      * @param currentIndex l'index dont on veut redimmensionner.
+     *
      * @return le temps maximum pour le temps de fin de l'index.
+     *
      * @since version 0.95
      */
     public Index nextIndex(Index currentIndex) {
         Index nextIndex = null;
         long timeMax = getLength();
-        for(Index index : indexes) {
+        for (Index index : indexes) {
             long time = index.getInitialTime();
-            if(time < timeMax && time >= currentIndex.getFinalTime()) {
+            if (time < timeMax && time >= currentIndex.getFinalTime()) {
                 timeMax = time;
                 nextIndex = index;
             }
@@ -507,7 +526,7 @@ public class Indexes {
      */
     public void sortIndexes() {
         List<Index> newIndexes = new ArrayList<Index>(indexes.size());
-        while(indexes.size() > 0) {
+        while (indexes.size() > 0) {
             Index index = getFirstIndex();
             newIndexes.add(index);
             indexes.remove(index);
@@ -519,6 +538,7 @@ public class Indexes {
      * Retourne un iterateur sur les Index.
      *
      * @return un iterateur sur les Index.
+     *
      * @since version 0.95
      */
     public Iterator<Index> iterator() {
@@ -530,53 +550,58 @@ public class Indexes {
      *
      * @param newIndex le nouveau index.
      * @param oldIndex l'ancien index.
+     *
      * @since version 0.94 - version 1.01
      */
     private void updateIndexes(Index newIndex, Index oldIndex) {
-        if((newIndex == null && oldIndex == null)
-                ||(newIndex != null && oldIndex != null))
+        if ((newIndex == null && oldIndex == null)
+                || (newIndex != null && oldIndex != null)) {
             return;
+        }
 
         //Mise à jour des index pour le redimensionnement de l'index
         long timeMin = 0;
         long timeOffset = 0;
 
         //Ajout d'un Index modifiant la durée
-        if(oldIndex == null && newIndex.isTimeLineModifier()) {
+        if (oldIndex == null && newIndex.isTimeLineModifier()) {
             timeMin = newIndex.getInitialTime();
             timeOffset = newIndex.getLength();
-            if(newIndex.getRate() != Index.NORMAL_RATE) {
+            if (newIndex.getRate() != Index.NORMAL_RATE) {
                 timeOffset = (long) (newIndex.getLength()
                         * (1 - newIndex.getRate()) / newIndex.getRate());
             }
         }
         //supp d'un Index modifiant la durée
-        else if(newIndex == null && oldIndex.isTimeLineModifier()) {
+        else if (newIndex == null && oldIndex.isTimeLineModifier()) {
             timeMin = oldIndex.getInitialTime();
             timeOffset = -oldIndex.getLength();
-            if(oldIndex.getRate() != Index.NORMAL_RATE) {
+            if (oldIndex.getRate() != Index.NORMAL_RATE) {
                 timeOffset = (long) (oldIndex.getLength() * (oldIndex.getRate() - 1));
             }
         }
 
-        if(timeOffset != 0) {
-            for(Index index : indexes) {
-                if(index != newIndex && index.getInitialTime() >= timeMin)
+        if (timeOffset != 0) {
+            for (Index index : indexes) {
+                if (index != newIndex && index.getInitialTime() >= timeMin) {
                     index.move(timeOffset);
+                }
             }
         }
     }
 
     /**
      * Indique si la liste contient un index où l'élève doit s'enregistrer.
-     * 
+     *
      * @return si la liste contient un index où l'élève doit s'enregistrer.
+     *
      * @since version 1.01
      */
     public boolean hasStudentRecordIndex() {
-        for(Index index : indexes) {
-            if(index.isStudentRecord())
+        for (Index index : indexes) {
+            if (index.isStudentRecord()) {
                 return true;
+            }
         }
         return false;
     }
@@ -585,7 +610,9 @@ public class Indexes {
      * Indique si l'index à une durée nulle.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code>si l'index à une durée nulle.
+     *
      * @since version 0.94
      */
     private boolean isNullSize(Index currentIndex) {
@@ -598,18 +625,22 @@ public class Indexes {
      * Indique si l'index est compris en partie dans un autre index.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code>si l'index est à cheval avec un autre index.
+     *
      * @since version 0.94
      */
     private boolean isOverlapped(Index currentIndex) {
         long begin = currentIndex.getInitialTime();
         long end = currentIndex.getFinalTime();
-        for(Index index : indexes) {
-            if(index == currentIndex)
+        for (Index index : indexes) {
+            if (index == currentIndex) {
                 continue;
-            if((begin > index.getInitialTime() && begin < index.getFinalTime())
-                    || (end > index.getInitialTime() && end < index.getFinalTime()))
+            }
+            if ((begin > index.getInitialTime() && begin < index.getFinalTime())
+                    || (end > index.getInitialTime() && end < index.getFinalTime())) {
                 return true;
+            }
         }
         return false;
     }
@@ -618,17 +649,21 @@ public class Indexes {
      * Indique si un index est identique à un autre index.
      *
      * @param currentIndex l'index.
+     *
      * @return <code>true</code> si l'index est identique à un autre index.
+     *
      * @since version 0.94
      */
     private boolean isIdentical(Index currentIndex) {
         long begin = currentIndex.getInitialTime();
         long end = currentIndex.getFinalTime();
-        for(Index index : indexes) {
-            if(index == currentIndex)
+        for (Index index : indexes) {
+            if (index == currentIndex) {
                 continue;
-            if(begin == index.getInitialTime() && end == index.getFinalTime())
+            }
+            if (begin == index.getInitialTime() && end == index.getFinalTime()) {
                 return true;
+            }
         }
         return false;
     }
@@ -637,16 +672,21 @@ public class Indexes {
      * Retourne la validité de l'index.
      *
      * @param currentIndex l'index.
+     *
      * @return la validité de l'index.
+     *
      * @since version 0.99
      */
     private boolean checkValidity(Index currentIndex) {
-        if(isNullSize(currentIndex))
+        if (isNullSize(currentIndex)) {
             return false;
-        if(isOverlapped(currentIndex))
+        }
+        if (isOverlapped(currentIndex)) {
             return false;
-        if(isIdentical(currentIndex))
+        }
+        if (isIdentical(currentIndex)) {
             return false;
+        }
         return true;
     }
 
@@ -654,12 +694,14 @@ public class Indexes {
      * Retourne la validité globale.
      *
      * @return la validité globale.
+     *
      * @since version 0.99
      */
     public boolean checkValidity() {
-        for(Index index : indexes) {
-            if(!checkValidity(index))
+        for (Index index : indexes) {
+            if (!checkValidity(index)) {
                 return false;
+            }
         }
         return true;
     }

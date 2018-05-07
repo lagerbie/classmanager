@@ -1,25 +1,24 @@
 package eestudio;
 
-/*
- * v0.96: ajout de @Override public void clean()
- */
-
 /**
  * Index d'insertion de fichier.
- * 
+ *
  * @author Fabrice Alleau
- * @since version 0.90
  * @version 0.96
+ * @since version 0.90
  */
 @Deprecated
 public class IndexFile extends Index {
-    /** Nom du fichier associé */
+    /**
+     * Nom du fichier associé
+     */
     private String fileName;
 
     /**
      * Initilise un index d'insetion de fichier sans temps initial.
      *
      * @param fileName le nom de fichier.
+     *
      * @since version 0.90
      */
     public IndexFile(String fileName) {
@@ -31,6 +30,7 @@ public class IndexFile extends Index {
      *
      * @param fileName le nom de fichier.
      * @param initialTime le temps initial.
+     *
      * @since version 0.90
      */
     public IndexFile(String fileName, long initialTime) {
@@ -40,8 +40,9 @@ public class IndexFile extends Index {
 
     /**
      * Retourne le nom de fichier.
-     * 
+     *
      * @return le nom de fichier.
+     *
      * @since version 0.90
      */
     public String getFileName() {
@@ -50,8 +51,9 @@ public class IndexFile extends Index {
 
     /**
      * Modifie le nom du fichier.
-     * 
+     *
      * @param fileName le nom de fichier.
+     *
      * @since version 0.90
      */
     public void setFileName(String fileName) {
@@ -60,7 +62,7 @@ public class IndexFile extends Index {
 
     /**
      * Nettoyage des références en vu d'une suppresion.
-     * 
+     *
      * @since version 0.96
      */
     @Override

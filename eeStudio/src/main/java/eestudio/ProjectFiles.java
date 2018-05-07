@@ -1,58 +1,51 @@
 package eestudio;
 
-/*
- * v0.95: ajout de public void clear()
- * v0.95: ajout de public boolean isEmptyProject()
- * 
- * v0.96: ajout de private String soft = "soft";
- * v0.96: ajout de private String videoOriginalFile = "videoOriginalFile";
- * v0.96: ajout de public String getSoft()
- * v0.96: ajout de public String getVideoOriginalFile()
- * v0.96: ajout de public void setSoft(String soft)
- * v0.96: ajout de public void setVideoOriginalFile(String videoOriginalFile)
- * v0.96: modif de clear() [add videoOriginalFile]
- * v0.96: modif de public ProjectFiles() [add videoOriginalFile, soft]
- * v0.96: supp de public ProjectFiles(String audioFile, String videoFile,
- *        String indexesFile, String subtitleFile, String textFile)
- * 
- * v1.00: ajout de private String tagFile;
- * v1.00: ajout de public String getTagFile()
- * v1.00: ajout de public void setTagFile(String tagFile)
- * v1.00: modif de clear() [add tagFile]
- * 
- * v1.03: modif de ProjectFiles() [init tagFile]
- */
-
 /**
  * Cette classe regroupant les fichiers du projet.
- * 
+ *
  * @author Fabrice Alleau
- * @since version 0.94
  * @version 1.03
+ * @since version 0.94
  */
 @Deprecated
 public class ProjectFiles {
-    /** Nom du logiciel de l'exportation */
+    /**
+     * Nom du logiciel de l'exportation
+     */
     private String soft;
-    /** Nom du fichier audio */
+    /**
+     * Nom du fichier audio
+     */
     private String audioFile;
-    /** Nom du fichier video */
+    /**
+     * Nom du fichier video
+     */
     private String videoFile;
-    /** Nom du fichier d'index */
+    /**
+     * Nom du fichier d'index
+     */
     private String indexesFile;
-    /** Nom du fichier de sous titres */
+    /**
+     * Nom du fichier de sous titres
+     */
     private String subtitleFile;
-    /** Nom du fichier texte */
+    /**
+     * Nom du fichier texte
+     */
     private String textFile;
-    /** Nom du fichier des tags */
+    /**
+     * Nom du fichier des tags
+     */
     private String tagFile;
 
-    /** Nom du fichier video originel (sans sous-titre incrustés) */
+    /**
+     * Nom du fichier video originel (sans sous-titre incrustés)
+     */
     private String videoOriginalFile;
 
     /**
      * Initialisation de la gestion des fichiers du projet.
-     * 
+     *
      * @since version 0.94 - version 1.03
      */
     public ProjectFiles() {
@@ -68,8 +61,9 @@ public class ProjectFiles {
 
     /**
      * Retourne le nom du logiciel de destination du projet.
-     * 
+     *
      * @return le nom du logiciel de destination.
+     *
      * @since version 0.96
      */
     public String getSoft() {
@@ -80,6 +74,7 @@ public class ProjectFiles {
      * Retourne le nom du fichier audio.
      *
      * @return le nom du fichier audio.
+     *
      * @since version 0.94
      */
     public String getAudioFile() {
@@ -88,8 +83,9 @@ public class ProjectFiles {
 
     /**
      * Retourne le nom du fichier vidéo.
-     * 
+     *
      * @return le nom du fichier vidéo.
+     *
      * @since version 0.94
      */
     public String getVideoFile() {
@@ -100,6 +96,7 @@ public class ProjectFiles {
      * Retourne le nom du fichier d'index.
      *
      * @return le nom du fichier d'index.
+     *
      * @since version 0.94
      */
     public String getIndexesFile() {
@@ -110,6 +107,7 @@ public class ProjectFiles {
      * Retourne le nom du fichier de soustitres.
      *
      * @return le nom du fichier de soustitres.
+     *
      * @since version 0.94
      */
     public String getSubtitleFile() {
@@ -120,6 +118,7 @@ public class ProjectFiles {
      * Retourne le nom du fichier texte.
      *
      * @return le nom du fichier texte.
+     *
      * @since version 0.94
      */
     public String getTextFile() {
@@ -130,6 +129,7 @@ public class ProjectFiles {
      * Retourne le nom du fichier des tags.
      *
      * @return le nom du fichier des tags.
+     *
      * @since version 1.00
      */
     public String getTagFile() {
@@ -138,8 +138,9 @@ public class ProjectFiles {
 
     /**
      * Retourne le nom du fichier vidéo originale (sans les sous-titres intégrés).
-     * 
+     *
      * @return le nom du fichier vidéo originale.
+     *
      * @since version 0.96
      */
     public String getVideoOriginalFile() {
@@ -148,8 +149,9 @@ public class ProjectFiles {
 
     /**
      * Modifie le nom du logiciel de destination du projet.
-     * 
+     *
      * @param soft le nom du logiciel de destination.
+     *
      * @since version 0.96
      */
     public void setSoft(String soft) {
@@ -160,6 +162,7 @@ public class ProjectFiles {
      * Modifie le nom du fichier audio.
      *
      * @param audioFile le nom du nouveau fichier audio.
+     *
      * @since version 0.94
      */
     public void setAudioFile(String audioFile) {
@@ -168,8 +171,9 @@ public class ProjectFiles {
 
     /**
      * Modifie le nom du fichier vidéo.
-     * 
+     *
      * @param videoFile le nom du nouveau fichier vidéo.
+     *
      * @since version 0.94
      */
     public void setVideoFile(String videoFile) {
@@ -180,6 +184,7 @@ public class ProjectFiles {
      * Modifie le nom du fichier d'index.
      *
      * @param indexesFile le nom du nouveau fichier d'index.
+     *
      * @since version 0.94
      */
     public void setIndexesFile(String indexesFile) {
@@ -190,6 +195,7 @@ public class ProjectFiles {
      * Modifie le nom du fichier de soustitres.
      *
      * @param subtitleFile le nom du nouveau fichier de soustitres.
+     *
      * @since version 0.94
      */
     public void setSubtitleFile(String subtitleFile) {
@@ -200,6 +206,7 @@ public class ProjectFiles {
      * Modifie le nom du fichier texte.
      *
      * @param textFile le nom du nouveau fichier texte.
+     *
      * @since version 0.94
      */
     public void setTextFile(String textFile) {
@@ -210,6 +217,7 @@ public class ProjectFiles {
      * Modifie le nom du fichier des tags.
      *
      * @param tagFile le nom du nouveau fichier des tags.
+     *
      * @since version 1.00
      */
     public void setTagFile(String tagFile) {
@@ -218,8 +226,9 @@ public class ProjectFiles {
 
     /**
      * Modifie le nom du fichier vidéo originale (sans les sous-titres intégrés).
-     * 
+     *
      * @param videoOriginalFile le nom du fichier vidéo originale.
+     *
      * @since version 0.96
      */
     public void setVideoOriginalFile(String videoOriginalFile) {
@@ -245,6 +254,7 @@ public class ProjectFiles {
      * Indique si le projet est vide.
      *
      * @return <code>true</code> si le projet est vide.
+     *
      * @since version 0.95
      */
     public boolean isEmptyProject() {
@@ -256,6 +266,7 @@ public class ProjectFiles {
      * Retourne si le project contient uniquement un fichier audio.
      *
      * @return si on uniquement un fichier audio.
+     *
      * @since version 0.94
      */
     public boolean isAudioProject() {
@@ -267,6 +278,7 @@ public class ProjectFiles {
      * Retourne si le project contient uniquement un fichier vidéo.
      *
      * @return si on uniquement un fichier vidéo.
+     *
      * @since version 0.94
      */
     public boolean isVideoProject() {
@@ -278,6 +290,7 @@ public class ProjectFiles {
      * Retourne si le project contient uniquement un fichier texte.
      *
      * @return si on uniquement un fichier texte.
+     *
      * @since version 0.94
      */
     public boolean isTextProject() {
@@ -289,6 +302,7 @@ public class ProjectFiles {
      * Retourne si le project contient uniquement un fichier d'index.
      *
      * @return si on uniquement un fichier d'index.
+     *
      * @since version 0.94
      */
     public boolean isIndexesProject() {

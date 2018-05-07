@@ -10,51 +10,76 @@ import java.util.Set;
 
 /**
  * Gestion des tags au format MP3.
- * 
+ *
  * @author Fabrice Alleau
  * @since version 1.00
  */
 public class TagList {
-    /** Clé pour le titre */
+    /**
+     * Clé pour le titre
+     */
     public static final String TITLE = "ETT";
-    /** Clé pour l'auteur */
+    /**
+     * Clé pour l'auteur
+     */
     public static final String AUTHOR = "AUT";
-    /** Clé pour l'auteur */
+    /**
+     * Clé pour l'auteur
+     */
     public static final String ARTIST = "EAR";
-    /** Clé pour l'album */
+    /**
+     * Clé pour l'album
+     */
     public static final String ALBUM = "EAL";
-    /** Clé pour les commentaires */
+    /**
+     * Clé pour les commentaires
+     */
     public static final String COMMENT = "comment";
-    /** Clé pour la piste */
+    /**
+     * Clé pour la piste
+     */
     public static final String TRACK = "track";
-    /** Clé pour le genre */
+    /**
+     * Clé pour le genre
+     */
     public static final String GENRE = "genre";
-     /** Clé pour l'année */
+    /**
+     * Clé pour l'année
+     */
     public static final String YEAR = "year";
-    /** Clé pour l'information */
+    /**
+     * Clé pour l'information
+     */
     public static final String INFORMATION = "INF";
-    /** Clé pour l'image */
+    /**
+     * Clé pour l'image
+     */
     public static final String IMAGE = "IMG";
-    /** Identifiant pour un genre non détérminé */
+    /**
+     * Identifiant pour un genre non détérminé
+     */
     public static final int GENRE_NONE = 255;
 
-    /** Stockage des différentes valeurs des tags */
+    /**
+     * Stockage des différentes valeurs des tags
+     */
     private Map<String, String> metadata;
 
     /**
      * Initialisation.
-     * 
+     *
      * @since version 1.00
      */
     public TagList() {
-        metadata = new HashMap<String, String>(4);
+        metadata = new HashMap<>(4);
     }
 
     /**
      * Ajoute ou modifie un tag existant.
-     * 
+     *
      * @param key le type du tag.
      * @param value la valeur du tag.
+     *
      * @since version 1.00
      */
     public void putTag(String key, String value) {
@@ -63,9 +88,11 @@ public class TagList {
 
     /**
      * Retourne la valeur du tag.
-     * 
+     *
      * @param key le type du tag.
+     *
      * @return la valeur du tag ou null si le tag n'existe pas.
+     *
      * @since version 1.00
      */
     public String getTag(String key) {
@@ -74,9 +101,11 @@ public class TagList {
 
     /**
      * Supprime un tag de la liste.
-     * 
+     *
      * @param key le type du tag.
+     *
      * @return la valeur précédente du tag ou null si le tag n'existait pas.
+     *
      * @since version 1.00
      */
     public String removeTag(String key) {
@@ -85,7 +114,7 @@ public class TagList {
 
     /**
      * Supprime tous les tags de la liste.
-     * 
+     *
      * @since version 1.00
      */
     public void removeAll() {
@@ -94,8 +123,9 @@ public class TagList {
 
     /**
      * Retourne la liste toutes les types de tags contenus dans la liste.
-     * 
+     *
      * @return la liste des types de tags affectés.
+     *
      * @since version 1.00
      */
     public Set<String> getTagKeys() {
@@ -104,8 +134,9 @@ public class TagList {
 
     /**
      * Retourne si la liste des tags est vide.
-     * 
+     *
      * @return si la liste des tags est vide.
+     *
      * @since version 1.00
      */
     public boolean isEmpty() {
@@ -114,43 +145,45 @@ public class TagList {
 
     /**
      * Compare la liste de tags avec une une autre liste.
-     * 
+     *
      * @param tags la liste avec laquelle il faut comparer.
+     *
      * @return si les deux listes ont le même contenu.
+     *
      * @since version 1.00
      */
     public boolean isIndenticTo(TagList tags) {
         Set<String> keys = tags.getTagKeys();
-        if(metadata.size() != keys.size())
+        if (metadata.size() != keys.size()) {
             return false;
+        }
 
         String value;
         String currentValue;
-        for(String key : keys) {
-            if(!metadata.containsKey(key)) {
+        for (String key : keys) {
+            if (!metadata.containsKey(key)) {
                 //clé non présente
                 return false;
-            }
-            else {
+            } else {
                 value = tags.getTag(key);
                 currentValue = getTag(key);
-                if((value == null && currentValue != null)
-                        || (value != null && currentValue == null)
-                        || !currentValue.contentEquals(value)) {
+                if ((value == null && currentValue != null) || (value != null && currentValue == null) || !currentValue
+                        .contentEquals(value)) {
                     return false;
                 }
             }
         }
-        
+
         return true;
     }
 
     /**
      * Ecrit les tags à la fin du fichier au format mp3.
-     * 
+     * <p>
      * Cette méthode peut à la fois écrire les tags ID3 et Lyrics3.
-     * 
+     *
      * @param file le fichier mp3.
+     *
      * @throws IOException
      * @since version 1.00
      */
@@ -167,45 +200,54 @@ public class TagList {
         String track = getTag(TRACK);
         String genre = getTag(GENRE);
 
-        if(title == null)
+        if (title == null) {
             title = "";
-        else if(title.length() > 250)
+        } else if (title.length() > 250) {
             title = title.substring(0, 250);
+        }
 
-        if(artist == null)
+        if (artist == null) {
             artist = "";
-        else if(artist.length() > 250)
+        } else if (artist.length() > 250) {
             artist = artist.substring(0, 250);
+        }
 
-        if(album == null)
+        if (album == null) {
             album = "";
-        else if(album.length() > 250)
+        } else if (album.length() > 250) {
             album = album.substring(0, 250);
+        }
 
-        if(author == null)
+        if (author == null) {
             author = "";
-        else if(author.length() > 250)
+        } else if (author.length() > 250) {
             author = author.substring(0, 250);
+        }
 
-        if(information == null)
+        if (information == null) {
             information = "";
-        else if(information.length() > 99999)
+        } else if (information.length() > 99999) {
             information = information.substring(0, 99999);
+        }
 
-        if(year == null)
+        if (year == null) {
             year = "";
-        else if(year.length() > 4)
+        } else if (year.length() > 4) {
             year = year.substring(0, 4);
+        }
 
-        if(image == null)
+        if (image == null) {
             image = "";
-        else if(image.length() > 99999)
+        } else if (image.length() > 99999) {
             image = image.substring(0, 99999);
+        }
 
-        if(comment == null)
+        if (comment == null) {
             comment = "";
-        if(track == null)
+        }
+        if (track == null) {
             track = "";
+        }
 
         // open the file for writing
         RandomAccessFile outputStream = new RandomAccessFile(file, "rw");
@@ -213,43 +255,42 @@ public class TagList {
         long start = findTagStart(file);
         outputStream.seek(start);
         int length = 0; // running total of length written so far
-        if(title.length() > 30 || artist.length() > 30 || album.length() > 30
-                || information.length() > 0 || author.length() > 0
-                || image.length() > 0) {
+        if (title.length() > 30 || artist.length() > 30 || album.length() > 30 || information.length() > 0
+                || author.length() > 0 || image.length() > 0) {
             // we need to write an extended tag
             outputStream.writeBytes("LYRICSBEGIN"); //tag starts with this
             length += 11;
-            if(information.length() > 0) { // information
+            if (information.length() > 0) { // information
                 outputStream.writeBytes(INFORMATION);
                 outputStream.writeBytes(pad(information.length(), 5)); //fiveDigitNum(information.length()));
                 outputStream.writeBytes(information);
                 length += 8 + information.length();
             }
-            if(author.length() > 0) { // author
+            if (author.length() > 0) { // author
                 outputStream.writeBytes(AUTHOR);
                 outputStream.writeBytes(pad(author.length(), 5)); //fiveDigitNum(author.length()));
                 outputStream.writeBytes(author);
                 length += 8 + author.length();
             }
-            if(image.length() > 0) { // image links
+            if (image.length() > 0) { // image links
                 outputStream.writeBytes(IMAGE);
                 outputStream.writeBytes(pad(image.length(), 5)); //fiveDigitNum(image.length()));
                 outputStream.writeBytes(image);
                 length += 8 + image.length();
             }
-            if(title.length() > 30) { // track name
+            if (title.length() > 30) { // track name
                 outputStream.writeBytes(TITLE);
                 outputStream.writeBytes(pad(title.length(), 5)); //fiveDigitNum(trackName.length()));
                 outputStream.writeBytes(title);
                 length += 8 + title.length();
             }
-            if(artist.length() > 30) { // artist name
+            if (artist.length() > 30) { // artist name
                 outputStream.writeBytes(ARTIST);
                 outputStream.writeBytes(pad(artist.length(), 5)); //fiveDigitNum(artistName.length()));
                 outputStream.writeBytes(artist);
                 length += 8 + artist.length();
             }
-            if(album.length() > 30) { // album name
+            if (album.length() > 30) { // album name
                 outputStream.writeBytes(ALBUM);
                 outputStream.writeBytes(pad(album.length(), 5)); //fiveDigitNum(albumName.length()));
                 outputStream.writeBytes(album);
@@ -260,80 +301,82 @@ public class TagList {
         }
 
         outputStream.writeBytes("TAG"); // begining of Id3 tag
-        if(title.length() > 30) { // track name
+        if (title.length() > 30) { // track name
             outputStream.writeBytes(title.substring(0, 30));
         } else {
             outputStream.writeBytes(title);
-            for (int i=title.length(); i<30; i++){ // padded
+            for (int i = title.length(); i < 30; i++) { // padded
                 outputStream.writeBytes(" ");
             }
         }
-        if(artist.length() > 30) {
+        if (artist.length() > 30) {
             outputStream.writeBytes(artist.substring(0, 30));
         } else {
-           outputStream.writeBytes(artist);
-            for (int i=artist.length(); i<30; i++) {
+            outputStream.writeBytes(artist);
+            for (int i = artist.length(); i < 30; i++) {
                 outputStream.writeBytes(" ");
             }
         }
-        if(album.length() > 30) {
+        if (album.length() > 30) {
             outputStream.writeBytes(album.substring(0, 30));
         } else {
             outputStream.writeBytes(album);
-            for (int i=album.length(); i<30; i++) {
+            for (int i = album.length(); i < 30; i++) {
                 outputStream.writeBytes(" ");
             }
         }
-        if(year.length() > 4) {
+        if (year.length() > 4) {
             outputStream.writeBytes(year.substring(0, 4));
         } else {
             outputStream.writeBytes(year);
-            for (int i=year.length(); i<4; i++) {
+            for (int i = year.length(); i < 4; i++) {
                 outputStream.writeBytes(" ");
             }
         }
         int trackNum = Utilities.parseStringAsInt(track);
-        if(trackNum > 255)
+        if (trackNum > 255) {
             trackNum = -1;
+        }
 
-        if(trackNum != -1) {
-            if(comment.length() > 28) {
+        if (trackNum != -1) {
+            if (comment.length() > 28) {
                 outputStream.writeBytes(comment.substring(0, 28));
             } else {
                 outputStream.writeBytes(comment);
-                for (int i=comment.length(); i<28; i++) {
+                for (int i = comment.length(); i < 28; i++) {
                     outputStream.writeBytes(" ");
                 }
             }
             outputStream.write(0);
             outputStream.write(trackNum);
         } else {
-            if(comment.length() > 30) {
+            if (comment.length() > 30) {
                 outputStream.writeBytes(comment.substring(0, 30));
             } else {
                 outputStream.writeBytes(comment);
-                for (int i=comment.length(); i<30; i++) {
+                for (int i = comment.length(); i < 30; i++) {
                     outputStream.writeBytes(" ");
                 }
             }
         }
 
         int genreNumber = Utilities.parseStringAsInt(genre);
-        if(genreNumber > 255 || genreNumber < 0)
+        if (genreNumber > 255 || genreNumber < 0) {
             genreNumber = GENRE_NONE;
+        }
         outputStream.write(genreNumber); // genre not written in ASCII
         // set the length of the file to the end of what we just wrote
-        outputStream.setLength(outputStream.getFilePointer()); 
+        outputStream.setLength(outputStream.getFilePointer());
         outputStream.close(); // close the file for writing
     }
 
     /**
-     * Cherche la position dans le fichier MP3 où les tags ID3 ou Lyrics
-     * commencent.
+     * Cherche la position dans le fichier MP3 où les tags ID3 ou Lyrics commencent.
      *
      * @return la position dans le fichier où commencent les tags.
-     * @throws UnsupportedEncodingException 
-     * @throws IOException 
+     *
+     * @throws UnsupportedEncodingException
+     * @throws IOException
      * @since version 1.00
      */
     private long findTagStart(File file) throws UnsupportedEncodingException, IOException {
@@ -342,24 +385,24 @@ public class TagList {
         byte[] data;
         int position;
         int lyricsLength;
-        
+
         RandomAccessFile fileStream = new RandomAccessFile(file, "r");
         long start = fileStream.length();
         fileStream.seek(fileStream.length() - 128);
-        
+
         data = new byte[3];
         fileStream.read(data);
         ascii = new String(data, "ASCII");
-        
-        if(ascii.compareTo("TAG") == 0) {
+
+        if (ascii.compareTo("TAG") == 0) {
             start = fileStream.length() - 128;
             fileStream.seek(fileStream.length() - 137);
             data = new byte[9];
             fileStream.read(data);
             ascii = new String(data, "ASCII");
-            
-            if(ascii.compareTo("LYRICSEND") == 0) {
-                fileStream.seek(fileStream.length() - 5237); 
+
+            if (ascii.compareTo("LYRICSEND") == 0) {
+                fileStream.seek(fileStream.length() - 5237);
                 data = new byte[5100];
                 fileStream.read(data);
                 ascii = new String(data, "ASCII");
@@ -367,8 +410,7 @@ public class TagList {
                 if (position != -1) {
                     start = fileStream.length() - 5237 + position;
                 }
-            }
-            else if(ascii.compareTo("LYRICS200") == 0) {
+            } else if (ascii.compareTo("LYRICS200") == 0) {
                 try {
                     fileStream.seek(fileStream.length() - 143);
                     data = new byte[6];
@@ -378,7 +420,7 @@ public class TagList {
                     fileStream.seek(fileStream.length() - 143 - lyricsLength);
                     data = new byte[lyricsLength];
                     fileStream.read(data);
-                    ascii = new String(data,0,11,"ASCII");
+                    ascii = new String(data, 0, 11, "ASCII");
                     if (ascii.compareTo("LYRICSBEGIN") != 0) {
                         start = fileStream.length() - 128;
                     } else {
@@ -393,24 +435,24 @@ public class TagList {
     }
 
     /**
-     * Pads an integer with leading zeros to the given length.
-     * if the integer is already long enough the string
-     * representation of the number is returned which may be
-     * longer than the given length.
+     * Pads an integer with leading zeros to the given length. if the integer is already long enough the string
+     * representation of the number is returned which may be longer than the given length.
      *
      * @param a integer to pad.
      * @param length the desired length of the string.
+     *
      * @return padded string representation of the integer.
+     *
      * @since version 1.00
      */
     private String pad(int a, int length) {
         StringBuilder builder = new StringBuilder(length);
         String s = "" + a;
-        for(int i=s.length(); i<length; i++) {
+        for (int i = s.length(); i < length; i++) {
             builder.append("0");
         }
         builder.append(a);
         return builder.toString();
     }
 
-}//end
+}

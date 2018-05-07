@@ -2,26 +2,6 @@ package eestudio.utils;
 
 import java.io.File;
 
-/*
- * v1.01: ajout de void void init()
- * v1.01: ajout de void setVideoRate(File file, long begin, long end,
- *        float oldRate, float newRate, File normalFile)
- * 
- * v1.03: ajout de public static final int SUCCESS = 0;
- * v1.03: ajout de public static final int FILE_NOT_FIND = -1;
- * v1.03: ajout de public static final int CONVERSION_ERROR = -2;
- * v1.03: modif de String convert(.,.,.) en int convert(.,.,.)
- * v1.03: modif de String convert(.,.,.,.,.) en int convert(.,.,.,.,.)
- * v1.03: modif de String extractToWAVandFLV(..) en int extractToWAVandFLV(..)
- * v1.03: modif de void insertBlankVideo(..) en int insertBlankVideo(..)
- * v1.03: modif de void insertDuplicatedVideo(..) en int insertDuplicatedVideo(..)
- * v1.03: modif de void insertVideo(..) en int insertVideo(..)
- * v1.03: modif de void createBlankVideo(..) en int createBlankVideo(..)
- * v1.03: modif de void removeVideo(..) en int removeVideo(..)
- * v1.03: modif de void moveVideoAndResize(..) en int moveVideoAndResize(..)
- * v1.03: modif de void setVideoRate(..) en int setVideoRate(..)
- */
-
 /**
  * Interface poue la conversion de fichiers.
  * 
@@ -31,11 +11,11 @@ import java.io.File;
  */
 public interface Converter {
     /** Conversion réussi avec success */
-    public static final int SUCCESS = 0;
+     int SUCCESS = 0;
     /** Erreur lors de la conversion due à des fichiers manquants */
-    public static final int FILE_NOT_FIND = -1;
+     int FILE_NOT_FIND = -1;
     /** Erreur lors de la conversion */
-    public static final int CONVERSION_ERROR = -2;
+     int CONVERSION_ERROR = -2;
 
     /**
      * Initialise le convertisseur
@@ -152,12 +132,10 @@ public interface Converter {
      * @return 0 si la conversion s'est bien terminée.
      * @since version 0.99 - version 1.03
      */
-    int convert(File destFile, File audioFile, File videoFile,
-            File subtitleFile, TagList tags);
+    int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags);
 
     /**
-     * Extrait les pistes audio et vidéo du fichier source au format WAV (mono
-     * à 44kHz) et FLV ("640x480", 25 fps)
+     * Extrait les pistes audio et vidéo du fichier source au format WAV (mono à 44kHz) et FLV ("640x480", 25 fps)
      * 
      * @param srcFile le fichier source contenant les deux pistes.
      * @param audioFile le fichier de destination pour la piste audio.
@@ -180,8 +158,7 @@ public interface Converter {
     int insertBlankVideo(File file, File imageFile, long begin, long duration);
 
     /**
-     * Duplique la plage donnée de la vidéo et l'insére à la fin de la
-     * plage.
+     * Duplique la plage donnée de la vidéo et l'insére à la fin de la plage.
      * 
      * @param file la vidéo à modifier.
      * @param begin le temps de départ de la partie à dupliquer.
@@ -236,8 +213,7 @@ public interface Converter {
      * @return 0 si la conversion s'est bien terminée.
      * @since version 0.99 - version 1.03
      */
-    int moveVideoAndResize(File file, File imageFile,
-            long begin, long end, long newBegin, long duration);
+    int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration);
     
     /**
      * Modifie la vitesse d'une partie de la vidéo.
@@ -251,6 +227,5 @@ public interface Converter {
      * @return 0 si la conversion s'est bien terminée.
      * @since version 1.01 - version 1.03
      */
-    int setVideoRate(File file, long begin, long end,
-            float oldRate, float newRate, File normalFile);
-}//end
+    int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile);
+}

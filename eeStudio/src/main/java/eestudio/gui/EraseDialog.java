@@ -1,7 +1,6 @@
 package eestudio.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -12,79 +11,76 @@ import javax.swing.*;
 
 import eestudio.Core;
 
-/*
- * v0.95.12: ajout de public void close()
- * v0.95.12: ajout de public void showDialog()
- * 
- * v0.95.13: supp de private JLabel choiceLabel;
- * v0.95.13: modif de public void updateLanguage()
- * 
- * v0.96: modif de initComponents() [core.eraseIndexes() placé en dernier]
- * v0.96: supp de public void percentChanged(int percent)
- * 
- * v0.97: ajout de private JRadioButton allButton;
- * v0.97: modif de EraseDialog(...) en EraseDialog(.., ProcessingBar processingBar)
- * v0.97: modif de initComponents() [add allButton et gestion sélection,
- *        traitements longs dans une thread sur l'action du bouton validButton]
- * 
- * v0.99: modif de EraseDialog(Window parent, List<Image> icones, ...) en
- *        EraseDialog(Window parent, ...)
- * 
- * v1.01: modif de initComponents() [use de GridBagLayout et de BackgroundPanel,
- *        ajout de MouseListener et Focus sur les élèments sélectionables,
- *        ajout de repaint sur les actions des boutons]
- * 
- * v1.02: modif de updateLanguage() [ajout update de allButton]
- */
-
 /**
  * Fenêtre de dialoque pour l'effacement de données.
- * 
+ *
  * @author Fabrice Alleau
- * @since version 0.95
  * @version 1.02
+ * @since version 0.95
  */
 public class EraseDialog extends JDialog {
     private static final long serialVersionUID = 9701L;
 
-    /** Resources textuelles */
+    /**
+     * Resources textuelles
+     */
     private Resources resources;
-    /** Noyau pour la création des index */
+    /**
+     * Noyau pour la création des index
+     */
     private Core core;
 
-    /** Barre de progression */
+    /**
+     * Barre de progression
+     */
     private ProcessingBar processingBar;
 
-    /** Message pour la sélection des éléments */
+    /**
+     * Message pour la sélection des éléments
+     */
     private JLabel messageLabel;
 
-    /** Boutton pour valider */
+    /**
+     * Boutton pour valider
+     */
     private JButton validButton;
-    /** Boutton pour annuler */
+    /**
+     * Boutton pour annuler
+     */
     private JButton cancelButton;
 
-    /** Boutton pour tout sélectionner */
+    /**
+     * Boutton pour tout sélectionner
+     */
     private JRadioButton allButton;
-    /** Boutton pour le choix des index */
+    /**
+     * Boutton pour le choix des index
+     */
     private JCheckBox indexesButton;
-    /** Boutton pour le choix de la piste vidéo */
+    /**
+     * Boutton pour le choix de la piste vidéo
+     */
     private JCheckBox videoButton;
-    /** Boutton pour le choix de la piste audio */
+    /**
+     * Boutton pour le choix de la piste audio
+     */
     private JCheckBox audioButton;
-    /** Boutton pour le choix du texte associé */
+    /**
+     * Boutton pour le choix du texte associé
+     */
     private JCheckBox textButton;
 
     /**
      * Initialisation de la fenêtre.
-     * 
+     *
      * @param parent la fenêtre parente.
      * @param core le noyau de l'application.
      * @param resources les resources textuelles.
      * @param processingBar barre de progression pour les traitements.
+     *
      * @since version 0.95 - version 0.99
      */
-    public EraseDialog(Window parent, Core core, Resources resources,
-            ProcessingBar processingBar) {
+    public EraseDialog(Window parent, Core core, Resources resources, ProcessingBar processingBar) {
         super(parent, resources.getString("eraseTitle"), DEFAULT_MODALITY_TYPE);
 
         this.resources = resources;
@@ -96,13 +92,13 @@ public class EraseDialog extends JDialog {
 
     /**
      * Initialisation des composants graphiques.
-     * 
+     *
      * @since version 0.95 - version 1.01
      */
     private void initComponents() {
         int margin = 20;
         int panelWidth = 360;
-        int width = panelWidth+2*margin;
+        int width = panelWidth + 2 * margin;
         int height = 500;
         int offset = 40;
 
@@ -126,7 +122,7 @@ public class EraseDialog extends JDialog {
         constraints.weighty = 1.0;
 
         constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.insets = new Insets(2*margin, margin, margin, margin);
+        constraints.insets = new Insets(2 * margin, margin, margin, margin);
         constraints.anchor = GridBagConstraints.BASELINE;
         layout.setConstraints(messageLabel, constraints);
         panel.add(messageLabel);
@@ -146,7 +142,7 @@ public class EraseDialog extends JDialog {
         panel.add(textButton);
 
         constraints.gridwidth = 1;
-        constraints.insets = new Insets(2*margin, margin, 2*margin, margin);
+        constraints.insets = new Insets(2 * margin, margin, 2 * margin, margin);
         constraints.anchor = GridBagConstraints.BASELINE;
         layout.setConstraints(validButton, constraints);
         panel.add(validButton);
@@ -208,20 +204,16 @@ public class EraseDialog extends JDialog {
         audioButton.addFocusListener(focusListener);
         textButton.addFocusListener(focusListener);
 
-        ActionListener selectionAction = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getContentPane().repaint();
-                AbstractButton source = (AbstractButton) e.getSource();
-                if(source == allButton) {
-                    indexesButton.setSelected(source.isSelected());
-                    videoButton.setSelected(source.isSelected());
-                    audioButton.setSelected(source.isSelected());
-                    textButton.setSelected(source.isSelected());
-                }
-                else if(!source.isSelected()) {
-                    allButton.setSelected(false);
-                }
+        ActionListener selectionAction = e -> {
+            getContentPane().repaint();
+            AbstractButton source = (AbstractButton) e.getSource();
+            if (source == allButton) {
+                indexesButton.setSelected(source.isSelected());
+                videoButton.setSelected(source.isSelected());
+                audioButton.setSelected(source.isSelected());
+                textButton.setSelected(source.isSelected());
+            } else if (!source.isSelected()) {
+                allButton.setSelected(false);
             }
         };
 
@@ -231,49 +223,40 @@ public class EraseDialog extends JDialog {
         audioButton.addActionListener(selectionAction);
         textButton.addActionListener(selectionAction);
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                getContentPane().repaint();
-                close();
-            }
+        cancelButton.addActionListener(event -> {
+            getContentPane().repaint();
+            close();
         });
 
-        validButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                getContentPane().repaint();
-                processingBar.processBegin(false,
-                        resources.getString("processingTitle"),
-                        resources.getString("processingMessage"));
+        validButton.addActionListener(event -> {
+            getContentPane().repaint();
+            processingBar.processBegin(false,
+                    resources.getString("processingTitle"),
+                    resources.getString("processingMessage"));
 
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(textButton.isSelected()) {
-                            core.eraseText();
-                        }
-                        if(videoButton.isSelected()) {
-                            core.eraseVideo();
-                        }
-                        if(audioButton.isSelected()) {
-                            core.eraseAudio();
-                        }
-                        if(indexesButton.isSelected()) {
-                            core.eraseIndexes();
-                        }
+            Thread thread = new Thread(() -> {
+                if (textButton.isSelected()) {
+                    core.eraseText();
+                }
+                if (videoButton.isSelected()) {
+                    core.eraseVideo();
+                }
+                if (audioButton.isSelected()) {
+                    core.eraseAudio();
+                }
+                if (indexesButton.isSelected()) {
+                    core.eraseIndexes();
+                }
 
-                        close();
-                    }
-                });
-                thread.start();
-            }
+                close();
+            });
+            thread.start();
         });
     }
 
     /**
      * Modification des textes pour un changement de langue.
-     * 
+     *
      * @since version 0.95 - version 1.02
      */
     public void updateLanguage() {
@@ -292,7 +275,7 @@ public class EraseDialog extends JDialog {
 
     /**
      * Ferme la fenêtre et les resources associées.
-     * 
+     *
      * @since version 0.95.12
      */
     public void close() {
@@ -303,7 +286,7 @@ public class EraseDialog extends JDialog {
 
     /**
      * Affiche la fenêtre et initialise les différents éléments de choix.
-     * 
+     *
      * @since version 0.95.12
      */
     public void showDialog() {
@@ -325,8 +308,7 @@ public class EraseDialog extends JDialog {
 
         this.pack();
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(
-                (dim.width - getWidth()) / 2, (dim.height - getHeight()) / 2);
+        this.setLocation((dim.width - getWidth()) / 2, (dim.height - getHeight()) / 2);
         this.setVisible(true);
     }
 
@@ -354,4 +336,4 @@ public class EraseDialog extends JDialog {
 //        }
 //    }
 
-}//end
+}
