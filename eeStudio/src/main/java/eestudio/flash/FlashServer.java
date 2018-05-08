@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.List;
 
-import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.Server;
@@ -67,8 +66,8 @@ public class FlashServer extends Server {
             LOGGER.info("Flash request: {}", request);
 
             try {
-                List<Command> commands = XMLUtilities.parseCommand(request);
-                for (Command command : commands) {
+                List<FlashCommand> commands = FlashXMLUtilities.parseCommand(request);
+                for (FlashCommand command : commands) {
                     flashCore.executeCommand(command.getAction(), command.getParameter());
                     command.clean();
                 }

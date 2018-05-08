@@ -10,7 +10,6 @@ import java.util.Locale;
 import eestudio.Core;
 import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
-import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.model.Constants;
@@ -78,7 +77,7 @@ public class FlashCore {
             @Override
             public void windowClosed(WindowEvent e) {
                 sendCommandToFlash(FlashConstants.text, "off");
-                sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
+                sendCommandToFlash(FlashCommand.TEXT, Boolean.toString(core.hasText()));
             }
         });
 
@@ -94,7 +93,7 @@ public class FlashCore {
      * @param list la liste
      */
     public void sendVersionToFlash(List<String> list) {
-        sendCommandToFlash(Command.VERSION, XMLUtilities.getXMLDescription(list));
+        sendCommandToFlash(FlashCommand.VERSION, FlashXMLUtilities.getXMLDescription(list));
     }
 
     /**
@@ -103,7 +102,7 @@ public class FlashCore {
      * @param locale la nouvelle langue.
      */
     public void sendLanguageToFlash(Locale locale) {
-        sendCommandToFlash(Command.LANGUAGE, locale.getLanguage());
+        sendCommandToFlash(FlashCommand.LANGUAGE, locale.getLanguage());
     }
 
     /**
@@ -113,8 +112,8 @@ public class FlashCore {
      * @param parameter les parmètres.
      */
     private void sendCommandToFlash(String action, String parameter) {
-        Command command = new Command(action, parameter);
-        String xml = XMLUtilities.getXML(command);
+        FlashCommand command = new FlashCommand(action, parameter);
+        String xml = FlashXMLUtilities.getXML(command);
         coreToFlashClient.sendCommand(xml);
     }
 
@@ -129,22 +128,22 @@ public class FlashCore {
             public void runningStateChanged(int state) {
                 String runningState;
                 if (state == Constants.PLAYING) {
-                    runningState = Command.playing;
+                    runningState = FlashCommand.playing;
                 } else if (state == Constants.RECORDING) {
-                    runningState = Command.recording;
+                    runningState = FlashCommand.recording;
                 } else if (state == Constants.RECORDING_INSERT) {
-                    runningState = Command.insert;
+                    runningState = FlashCommand.insert;
                 } else {
-                    runningState = Command.pause;
+                    runningState = FlashCommand.pause;
                 }
 
                 guiResources.old_runningStateChanged(state);
-                sendCommandToFlash(Command.RUNNING_STATE, runningState);
+                sendCommandToFlash(FlashCommand.RUNNING_STATE, runningState);
             }
 
             @Override
             public void recordTimeMaxChanged(long recordTimeMax) {
-                sendCommandToFlash(Command.TIME_MAX, Long.toString(recordTimeMax));
+                sendCommandToFlash(FlashCommand.TIME_MAX, Long.toString(recordTimeMax));
             }
 
             @Override
@@ -152,22 +151,22 @@ public class FlashCore {
                 if (!styled) {
                     guiResources.old_textLoaded(text);
                 }
-                sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
+                sendCommandToFlash(FlashCommand.TEXT, Boolean.toString(core.hasText()));
             }
 
             @Override
             public void timeChanged(long time) {
-                sendCommandToFlash(Command.TIME, Long.toString(time));
+                sendCommandToFlash(FlashCommand.TIME, Long.toString(time));
             }
 
             @Override
             public void insertVoiceTimeChanged(long time) {
-                sendCommandToFlash(Command.TIME_INSERT_VOICE, Long.toString(time));
+                sendCommandToFlash(FlashCommand.TIME_INSERT_VOICE, Long.toString(time));
             }
 
             @Override
             public void indexesChanged(String xmlIndexesDescription) {
-                sendCommandToFlash(Command.INDEXES, xmlIndexesDescription);
+                sendCommandToFlash(FlashCommand.INDEXES, xmlIndexesDescription);
             }
 
             @Override
@@ -180,13 +179,13 @@ public class FlashCore {
                 if (leftChannelFile != null && leftChannelFile.exists()) {
                     filePath = leftChannelFile.getAbsolutePath();
                 }
-                sendCommandToFlash(Command.AUDIO_LEFT_CHANNEl_FILE, filePath);
+                sendCommandToFlash(FlashCommand.AUDIO_LEFT_CHANNEl_FILE, filePath);
 
                 filePath = null;
                 if (rigthChannelFile != null && rigthChannelFile.exists()) {
                     filePath = rigthChannelFile.getAbsolutePath();
                 }
-                sendCommandToFlash(Command.AUDIO_RIGHT_CHANNEl_FILE, filePath);
+                sendCommandToFlash(FlashCommand.AUDIO_RIGHT_CHANNEl_FILE, filePath);
             }
 
             @Override
@@ -195,7 +194,7 @@ public class FlashCore {
                 if (file != null && file.exists()) {
                     filePath = file.getAbsolutePath();
                 }
-                sendCommandToFlash(Command.PLAYER_FILE, filePath);
+                sendCommandToFlash(FlashCommand.PLAYER_FILE, filePath);
             }
 
 //            @Override
@@ -241,7 +240,7 @@ public class FlashCore {
 
         if (action.contentEquals(FlashConstants.load) && on) {
             guiResources.flashLoad();
-            sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
+            sendCommandToFlash(FlashCommand.TEXT, Boolean.toString(core.hasText()));
         } else if (action.contentEquals(FlashConstants.save) && on) {
             guiResources.flashSave();
         } else if (action.contentEquals(FlashConstants.edit) && on) {
@@ -289,7 +288,7 @@ public class FlashCore {
             sendOff = false;
             guiResources.flashText(on);
             if (!on) {
-                sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
+                sendCommandToFlash(FlashCommand.TEXT, Boolean.toString(core.hasText()));
             }
         } else if (action.contentEquals(FlashConstants.volume)) {
             int volume = Utilities.parseStringAsInt(parameter);
@@ -328,7 +327,7 @@ public class FlashCore {
         }
 //        else if(action.contentEquals(FlashConstants.textLoad) && on){
 //            guiResources.flashTextLoad();
-//            sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
+//            sendCommandToFlash(FlashCommand.TEXT, Boolean.toString(core.hasText()));
 //        }
 //        else if(action.contentEquals(FlashConstants.textErase) && on){
 //            guiResources.flashTextErase();

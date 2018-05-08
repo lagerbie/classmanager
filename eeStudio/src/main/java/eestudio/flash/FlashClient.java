@@ -59,7 +59,7 @@ public class FlashClient extends Server {
                 outputStream.write(xml.getBytes("UTF-8"));
                 outputStream.write((byte) 0);
                 outputStream.flush();
-                LOGGER.info("send to Flash Command {}", xml);
+                LOGGER.info("send to Flash FlashCommand {}", xml);
             }
         }
     }

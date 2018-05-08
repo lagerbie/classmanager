@@ -1,9 +1,8 @@
-package eestudio.utils;
+package eestudio.flash;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eestudio.flash.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -11,19 +10,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import thot.model.Index;
 import thot.utils.LaboXMLUtilities;
+import thot.utils.XMLUtilities;
 
 /**
  * Utilitaires pour la manipulation de fichier XML.
  *
  * @author Fabrice Alleau
  */
-@Deprecated
-public class XMLUtilities extends thot.utils.XMLUtilities {
+public class FlashXMLUtilities extends XMLUtilities {
 
     /**
      * Instance de log.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtilities.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashXMLUtilities.class);
 
     /*
      * Descriptif pour la commande:
@@ -71,14 +70,6 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
      */
     private static final String element_list = "list";
 
-
-//    /** Doctype pour une liste d'index (unused) */
-//    private static final String indexes_DTD
-//            = "<!DOCTYPE indexes ["
-//            + "<!ELEMENT indexes"
-//            + "]>";
-
-
     /**
      * Retourne la liste de commandes contenue dans la chaine XML.
      *
@@ -86,8 +77,8 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
      *
      * @return la liste de commandes contenue dans le xml ou une liste vide.
      */
-    public static List<Command> parseCommand(String xml) {
-        List<Command> commands = null;
+    public static List<FlashCommand> parseCommand(String xml) {
+        List<FlashCommand> commands = null;
 
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(xml);
@@ -111,7 +102,7 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
      *
      * @return le xml complet.
      */
-    public static String getXML(Command command) {
+    public static String getXML(FlashCommand command) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_command));
         element.append(getXMLDescription(command));
@@ -126,14 +117,14 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
      *
      * @return une description de la commande.
      */
-    public static String getXMLDescription(Command command) {
+    public static String getXMLDescription(FlashCommand command) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_action));
         element.append(command.getAction());
 
         if (command.getParameter() != null) {
-            if (command.getAction().equals(Command.INDEXES) || command.getAction().equals(Command.VERSION)) {
-//                    || command.getAction().equals(Command.INDEX)) {
+            if (command.getAction().equals(FlashCommand.INDEXES) || command.getAction().equals(FlashCommand.VERSION)) {
+//                    || command.getAction().equals(FlashCommand.INDEX)) {
                 element.append(command.getParameter());
 //                element.append(createElementStart(element_parameter));
 //                element.append(command.getParameter());
@@ -173,8 +164,8 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
      *
      * @return la listes des commandes ou <code>null</code>.
      */
-    private static List<Command> parseNodeAsCommand(Node node) {
-        List<Command> commands = null;
+    private static List<FlashCommand> parseNodeAsCommand(Node node) {
+        List<FlashCommand> commands = null;
 
         if (node.getNodeName().equals(element_command)) {
             commands = new ArrayList<>(2);
@@ -182,7 +173,7 @@ public class XMLUtilities extends thot.utils.XMLUtilities {
             for (int i = 0; i < actions.getLength(); i++) {
                 Node action = actions.item(i);
                 if (action.getNodeName().equals(element_action)) {
-                    Command command = new Command(Command.UNKNOWN);
+                    FlashCommand command = new FlashCommand(FlashCommand.UNKNOWN);
                     if (action.hasChildNodes()) {
                         NodeList children = action.getChildNodes();
                         for (int j = 0; j < children.getLength(); j++) {

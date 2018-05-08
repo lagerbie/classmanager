@@ -7,7 +7,7 @@ package eestudio.flash;
  * @version 1.03
  * @since version 0.94
  */
-public class Command {
+public class FlashCommand {
     /**
      * Commande pour les numéros de versions
      */
@@ -86,13 +86,13 @@ public class Command {
     private String parameter;
 
     /**
-     * Initialisation d'une commande sans paramètre. Equivalant à <code> Command(action, null)</code>.
+     * Initialisation d'une commande sans paramètre. Equivalant à <code> FlashCommand(action, null)</code>.
      *
      * @param action le nom de l'action.
      *
      * @since version 0.94
      */
-    public Command(String action) {
+    public FlashCommand(String action) {
         this(action, null);
     }
 
@@ -104,7 +104,7 @@ public class Command {
      *
      * @since version 0.94
      */
-    public Command(String action, String parameter) {
+    public FlashCommand(String action, String parameter) {
         this.action = action;
         this.parameter = parameter;
     }
