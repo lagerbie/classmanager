@@ -1,4 +1,23 @@
-package thot.supervision;
+/*
+ * ClassManager - Supervision de classes et Laboratoire de langue
+ * Copyright (C) 2013 Fabrice Alleau <fabrice.alleau@siclic.fr>
+ *
+ * This file is part of ClassManager.
+ *
+ * ClassManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * ClassManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with ClassManager.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package supervision;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -13,7 +32,7 @@ import javax.sound.sampled.AudioFormat;
  * Serveur pour les demandes des données du microphones.
  *
  * @author Fabrice Alleau
- * @version 1.8.4
+ * @version 1.90
  */
 public class Server implements Runnable {
     /*
@@ -23,7 +42,7 @@ public class Server implements Runnable {
      *         <address> addressIP</address>
      *         <port> port </port>
      *     </connection>
-     *
+     * 
      * Demande de déconnection de la forme:
      * <?xml version=\"1.0\" encoding=\"UTF-8\"?>
      *     <disconnection>
@@ -33,7 +52,8 @@ public class Server implements Runnable {
      */
 
     /**
-     * Format de capture et de rendu audio: 11025 Hz, 16 bits, mono, signed, little-endian.
+     * Format de capture et de rendu audio: 11025 Hz, 16 bits, mono, signed,
+     * little-endian.
      */
     private final AudioFormat audioFormat = new AudioFormat(11025.0f, 16, 1, true, false);
 
@@ -68,7 +88,8 @@ public class Server implements Runnable {
 
     public static void main(String[] args) {
         Calendar calendar = Calendar.getInstance();
-        String logName = String.format("Siclic/soundServer-%1$tF-%1$tH.%1$tM.%1$tS.xml", calendar);
+        String logName = String.format("Siclic/soundServer-%1$tF-%1$tH.%1$tM.%1$tS.xml",
+                calendar);
 
         File logFile = new File(System.getProperty("java.io.tmpdir"), logName);
         CommonLogger.setLogFile(logFile);

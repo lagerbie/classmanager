@@ -1,4 +1,23 @@
-package thot.supervision;
+/*
+ * ClassManager - Supervision de classes et Laboratoire de langue
+ * Copyright (C) 2013 Fabrice Alleau <fabrice.alleau@siclic.fr>
+ *
+ * This file is part of ClassManager.
+ *
+ * ClassManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * ClassManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with ClassManager.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package supervision;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +33,7 @@ import javax.sound.sampled.SourceDataLine;
  * Classe pour recevoir des données audio en mode serveur.
  *
  * @author Fabrice Alleau
- * @version 1.8.4
+ * @version 1.90
  */
 public class ListenerServer implements Runnable {
 
@@ -86,8 +105,8 @@ public class ListenerServer implements Runnable {
     }
 
     /**
-     * Redémmarage du traitement des données. Pas d'ouverture d'une nouvelle ligne du rendu audio. Pas d'ouverture du
-     * serveur de réception.
+     * Redémmarage du traitement des données. Pas d'ouverture d'une nouvelle
+     * ligne du rendu audio. Pas d'ouverture du serveur de réception.
      */
     private void restart() {
         receive = true;
@@ -155,10 +174,10 @@ public class ListenerServer implements Runnable {
     }
 
     /**
-     * Indique si la ligne est ouverte, c'est à dire si le système a réservé les ressources et si elle est
-     * opérationnelle.
+     * Indique si la ligne est ouverte, c'est à dire si le système a réservé les
+     * ressources et si elle est opérationnelle.
      *
-     * @return {@code true} si la ligne est ouverte.
+     * @return <code>true</code> si la ligne est ouverte.
      */
     public boolean isLineOpen() {
         if (sourceDataLine == null) {

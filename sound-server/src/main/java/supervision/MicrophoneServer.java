@@ -1,4 +1,23 @@
-package thot.supervision;
+/*
+ * ClassManager - Supervision de classes et Laboratoire de langue
+ * Copyright (C) 2013 Fabrice Alleau <fabrice.alleau@siclic.fr>
+ *
+ * This file is part of ClassManager.
+ *
+ * ClassManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * ClassManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with ClassManager.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package supervision;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -16,7 +35,7 @@ import javax.sound.sampled.TargetDataLine;
  * Thread de gestion d'envoi des données au microphone.
  *
  * @author Fabrice Alleau
- * @version 1.8.4
+ * @version 1.90
  */
 public class MicrophoneServer implements Runnable {
 
@@ -68,7 +87,6 @@ public class MicrophoneServer implements Runnable {
      *
      * @param addressIP l'adresse IP du serveur d'écoute.
      * @param port le port du serveur d'écoute.
-     *
      * @return si la connection est établie.
      */
     public boolean connect(String addressIP, int port) {
@@ -105,8 +123,8 @@ public class MicrophoneServer implements Runnable {
     }
 
     /**
-     * Ouverture de la ligne pour écouter les données du microphone. Le format par défaut (44100 Hz, 16 bits, mono,
-     * signed, little-endian).
+     * Ouverture de la ligne pour écouter les données du microphone. Le format
+     * par défaut (44100 Hz, 16 bits, mono, signed, little-endian).
      */
     private void openLine(AudioFormat audioFormat) {
         try {
