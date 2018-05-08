@@ -155,28 +155,6 @@ public interface Constants {
     int IMAGE_FILE = 3;
 
     /**
-     * Nom du charset pour le format UTF-8
-     */
-    String UTF8_CHARSET = "UTF-8";
-    /**
-     * Nom du charset pour le format des fenêtres DOS
-     */
-    String DOS_CHARSET = "IBM850";
-    /**
-     * Nom du charset pour le format par défaut de Windows
-     */
-    String WINDOWS_CHARSET = "windows-1252";
-
-    /**
-     * Vérification si la plateforme est Linux
-     */
-    boolean LINUX_PLATFORM = System.getProperty("os.name").toLowerCase().contains("linux");
-    /**
-     * Vérification si la plateforme est Windows
-     */
-    boolean WINDOWS_PLATFORM = System.getProperty("os.name").toLowerCase().contains("windows");
-
-    /**
      * Nom de l'extension d'un projet.
      */
     String projectExtension = ".ees";

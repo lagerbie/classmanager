@@ -11,10 +11,10 @@ import java.io.File;
 import javax.swing.*;
 
 import eestudio.Core;
-import eestudio.utils.Utilities;
 import thot.model.Constants;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
+import thot.utils.Utilities;
 
 /**
  * Fenêtre de dialogue pour l'exportation.

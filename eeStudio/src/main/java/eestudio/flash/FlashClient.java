@@ -5,10 +5,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayDeque;
 
-import eestudio.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.Server;
+import thot.utils.Utilities;
 
 /**
  * Client avec liste d'attente pour l'envoi des commandes au Flash.

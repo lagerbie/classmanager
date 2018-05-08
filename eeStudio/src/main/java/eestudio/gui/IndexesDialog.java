@@ -24,11 +24,11 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
 import eestudio.Core;
-import eestudio.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.model.Index;
 import thot.model.IndexType;
+import thot.utils.Utilities;
 
 /**
  * Boite de dialogue pour l'édition des index.

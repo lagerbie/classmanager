@@ -11,7 +11,7 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Constants;
+import thot.utils.Utilities;
 
 /**
  * Gestion de Mplayer/Mencoder pour la conversion de fichiers.
@@ -1173,7 +1173,7 @@ public class MEncoder implements Converter {
      */
     private int executeCommand(String command, File workingDirectory,
             StringBuilder output, StringBuilder error) {
-        if (Constants.LINUX_PLATFORM) {
+        if (Utilities.LINUX_PLATFORM) {
             return executeCommand(new String[]{"/bin/sh", "-c", command}, workingDirectory, output, error);
         }
 
@@ -1285,7 +1285,7 @@ public class MEncoder implements Converter {
         if (!name.contains(" ")) {
             return name;
         }
-        if (Constants.WINDOWS_PLATFORM) {
+        if (Utilities.WINDOWS_PLATFORM) {
             return "\"" + name + "\"";
         } else {
             return name.replace(" ", "\\ ");

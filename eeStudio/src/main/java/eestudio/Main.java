@@ -13,11 +13,10 @@ import eestudio.gui.GuiUtilities;
 import eestudio.gui.Resources;
 import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
-import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Constants;
+import thot.utils.Utilities;
 
 /**
  * Initialisation et lancement de l'application.
@@ -59,7 +58,7 @@ public class Main {
         File userHome = new File(System.getProperty("user.home"), ".eeStudio");
         userHome.mkdirs();
 
-        if (Constants.LINUX_PLATFORM) {
+        if (Utilities.LINUX_PLATFORM) {
             mplayer = Utilities.getApplicationPathOnLinux("mplayer");
             mencoder = Utilities.getApplicationPathOnLinux("mencoder");
         }
@@ -171,7 +170,7 @@ public class Main {
 
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
-        final Process process = Utilities.startProcess(flash.getAbsolutePath(), out, err);
+        final Process process = Utilities.startProcess("flash", flash.getAbsolutePath(), out, err);
         Thread flashThread = new Thread(() -> {
             try {
                 process.waitFor();
@@ -206,7 +205,7 @@ public class Main {
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
         String command = "\"" + filever.getAbsolutePath() + "\" /EAD \"" + file.getAbsolutePath() + "\"";
-        Utilities.executeCommand(command, out, err);
+        Utilities.executeCommand("getFileVersion", command, out, err);
         String[] split = out.toString().split("[ ]+");
         if (split.length > 3) {
             return split[3];

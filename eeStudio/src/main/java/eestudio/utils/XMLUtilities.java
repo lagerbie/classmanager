@@ -25,6 +25,7 @@ import thot.model.IndexType;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
+import thot.utils.Utilities;
 
 /**
  * Utilitaires pour la manipulation de fichier XML.

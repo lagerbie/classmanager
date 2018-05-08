@@ -142,6 +142,25 @@ public class Utilities {
     }
 
     /**
+     * Parse la chaîne de caractères comme un nombre (float).
+     *
+     * @param value la chaîne de caractères.
+     *
+     * @return le nombre correspondant ou -1.
+     */
+    public static float parseStringAsFloat(String value) {
+        float parseValue = -1;
+        try {
+            if (value != null) {
+                parseValue = Float.parseFloat(value);
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warn("parseStringAsDouble: " + e.getMessage());
+        }
+        return parseValue;
+    }
+
+    /**
      * Parse la chaîne de caractères comme un nombre (double).
      *
      * @param value la chaîne de caractères.
@@ -637,9 +656,7 @@ public class Utilities {
         textPane.setCharacterAttributes(mutableAttributeSet, true);
 
 //        StyleConstants.setAlignment(mutableAttributeSet, alignment);
-//        styledDocument.setParagraphAttributes(textPane.getSelectionStart(),
-//                textPane.getSelectionEnd()-textPane.getSelectionStart(),
-//                mutableAttributeSet, false);
+//        styledDocument.setParagraphAttributes(textPane.getSelectionStart(), textPane.getSelectionEnd()-textPane.getSelectionStart(), mutableAttributeSet, false);
     }
 
     /**
@@ -690,8 +707,7 @@ public class Utilities {
      * @return la liste d'index ou une liste vide si pas d'index.
      */
     public static Indexes getIndexes(File file) {
-        Indexes indexes = XMLUtilities.loadIndexes(file);
-        return indexes;
+        return XMLUtilities.loadIndexes(file);
     }
 
     /**
@@ -702,8 +718,7 @@ public class Utilities {
      * @return le projet ou un projet vide.
      */
     public static ProjectFiles getProject(File file) {
-        ProjectFiles project = XMLUtilities.loadProject(file);
-        return project;
+        return XMLUtilities.loadProject(file);
     }
 
     /**

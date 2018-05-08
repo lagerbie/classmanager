@@ -11,12 +11,12 @@ import javax.swing.*;
 
 import eestudio.Core;
 import eestudio.utils.TagList;
-import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
 import thot.model.Constants;
 import thot.model.Index;
 import thot.model.IndexType;
 import thot.model.ProjectTarget;
+import thot.utils.Utilities;
 
 /**
  * Gestion des resources graphiques.

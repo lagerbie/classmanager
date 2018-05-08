@@ -17,11 +17,11 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.MaskFormatter;
 
 import eestudio.Core;
-import eestudio.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.model.Index;
 import thot.model.IndexType;
+import thot.utils.Utilities;
 
 /**
  * Boite de dialogue pour redimensionner un index.

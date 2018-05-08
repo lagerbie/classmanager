@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import thot.utils.Utilities;
+
 /**
  * Gestion des tags au format MP3.
  *

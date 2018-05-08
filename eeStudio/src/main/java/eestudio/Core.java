@@ -26,7 +26,6 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import eestudio.utils.Converter;
 import eestudio.utils.TagList;
-import eestudio.utils.Utilities;
 import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
@@ -43,6 +42,7 @@ import thot.model.IndexType;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
+import thot.utils.Utilities;
 
 /**
  * Noyau de l'application.
