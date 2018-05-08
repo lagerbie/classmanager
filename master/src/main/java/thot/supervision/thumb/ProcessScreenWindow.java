@@ -1,4 +1,4 @@
-package thot.supervision;
+package thot.supervision.thumb;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import thot.supervision.CommonLogger;
 
 /**
  * Fenêtre pour la visualisation d'un élève en mode mosaique et plein écran.

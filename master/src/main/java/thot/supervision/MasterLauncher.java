@@ -23,7 +23,7 @@ import thot.utils.VLCconverter;
  * @author Fabrice Alleau
  * @version 1.8.4
  */
-public class Launcher {
+public class MasterLauncher {
     /*
      * Resources textes : pathError, parameterError, converterError,
      *                    singleInstanceError, networkError, soundError
@@ -32,7 +32,7 @@ public class Launcher {
     /**
      * Instance de log.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MasterLauncher.class);
 
     /**
      * Noyau de l'application.
@@ -59,7 +59,7 @@ public class Launcher {
         int studentTimeout = 100;
         String multicastIP = Constants.DEFAULT_MULTICAST_IP;
 
-        File path = new File(Utilities.getApplicationPath(Launcher.class), "../");
+        File path = new File(Utilities.getApplicationPath(MasterLauncher.class), "../");
         File thumbPath = new File("./bin/thumb.jar");
         File vlc = VLCconverter.getVLC();
         final File userHome = new File(System.getProperty("user.home"), Constants.softNamePath);

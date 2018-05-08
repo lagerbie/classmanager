@@ -1,4 +1,4 @@
-package thot.supervision;
+package thot.supervision.thumb;
 
 /**
  * Définition d'une commande entre le noyau professeur et les miniatures de la mosaïque.

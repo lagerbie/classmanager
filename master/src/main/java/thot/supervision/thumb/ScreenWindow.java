@@ -1,4 +1,4 @@
-package thot.supervision;
+package thot.supervision.thumb;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -15,6 +15,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 import javax.swing.*;
+
+import thot.supervision.CommonLogger;
 
 /**
  * Classe permettant d'afficher un écran d'un autre poste.

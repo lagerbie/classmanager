@@ -46,11 +46,6 @@
             </dependency>
             <dependency>
                 <groupId>fr.lgp.classmanager</groupId>
-                <artifactId>thumb</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fr.lgp.classmanager</groupId>
                 <artifactId>sound-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -147,13 +142,6 @@
             <modules>
                 <module>../eeStudio</module>
                 <module>../thot-core</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>thumb</id>
-            <modules>
-                <module>../thumb</module>
             </modules>
         </profile>
 
