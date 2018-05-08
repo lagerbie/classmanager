@@ -11,6 +11,7 @@ import javax.swing.*;
 
 import eestudio.Core;
 import thot.gui.GuiUtilities;
+import thot.gui.ProcessingBar;
 import thot.gui.Resources;
 import thot.labo.ProjectTarget;
 import thot.labo.TagList;
@@ -131,7 +132,7 @@ public class GuiFlashResource {
      * Initialise la fenêtre principale.
      */
     private void initComponents() {
-        processingBar = new ProcessingBar();
+        processingBar = new ProcessingBar(null, null);
         fileChooser = new FileChooser(null);
 
         GuiUtilities.manageUI(true);

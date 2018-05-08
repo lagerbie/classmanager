@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import eestudio.Core;
 import thot.gui.GuiUtilities;
+import thot.gui.ProcessingBar;
 import thot.gui.Resources;
 import thot.labo.ProjectFiles;
 import thot.labo.ProjectTarget;

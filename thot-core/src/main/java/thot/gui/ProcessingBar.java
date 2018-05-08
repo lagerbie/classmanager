@@ -30,7 +30,7 @@ import javax.swing.*;
  * Classe présentant une barre de progression.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class ProcessingBar {
 
@@ -230,8 +230,7 @@ public class ProcessingBar {
             dim = Toolkit.getDefaultToolkit().getScreenSize();
         }
 
-        dialog.setLocation((dim.width - dialog.getWidth()) / 2,
-                (dim.height - dialog.getHeight()) / 2);
+        dialog.setLocation((dim.width - dialog.getWidth()) / 2, (dim.height - dialog.getHeight()) / 2);
     }
 
     /**
@@ -242,8 +241,7 @@ public class ProcessingBar {
      * @param formatValue les objets pour le message si il est formaté
      * @param determinated si le processus à un poucentage déterminé.
      */
-    public void processBegin(boolean determinated, String title,
-            String message, Object... formatValue) {
+    public void processBegin(boolean determinated, String title, String message, Object... formatValue) {
         setTitle(title);
         if (formatValue == null) {
             setMessage(message);
