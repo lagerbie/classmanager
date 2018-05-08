@@ -25,6 +25,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.swing.event.EventListenerList;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public abstract class AbstractAudioProcessing implements AudioProcessing {
     /**
      * Buffer pour les données audio.
      */
+    @Setter
     private ByteBuffer audioBuffer;
 
     /**

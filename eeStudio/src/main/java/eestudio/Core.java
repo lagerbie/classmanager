@@ -24,9 +24,6 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-import eestudio.audio.Player;
-import eestudio.audio.ProcessingListener;
-import eestudio.audio.Recorder;
 import eestudio.utils.Converter;
 import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
@@ -34,6 +31,11 @@ import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.audio.AudioPlayer;
+import thot.audio.AudioRecorder;
+import thot.audio.DirectAudioPlayer;
+import thot.audio.DirectAudioRecorder;
+import thot.audio.TimeProcessingListener;
 import thot.model.Index;
 import thot.model.IndexFile;
 import thot.model.IndexType;
@@ -136,11 +138,11 @@ public class Core {
     /**
      * Thread pour la lecture de la piste élève
      */
-    private Player player;
+    private AudioPlayer player;
     /**
      * Thread pour enregistrer les données du microphone
      */
-    private Recorder recorder;
+    private AudioRecorder recorder;
 //    /** Indique si on sur une lecture ou enregistrement d'une plage donnée */
 //    private boolean onIndex = false;
 
@@ -169,7 +171,6 @@ public class Core {
      * @param converter l'utilitaire pour les conversions.
      *
      * @throws Exception
-     * @since version 0.94 - version 0.99
      */
     public Core(Converter converter) throws Exception {
         listeners = new EventListenerList();
@@ -189,7 +190,6 @@ public class Core {
      * Initialise les valeurs par défaut.
      *
      * @throws Exception
-     * @since version 0.94 - version 0.99
      */
     private void initValues() throws Exception {
         //gestion du projet
@@ -208,20 +208,22 @@ public class Core {
         setAudioFormat(null);
         initByteBuffers();
 
-        ProcessingListener listener = new ProcessingListener() {
+        TimeProcessingListener listener = new TimeProcessingListener() {
             @Override
-            public void timeChanged(long newTime) {
-                fireProcessTimeChanged(newTime);
+            public void timeChanged(Object source, long oldValue, long newValue) {
+                fireProcessTimeChanged(newValue);
             }
 
             @Override
-            public void endProcess(boolean running) {
-                fireProcessEnded(running);
+            public void endProcess(Object source, boolean selfStop) {
+                fireProcessEnded(selfStop);
             }
         };
 
-        recorder = new Recorder(audioBuffer, audioFormat);
-        player = new Player(audioBuffer, audioFormat);
+        recorder = new DirectAudioRecorder(audioBuffer, audioFormat);
+        ((DirectAudioRecorder) recorder).initAudioLine();
+        player = new DirectAudioPlayer(audioBuffer, audioFormat);
+        ((DirectAudioPlayer) player).initAudioLine();
         setAudioVolume(audioVolume);
 
         recorder.addListener(listener);
@@ -230,8 +232,6 @@ public class Core {
 
     /**
      * Ferme l'application.
-     *
-     * @since version 0.94 - version 0.95
      */
     public void closeApplication() {
         recorder.close();
@@ -241,8 +241,6 @@ public class Core {
 
     /**
      * Efface tous les index
-     *
-     * @since version 0.95 - version 0.96
      */
     public void eraseIndexes() {
         if (mediaIndexes.getIndexesCount() > 0) {
@@ -259,8 +257,6 @@ public class Core {
 
     /**
      * Efface tous les données des index insérés.
-     *
-     * @since version 0.96
      */
     private void eraseInsertionDataIndexes() {
         Iterator<Index> it = mediaIndexes.iterator();
@@ -277,8 +273,6 @@ public class Core {
      * Retourne le temps d'enregistrement maximum possible.
      *
      * @return le temps d'enregistrement maximum possible.
-     *
-     * @since version 0.94
      */
     public long getRecordTimeMax() {
         return recordTimeMax;
@@ -288,8 +282,6 @@ public class Core {
      * Retourne le temps courrant.
      *
      * @return le temps actuel en ms.
-     *
-     * @since version 0.94
      */
     public long getCurrentTime() {
         return currentTime;
@@ -300,8 +292,6 @@ public class Core {
      * <code>StudentCore.PLAYING</code> ou <code>StudentCore.RECORDING</code>.
      *
      * @param state la nouvelle valeur de l'état du module audio.
-     *
-     * @since version 0.94
      */
     private void setRunningState(int state) {
         runningState = state;
@@ -312,8 +302,6 @@ public class Core {
      * Met à jour le volume du lecteur du module audio.
      *
      * @param value la nouvelle valeur comprise entre 0 et 100.
-     *
-     * @since version 0.94
      */
     public void setAudioVolume(int value) {
         audioVolume = value;
@@ -322,8 +310,6 @@ public class Core {
 
     /**
      * Change le mode mute du module audio.
-     *
-     * @since version 0.94
      */
     public void toggleAudioMute() {
         setAudioVolume((audioVolume == 0) ? 50 : 0);
@@ -333,8 +319,6 @@ public class Core {
      * Retourne le document sauvegardant le texte de la zone de texte.
      *
      * @return le document sauvegardant le texte.
-     *
-     * @since version 0.94
      */
     public StyledDocument getStyledDocument() {
         return styledDocument;
@@ -344,8 +328,6 @@ public class Core {
      * Retourne l'éditeur gérant le texte de la zone de texte.
      *
      * @return l'éditeur gérant le texte.
-     *
-     * @since version 0.94
      */
     public StyledEditorKit getStyledEditorKit() {
         return styledEditorKit;
@@ -355,8 +337,6 @@ public class Core {
      * Retourne la liste des tags MP3.
      *
      * @return la liste des tags MP3.
-     *
-     * @since version 0.99
      */
     public TagList getTags() {
         return tags;
@@ -366,8 +346,6 @@ public class Core {
      * Modifie la liste des tags MP3.
      *
      * @param tags la liste des tags MP3.
-     *
-     * @since version 0.99
      */
     public void setTags(TagList tags) {
         this.tags.removeAll();
@@ -378,8 +356,6 @@ public class Core {
      * Ajoute d'une écoute de type StudentListener.
      *
      * @param listener l'écoute à ajouter.
-     *
-     * @since version 0.94 - version 0.96
      */
     public void addListener(Listener listener) {
         listeners.add(Listener.class, listener);
@@ -390,8 +366,6 @@ public class Core {
      * Enlève une écoute de type StudentListener.
      *
      * @param listener l'écoute à enlever.
-     *
-     * @since version 0.94 - version 0.96
      */
     public void removeListener(Listener listener) {
         listeners.remove(Listener.class, listener);
@@ -402,8 +376,6 @@ public class Core {
      * Notification du changement d'état.
      *
      * @param state le nouvel état.
-     *
-     * @since version 0.94 - version 0.95
      */
     private void fireRunningStateChanged(int state) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -415,8 +387,6 @@ public class Core {
      * Notification du changement du temp.
      *
      * @param time le nouveau temps.
-     *
-     * @since version 0.94 - version 0.95
      */
     private void fireTimeChanged(long time) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -428,8 +398,6 @@ public class Core {
      * Notification du changement du temp lors de l'insertion de la voix.
      *
      * @param time le nouveau temps.
-     *
-     * @since version 0.95
      */
     private void fireInsertVoiceTimeChanged(long time) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -441,8 +409,6 @@ public class Core {
      * Notification du changement de la durée maximum d'enregistrement.
      *
      * @param recordTimeMax le temps maximum d'enregistrement.
-     *
-     * @since version 0.94 - version 0.95
      */
     private void fireRecordTimeMaxChanged(long recordTimeMax) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -454,8 +420,6 @@ public class Core {
      * Notification de changement dans les index d'enregistrement.
      *
      * @param indexes la liste d'index.
-     *
-     * @since version 0.94 - version 0.95
      */
     private void fireIndexesChanged(Indexes indexes) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -465,8 +429,6 @@ public class Core {
 
     /**
      * Notification de modification des données audio.
-     *
-     * @since version 0.95
      */
     private void fireAudioDataChanged() {
         File leftChannelFile = new File(tempPath, "waveLeft." + Wave.imageExtension);
@@ -480,8 +442,6 @@ public class Core {
      *
      * @param leftChannelFile le nouveau fichier pour le canal droit.
      * @param rigthChannelFile le nouveau fichier pour le canal gauche.
-     *
-     * @since version 0.95
      */
     private void fireAudioWaveFileChanged(File leftChannelFile, File rigthChannelFile) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -493,8 +453,6 @@ public class Core {
      * Notification du changement du fichier vidéo.
      *
      * @param file le nouveau fichier vidéo.
-     *
-     * @since version 0.95
      */
     private void fireVideoFileChanged(File file) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -507,8 +465,6 @@ public class Core {
      *
      * @param text le texte chargé.
      * @param styled indique si le texte comporte des styles.
-     *
-     * @since version 0.94 - version 0.96
      */
     private void fireTextLoaded(String text, boolean styled) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -520,8 +476,6 @@ public class Core {
      * Notification que l'image du module multimédia a changé.
      *
      * @param image la nouvelle image.
-     *
-     * @since version 0.94 - version 0.95
      */
     private void fireImageChanged(BufferedImage image) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
@@ -533,8 +487,6 @@ public class Core {
      * Retourne le nombre d'index de la piste multimédia.
      *
      * @return le nombre d'index.
-     *
-     * @since version 0.94
      */
     public int getIndexesCount() {
         return mediaIndexes.getIndexesCount();
@@ -544,8 +496,6 @@ public class Core {
      * Retourne un iterateur sur les Index.
      *
      * @return un iterateur sur les Index.
-     *
-     * @since version 0.95
      */
     public Iterator<Index> indexesIterator() {
         return mediaIndexes.iterator();
@@ -557,8 +507,6 @@ public class Core {
      * @param id l'identifiant.
      *
      * @return l'index correspondant à l'identifiant.
-     *
-     * @since version 0.95
      */
     public Index getIndexWithId(long id) {
         return mediaIndexes.getIndexWithId(id);
@@ -568,8 +516,6 @@ public class Core {
      * Indique si la liste contient un index où l'élève doit s'enregistrer.
      *
      * @return si la liste contient un index où l'élève doit s'enregistrer.
-     *
-     * @since version 1.01
      */
     public boolean hasStudentRecordIndex() {
         return mediaIndexes.hasStudentRecordIndex();
@@ -581,8 +527,6 @@ public class Core {
      * @param time le temps.
      *
      * @return l'index contenant le temps désiré.
-     *
-     * @since version 0.95
      */
     public Index getIndexAtTime(long time) {
         return mediaIndexes.getIndexAtTime(time);
@@ -594,8 +538,6 @@ public class Core {
      * @param index l'index.
      *
      * @return le temps minimum pour le début de l'index.
-     *
-     * @since version 0.95
      */
     public long getMinimalTimeBefore(Index index) {
         return mediaIndexes.getMinimalTime(index);
@@ -607,8 +549,6 @@ public class Core {
      * @param index l'index.
      *
      * @return le temps maximum pour le temps de fin de l'index.
-     *
-     * @since version 0.95
      */
     public long getMaximalTimeAfter(Index index) {
         return mediaIndexes.getMaximalTime(index);
@@ -620,8 +560,6 @@ public class Core {
      * @param index l'index courant.
      *
      * @return l'index précédent.
-     *
-     * @since version 0.95
      */
     public Index previousIndex(Index index) {
         return mediaIndexes.previousIndex(index);
@@ -633,8 +571,6 @@ public class Core {
      * @param index l'index courant.
      *
      * @return l'index suivant.
-     *
-     * @since version 0.95
      */
     public Index nextIndex(Index index) {
         return mediaIndexes.nextIndex(index);
@@ -642,8 +578,6 @@ public class Core {
 
     /**
      * Trie par ordre chronologique les index.
-     *
-     * @since version 0.95
      */
     public void sortIndexes() {
         mediaIndexes.sortIndexes();
@@ -653,8 +587,6 @@ public class Core {
      * Ajoute un index sans valeur de type lecture.
      *
      * @return l'id
-     *
-     * @since version 0.95
      */
     public long addNullIndex() {
         return mediaIndexes.addNullIndex();
@@ -664,8 +596,6 @@ public class Core {
      * Enlève l'index au temps indiqué.
      *
      * @param time le temps.
-     *
-     * @since version 0.95
      */
     public void removeIndexAtTime(long time) {
         Index index = mediaIndexes.removeIndexAtTime(time);
@@ -677,8 +607,6 @@ public class Core {
      * Enlève l'index avec l'identifiant indiqué.
      *
      * @param id l'identifiant de l'index.
-     *
-     * @since version 0.95 - version 0.96
      */
     private void removeIndex(long id) {
         Index index = mediaIndexes.getIndexWithId(id);
@@ -690,8 +618,6 @@ public class Core {
      * Enlève les index avec la liste d'identifiants indiquée.
      *
      * @param ids la liste d'identifiants de l'index.
-     *
-     * @since version 0.96
      */
     public void removeIndex(List<Long> ids) {
         for (long id : ids) {
@@ -703,8 +629,6 @@ public class Core {
 
     /**
      * Efface les index dont les bords sont inférieurs sont égaux.
-     *
-     * @since version 0.95
      */
     public void removeNullIndex() {
         mediaIndexes.removeNullIndex();
@@ -722,8 +646,6 @@ public class Core {
      * @param speed la vitesse de l'index.
      *
      * @return le nouvel index.
-     *
-     * @since version 0.95 - version 1.01
      */
     public Index setMediaIndex(long id, long begin, long end, IndexType type, String subtitle, float speed) {
         Index oldIndex = mediaIndexes.getIndexWithId(id);
@@ -735,8 +657,8 @@ public class Core {
         boolean dataMove = (oldIndex.isTimeLineModifier() && (begin != oldIndex.getInitialTime() || end != oldIndex
                 .getFinalTime()));
         //changement dans les donnée: changement de type modifiant des données
-        boolean dataChanged = (oldIndex.isBlankType() && oldIndex.getType() != type) || (speed > 0
-                && speed != oldIndex.getRate());
+        boolean dataChanged = (oldIndex.isBlankType() && oldIndex.getType() != type) || (speed > 0 && speed != oldIndex
+                .getRate());
 
         Index newIndex = null;
         try {
@@ -780,8 +702,6 @@ public class Core {
      * @param fileName le fichier pour un index d'insetion de fichier.
      *
      * @return la réussite.
-     *
-     * @since version 0.95
      */
     private boolean addMediaIndex(long begin, long end, IndexType type, String subtitle, String fileName) {
         Index index = new Index(type);
@@ -807,8 +727,6 @@ public class Core {
      * @param subtitle le soustitre
      *
      * @return la réussite.
-     *
-     * @since version 0.95
      */
     public boolean addMediaIndexAt(long time, long length, IndexType type, String subtitle) {
         if (recordTimeMax == 0) {
@@ -830,8 +748,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return la réussite.
-     *
-     * @since version 0.95 - version 0.99
      */
     private int addFileIndex(long time, File file) {
         long begin = time;
@@ -889,8 +805,6 @@ public class Core {
      * thread séparée.
      *
      * @param time le temps de départ de l'enregistrement.
-     *
-     * @since version 0.95
      */
     public void addVoiceRecord(long time) {
         final long begin;
@@ -912,12 +826,10 @@ public class Core {
      * @param time le temps de départ de l'enregistrement.
      *
      * @return la réussite.
-     *
-     * @since version 0.95 - version 0.97
      */
     private int addVoiceIndex(long time) {
         tempBuffer.clear();
-        recorder.setBuffer(tempBuffer);
+        recorder.setAudioBuffer(tempBuffer);
         //Modification de l'état des boutons du module audio
         setRunningState(Constants.RECORDING_INSERT);
         recorder.start(0, Math.min(TIME_TEMP_MAX, getRemainingTime()));
@@ -926,7 +838,7 @@ public class Core {
             Utilities.waitInMillisecond(100);
         }
 
-        recorder.setBuffer(audioBuffer);
+        recorder.setAudioBuffer(audioBuffer);
 
         tempBuffer.flip();
         int write = insertData(time, tempBuffer);
@@ -948,8 +860,6 @@ public class Core {
      * @param newIndex le nouveau index.
      * @param oldIndex l'ancien index.
      * @param update option pour avertir la modification des données.
-     *
-     * @since version 0.95 - version 1.01
      */
     private void updateData(Index newIndex, Index oldIndex, boolean update) {
         if (newIndex == null && oldIndex == null) {
@@ -1121,8 +1031,6 @@ public class Core {
      * curseur temps.
      *
      * @param time le temps (en ms) où l'on doit se rendre.
-     *
-     * @since version 0.95
      */
     private void setTime(long time) {
         currentTime = time;
@@ -1133,8 +1041,6 @@ public class Core {
      * Modifie le temps courant en millisecondes.
      *
      * @param time le temps (en ms) où l'on doit se rendre.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void setProtectedTime(long time) {
         boolean play = (runningState == Constants.PLAYING);
@@ -1154,8 +1060,6 @@ public class Core {
 
     /**
      * Met le temps à zéro.
-     *
-     * @since version 0.95
      */
     public void timeToZero() {
         setProtectedTime(0);
@@ -1166,8 +1070,6 @@ public class Core {
      *
      * @param begin le début de la plage.
      * @param end la fin de la plage.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void playOnRange(long begin, long end) {
         stopTime = end;
@@ -1181,8 +1083,6 @@ public class Core {
      *
      * @param begin le début de la plage.
      * @param end la fin de la plage.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void recordOnRange(long begin, long end) {
         if (runningState != Constants.PAUSE) {
@@ -1202,8 +1102,6 @@ public class Core {
      * Change la valeur maximale de la barre de défilement.
      *
      * @param time la nouvelle valeur en en ms.
-     *
-     * @since version 0.95
      */
     private void setRecordTimeMax(long time) {
         mediaIndexes.setMediaLength(time);
@@ -1222,8 +1120,6 @@ public class Core {
 
     /**
      * Change la valeur maximale de la barre de défilement.
-     *
-     * @since version 0.95
      */
     private void setRecordTimeMaxByIndexes() {
         long time = mediaIndexes.getLength();
@@ -1243,8 +1139,6 @@ public class Core {
      * Retourne la durée maximale de la bande.
      *
      * @return la durée maximale de la bande.
-     *
-     * @since version 0.95
      */
     public long getDurationMax() {
         return TIME_MAX;
@@ -1265,8 +1159,6 @@ public class Core {
      * Retourne la durée maximale pour une insertion.
      *
      * @return la durée maximale pour une insertion.
-     *
-     * @since version 0.95
      */
     public long getInsertionDurationMax() {
         return TIME_TEMP_MAX;
@@ -1278,8 +1170,6 @@ public class Core {
      * @param project l'ensembles des fichiers à charger.
      *
      * @return la réussite du chargement.
-     *
-     * @since version 0.95 - version 1.01
      */
     public boolean loadProject(ProjectFiles project) {
         boolean success = true;
@@ -1427,8 +1317,6 @@ public class Core {
      * @param time le temps.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95 - version 1.00
      */
     public boolean insertFile(File file, long time) {
         long begin = time;
@@ -1463,8 +1351,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95
      */
     private boolean loadFile(File file) {
         boolean success = false;
@@ -1516,8 +1402,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95
      */
     private boolean loadIndexes(File file) {
         mediaIndexes = Utilities.getIndexes(file);
@@ -1533,8 +1417,6 @@ public class Core {
      * @param file le fichier image.
      *
      * @return la réussite du chargement.
-     *
-     * @since version 0.95
      */
     private boolean loadImage(File file) {
         boolean success;
@@ -1557,8 +1439,6 @@ public class Core {
      * @param file le fichier à charger.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95 - version 0.96
      */
     public boolean loadText(File file) {
         if (!file.exists()) {
@@ -1606,8 +1486,6 @@ public class Core {
      * @param file le fichier à charger.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95
      */
     private boolean loadTextStyled(File file) {
         try {
@@ -1631,8 +1509,6 @@ public class Core {
      * @param file le fichier a charger.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95 - version 0.99
      */
     private int loadAudio(File file, ByteBuffer byteBuffer) {
         //Java ne décode que le .wav
@@ -1715,8 +1591,6 @@ public class Core {
      * @param file le fichier a charger.
      *
      * @return <code>true<\code> si le chargement s'est bien passé.
-     *
-     * @since version 0.95 - version 0.99
      */
     private boolean loadVideo(File file) {
         if (!file.exists()) {
@@ -1745,8 +1619,6 @@ public class Core {
      * @param project les éléments à sauvegarder.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95 - version 1.01
      */
     public boolean saveProject(File file, ProjectFiles project) {
         ProjectTarget soft = project.getSoft();
@@ -1879,8 +1751,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95
      */
     private boolean saveMediaIndexes(File file) {
         Utilities.saveObject(mediaIndexes, file);
@@ -1894,8 +1764,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95
      */
     private boolean saveSubtitleFile(File file) {
         boolean success = false;
@@ -1921,8 +1789,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95 - version 0.96
      */
     private boolean saveText(File file) {
         boolean saved = false;
@@ -1960,8 +1826,6 @@ public class Core {
      * @param file le fichier.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95
      */
     private boolean saveTextStyled(File file) {
         try {
@@ -1983,8 +1847,6 @@ public class Core {
      * @param file le fichier où l'on veut enregistrer.
      *
      * @return <code>true<\code> si la sauvegarde s'est bien passée.
-     *
-     * @since version 0.95 - version 0.99
      */
     private boolean saveAudio(File file) {
         boolean success;
@@ -2011,17 +1873,15 @@ public class Core {
             } catch (IOException e) {
                 LOGGER.error("", e);
                 success = false;
-            }//end catch
-        }//end if
+            }
+        }
         return success;
-    }//end saveAudio(File file)
+    }
 
     /**
      * Retourne si le projet contient une vidéo.
      *
      * @return si le projet contient une vidéo.
-     *
-     * @since version 0.95
      */
     public boolean hasVideo() {
         return (projectFiles.getVideoFile() != null);
@@ -2029,8 +1889,6 @@ public class Core {
 
     /**
      * Efface le texte dans le module texte.
-     *
-     * @since version 0.95
      */
     public void eraseText() {
         try {
@@ -2055,13 +1913,11 @@ public class Core {
 
     /**
      * Lance la lecture des données enregistrées au microphone.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void audioPlay() {
         if (runningState != Constants.PAUSE) {
             audioPause();
-        }//end if
+        }
 
         //si on est à la fin de la bande on remet à 0
         if (currentTime >= recordTimeMax) {
@@ -2076,8 +1932,6 @@ public class Core {
 
     /**
      * Stop la lecture ou l'enregistrement du module audio.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void audioPause() {
         boolean isRecordOnIndex = (runningState == Constants.RECORDING);
@@ -2095,7 +1949,7 @@ public class Core {
             while (player.isAlive()) {
                 Utilities.waitInMillisecond(5);
             }
-        }//end if
+        }
 
         //Modification de l'état des boutons du module audio
         setRunningState(Constants.PAUSE);
@@ -2105,17 +1959,15 @@ public class Core {
         if (isRecordOnIndex) {
             fireAudioDataChanged();
         }
-    }//end audioPause()
+    }
 
 //    /**
 //     * Lance l'enregistrement du microphone.
-//     *
-//     * @since version 0.95
 //     */
 //    private void audioRecord() {
 //        if(runningState == PLAYING) {
 //            audioPause();
-//        }//end if
+//        }
 //
 //        //Modification de l'état des boutons du module audio
 //        setRunningState(RECORDING);
@@ -2125,8 +1977,6 @@ public class Core {
 
     /**
      * Efface la bande audio.
-     *
-     * @since version 0.95
      */
     public void eraseAudio() {
         int NbByte = audioBuffer.limit();
@@ -2135,12 +1985,12 @@ public class Core {
         if (NbByte > 0) {
             byte data[] = new byte[NbByte];
             audioBuffer.put(data);
-        }//end if
+        }
 
         if (!hasVideo()) {
             eraseIndexes();
             setRecordTimeMax(0);
-        }//end if
+        }
 
         projectFiles.setAudioFile(null);
         fireAudioDataChanged();
@@ -2148,8 +1998,6 @@ public class Core {
 
     /**
      * Efface la bande video.
-     *
-     * @since version 0.95
      */
     public void eraseVideo() {
         projectFiles.setVideoFile(null);
@@ -2161,8 +2009,6 @@ public class Core {
      *
      * @param srcFile le fichier source.
      * @param destFile le fichier destination.
-     *
-     * @since version 0.95 - version 1.03
      */
     private int converter(File destFile, File srcFile, boolean withTags) {
         int result;
@@ -2182,11 +2028,8 @@ public class Core {
      * @param videoFile le fichier source de la psite vidéo.
      * @param subtitleFile le fichier source de la psite de sous-titres.
      * @param soft le logiciel cible.
-     *
-     * @since version 0.95 - version 1.03
      */
-    private int converter(File destFile, File audioFile, File videoFile,
-            File subtitleFile, ProjectTarget soft) {
+    private int converter(File destFile, File audioFile, File videoFile, File subtitleFile, ProjectTarget soft) {
         int result;
         if (soft == ProjectTarget.EASYLAB) {
             converter.setVideoSize(320, 240);
@@ -2204,8 +2047,6 @@ public class Core {
      * @param srcFile le fichier source.
      * @param audioFile le fichier destination pour la psite vidéo.
      * @param videoFile le fichier destination pour la psite vidéo.
-     *
-     * @since version 0.95 - version 1.03
      */
     private int extract(File srcFile, File audioFile, File videoFile) {
         int result = converter.extractToWAVandFLV(srcFile, audioFile, videoFile);
@@ -2218,8 +2059,6 @@ public class Core {
      * @param file le fichier source.
      *
      * @return la durée du fichier.
-     *
-     * @since version 0.95
      */
     public long getFileDuration(File file) {
         return converter.getDuration(file);
@@ -2231,8 +2070,6 @@ public class Core {
      * @param file le fichier source.
      *
      * @return si le fichier contient une piste audio.
-     *
-     * @since version 0.95
      */
     public boolean hasAudioSrteam(File file) {
         return converter.hasAudioSrteam(file);
@@ -2244,8 +2081,6 @@ public class Core {
      * @param file le fichier source.
      *
      * @return si le fichier contient une piste vidéo.
-     *
-     * @since version 0.95
      */
     public boolean hasVideoSrteam(File file) {
         return converter.hasVideoSrteam(file);
@@ -2253,8 +2088,6 @@ public class Core {
 
     /**
      * Annule une conversion en cours.
-     *
-     * @since version 0.96 - version 1.03
      */
     public void cancelConversion() {
         converter.cancel();
@@ -2264,8 +2097,6 @@ public class Core {
      * Efface l'enregistrement effectué sur l'index comprenant le temps indiqué.
      *
      * @param time le temps de l'index.
-     *
-     * @since version 0.95
      */
     public void eraseIndexRecord(long time) {
         Index index = getIndexAtTime(time);
@@ -2282,13 +2113,11 @@ public class Core {
             audioBuffer.put(data);
 
             fireAudioDataChanged();
-        }//end if
+        }
     }
 
     /**
      * Iitialisation des buffer audio.
-     *
-     * @since version 0.95
      */
     private void initByteBuffers() {
         //ByteBuffer.allocateDirect(cnt) peut provoquer un outOfMemory
@@ -2308,8 +2137,6 @@ public class Core {
      *
      * @param byteBuffer le buffer des données audio.
      * @param time le temps maximum d'enregistrement (en ms).
-     *
-     * @since version 0.95
      */
     private void setByteBufferLimit(ByteBuffer byteBuffer, long time) {
         //nombre de bytes pour un échantillon
@@ -2325,8 +2152,6 @@ public class Core {
      * @param begin le temps où doit se faire l'insertion.
      *
      * @return la durée du beep inséré.
-     *
-     * @since version 0.95
      */
     private long insertBeep(long begin) {
         File file = Utilities.getResource(beepPath, tempPath);
@@ -2349,8 +2174,6 @@ public class Core {
      *
      * @param begin le temps de départ de l'insertion.
      * @param buffer le buffer de données.
-     *
-     * @since version 0.93
      */
     private int insertData(long begin, ByteBuffer buffer) {
         if (buffer.limit() + audioBuffer.limit() > audioBuffer.capacity()) {
@@ -2378,8 +2201,6 @@ public class Core {
      *
      * @param begin le temps de départ de l'insertion.
      * @param buffer le buffer de données.
-     *
-     * @since version 0.93
      */
     private int insertData(long begin, byte[] buffer) {
         if (buffer.length + audioBuffer.limit() > audioBuffer.capacity()) {
@@ -2409,8 +2230,6 @@ public class Core {
      * @param end le temps de fin.
      *
      * @return les données enlevées.
-     *
-     * @since version 0.93
      */
     private byte[] removeData(long begin, long end) {
         if (end <= begin) {
@@ -2450,8 +2269,6 @@ public class Core {
      * @param index l'index.
      * @param oldRate l'ancienne vitesse de l'index.
      * @param newRate la nouvelle vitesse de l'index.
-     *
-     * @since version 1.01
      */
     private void setIndexAudioRate(Index index, float oldRate, float newRate) {
         if (oldRate == newRate) {
@@ -2490,8 +2307,6 @@ public class Core {
      * @param data les données audio.
      * @param rate la vitesse de sauvegarde.
      * @param file le fichier de sauvegarde.
-     *
-     * @since version 1.01
      */
     private void saveAudioData(byte[] data, float rate, File file) {
         float sampleRate = audioFormat.getSampleRate() * rate;
@@ -2523,8 +2338,6 @@ public class Core {
      *
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param duration la durée de la vidéo blanche à insérer.
-     *
-     * @since version 0.97 - version 1.01
      */
     private void insertBlankVideo(long begin, long duration) {
         File imgDirectory = new File(tempPath, "_img_");
@@ -2540,8 +2353,6 @@ public class Core {
      *
      * @param begin le temps de départ de la partie à dupliquer.
      * @param end le temps de fin de la partie à dupliquer.
-     *
-     * @since version 0.97 - version 1.01
      */
     private void insertDuplicatedVideo(long begin, long end) {
         fireVideoFileChanged(null);
@@ -2554,8 +2365,6 @@ public class Core {
      *
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param file le fichier vidéo à insérer.
-     *
-     * @since version 0.97 - version 0.99
      */
     private void insertVideo(long begin, File file) {
         fireVideoFileChanged(null);
@@ -2568,8 +2377,6 @@ public class Core {
      *
      * @param destFile le fichier de destination de la vidéo.
      * @param duration la durée de la vidéo blanche.
-     *
-     * @since version 0.97 - version 0.99
      */
     private void createBlankVideo(File destFile, long duration) {
         File imgDirectory = new File(tempPath, "_img_");
@@ -2583,8 +2390,6 @@ public class Core {
      *
      * @param begin le temps de départ de la partie à supprimer.
      * @param end le temps de fin de la partie à supprimer.
-     *
-     * @since version 0.97 - version 0.99
      */
     private void removeVideo(long begin, long end) {
         fireVideoFileChanged(null);
@@ -2599,8 +2404,6 @@ public class Core {
      * @param end le temps de fin de la partie à déplacer.
      * @param newBegin le nouveau temps de départ de la partie à déplacer.
      * @param duration la nouvelle durée de la partie sélectionnée.
-     *
-     * @since version 0.97 - version 1.01
      */
     private void moveVideoAndResize(long begin, long end, long newBegin, long duration) {
         File imgDirectory = new File(tempPath, "_img_");
@@ -2617,8 +2420,6 @@ public class Core {
      * @param index l'index.
      * @param oldRate l'ancienne vitesse de l'index.
      * @param newRate la nouvelle vitesse de l'index.
-     *
-     * @since version 1.01
      */
     private void setIndexVideoRate(Index index, float oldRate, float newRate) {
         File normalFile = new File(tempPath, index.getId() + Constants.FLV_extension);
@@ -2633,8 +2434,6 @@ public class Core {
      *
      * @param format le nouveau format. Mettre <code>null</code> pour avoir le format par défaut (8000 Hz, 16
      *         bits, mono, signed, little-endian).
-     *
-     * @since version 0.94
      */
     private void setAudioFormat(AudioFormat format) {
         if (format == null) {
@@ -2655,8 +2454,6 @@ public class Core {
      * Notification interne de changement du temps pour les thread de lecture et d'enregistrement.
      *
      * @param time le nouveau temps.
-     *
-     * @since version 0.94 - version 0.97
      */
     private void fireProcessTimeChanged(long time) {
         //quand on est en insertion de voix on ajuste le temps
@@ -2671,8 +2468,6 @@ public class Core {
      * Notification interne de la fin des thread de lecture et d'enregistrement.
      *
      * @param running <code>true</code> si la thread ne sait pas stoppée d'elle même.
-     *
-     * @since version 0.94 - version 1.01
      */
     private void fireProcessEnded(final boolean running) {
         //Traitement dans un thread séparée pour éviter un blocage
