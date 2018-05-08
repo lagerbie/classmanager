@@ -38,8 +38,8 @@ import thot.LaboratoryCore;
 import thot.LaboratoryListener;
 import thot.model.Constants;
 import thot.model.Index;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /*
  * resources:
@@ -1125,8 +1125,7 @@ public class LaboratoryFrame extends JFrame {
         this.setLocale(locale);
 
         File languageFile = new File(userHome, "language.xml");
-        Utilities.saveText(
-                XMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
 
         //internalisation des différents textes
         resources.updateLocale(locale);

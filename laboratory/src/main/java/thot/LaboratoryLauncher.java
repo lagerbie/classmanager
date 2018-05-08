@@ -30,10 +30,10 @@ import thot.gui.LaboratoryFrame;
 import thot.gui.Resources;
 import thot.model.Constants;
 import thot.model.ThotPort;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Converter;
 import thot.utils.Utilities;
 import thot.utils.VLCconverter;
-import thot.utils.XMLUtilities;
 
 /*
  * resources:
@@ -73,7 +73,7 @@ public class LaboratoryLauncher {
         Locale language;
         File languageFile = new File(userHome, "language.xml");
         if (languageFile.exists()) {
-            String defaultLanguage = XMLUtilities.getLanguage(languageFile);
+            String defaultLanguage = CommandXMLUtilities.getLanguage(languageFile);
             if (defaultLanguage != null) {
                 language = new Locale(defaultLanguage);
                 GuiUtilities.setDefaultLocale(language);

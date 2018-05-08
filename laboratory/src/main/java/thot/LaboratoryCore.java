@@ -53,9 +53,9 @@ import thot.model.Constants;
 import thot.model.Index;
 import thot.model.ProjectFiles;
 import thot.model.ThotPort;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Converter;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /*
  * resources: soundError
@@ -661,7 +661,7 @@ public class LaboratoryCore extends LaboCore {
 
             String xml = inputStream.readUTF();
             LOGGER.info("receive command : " + xml);
-            List<Command> commands = XMLUtilities.parseCommand(xml);
+            List<Command> commands = CommandXMLUtilities.parseCommand(xml);
 
             if (commands.isEmpty()) {
                 outputStream.writeUTF(CommandAction.END.getAction());

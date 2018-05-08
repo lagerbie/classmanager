@@ -25,9 +25,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import eestudio.utils.Converter;
-import eestudio.utils.TagList;
 import eestudio.utils.Wave;
-import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.audio.AudioPlayer;
@@ -42,6 +40,8 @@ import thot.model.IndexType;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
+import thot.model.TagList;
+import thot.utils.LaboXMLUtilities;
 import thot.utils.Utilities;
 
 /**
@@ -424,7 +424,7 @@ public class Core {
      */
     private void fireIndexesChanged(Indexes indexes) {
         for (Listener listener : listeners.getListeners(Listener.class)) {
-            listener.indexesChanged(XMLUtilities.getXMLDescription(indexes));
+            listener.indexesChanged(LaboXMLUtilities.getXMLDescription(indexes));
         }
     }
 
@@ -1299,7 +1299,7 @@ public class Core {
 
         if (project.getTagFile() != null) {
             File tagFile = new File(project.getTagFile());
-            tags = XMLUtilities.loadTags(tagFile);
+            tags = LaboXMLUtilities.loadTags(tagFile);
         }
 
 //        if(project.getSubtitleFile() != null) {
@@ -1713,7 +1713,7 @@ public class Core {
         //sauvegarde des tags
         if (project.getTagFile() != null) {
             File tagFile = new File(path, name + project.getTagFile());
-            saved = Utilities.saveText(XMLUtilities.getXML(tags), tagFile);
+            saved = Utilities.saveText(LaboXMLUtilities.getXML(tags), tagFile);
             if (saved) {
                 savedFiles.setTagFile(tagFile.getName());
             }

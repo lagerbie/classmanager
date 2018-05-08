@@ -19,14 +19,7 @@
  */
 package thot.gui;
 
-import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
-
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -37,34 +30,23 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SpringLayout;
+import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import thot.model.Constants;
 import supervision.MasterCore;
 import supervision.MasterCoreListener;
 import supervision.Student;
+import thot.model.Constants;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /**
- *
  * @author Fabrice Alleau
  * @version 1.90
  */
@@ -764,8 +746,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Retourne la vignette élève désigné par l'identifiant (= adresse IP).
      *
      * @param id l'identifiant de l'élève (= adresse IP).
-     * @return la vignette élève, ou <code>null</code> si il n'y a pas d'élève
-     * avec l'identifiant.
+     *
+     * @return la vignette élève, ou <code>null</code> si il n'y a pas d'élève avec l'identifiant.
      */
     private Thumbnail getThumbnail(String id) {
         return thumbnails.get(id);
@@ -848,8 +830,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     }
 
     /**
-     * Action pour envoyer un fichier. Ouvre une fenêtre d'explorateur de
-     * fichier.
+     * Action pour envoyer un fichier. Ouvre une fenêtre d'explorateur de fichier.
      */
     private void sendFileAction() {
         File file = chooser.getSelectedFile(FileChooser.LOAD);
@@ -867,11 +848,11 @@ public class MainFrame extends JFrame implements MasterCoreListener {
         final String id = student.getAddressIP();
         final Thumbnail thumbnail = new Thumbnail(
                 GuiUtilities.getImageIcon("thumbnailImage",
-                GuiConstants.imagesPath, GuiConstants.images).getImage(),
+                        GuiConstants.imagesPath, GuiConstants.images).getImage(),
                 GuiUtilities.getImageIcon("checkImage",
-                GuiConstants.imagesPath, GuiConstants.images).getImage(),
+                        GuiConstants.imagesPath, GuiConstants.images).getImage(),
                 GuiUtilities.getImageIcon("batteryImage",
-                GuiConstants.imagesPath, GuiConstants.images).getImage());
+                        GuiConstants.imagesPath, GuiConstants.images).getImage());
 
         thumbnail.setSudentName(student.getName());
         thumbnail.setGroup(student.getGroup());
@@ -909,7 +890,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param group l'identifiant du groupe.
      * @param select <code>true</code> pour la sélection de groupe, ou
-     * <code>false</code> pour la désélection de groupe.
+     *         <code>false</code> pour la désélection de groupe.
      */
     private void selectGroup(int group, boolean select) {
         for (Thumbnail thumbnail : thumbnails.values()) {
@@ -936,8 +917,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Affiche ou cache le menu de création de groupes.
      *
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code>
-     * pour revenir à l'affichage standard.
+     * @param visible <code>true</code> pour l'afficher, ou <code>false</code> pour revenir à l'affichage
+     *         standard.
      */
     private void showGroupsCreation(boolean visible) {
         for (Thumbnail thumbnail : thumbnails.values()) {
@@ -960,8 +941,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Affiche ou cache la sélection potentiel de groupes supplémentaires.
      *
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code>
-     * pour revenir à l'affichage standard.
+     * @param visible <code>true</code> pour l'afficher, ou <code>false</code> pour revenir à l'affichage
+     *         standard.
      */
     private void setGroupSuppButtonsVisible(boolean visible) {
         arrowButton.setVisible(visible);
@@ -993,7 +974,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param id l'indentifiant de la vignette.
      * @param selected <code>true</code> pour la sélectionner, ou
-     * <code>false</code> pour la désélectionner.
+     *         <code>false</code> pour la désélectionner.
      */
     private void setThumbSelected(String id, boolean selected) {
         Thumbnail thumbnail = getThumbnail(id);
@@ -1006,8 +987,9 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Indique si le bouton est un bouton de sélection de groupe.
      *
      * @param button le bouton à tester
+     *
      * @return <code>true</code> si le bouton est un bouton de sélection de
-     * groupe.
+     *         groupe.
      */
     private boolean isGroupButton(JButton button) {
         return button == groupAbutton || button == groupBbutton
@@ -1021,6 +1003,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param type le type du bouton.
      * @param state le nouvel état du bouton.
+     *
      * @deprecated
      */
     @Deprecated
@@ -1055,7 +1038,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Modifie la possibilité de sélectionner des groupes.
      *
      * @param enable <code>true</code> pour pouvoir sélectioner des groupes, ou
-     * <code>false</code> pour l'impossibilité de sélection.
+     *         <code>false</code> pour l'impossibilité de sélection.
      */
     private void setGroupButtonsEnabled(boolean enable) {
         groupAbutton.setEnabled(enable);
@@ -1070,8 +1053,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     }
 
     /**
-     * Modifie les actions de supervisions possibles suivant l'état du bouton
-     * indiqué.
+     * Modifie les actions de supervisions possibles suivant l'état du bouton indiqué.
      *
      * @param button le bouton initialisateur de l'action.
      */
@@ -1084,8 +1066,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Modifie la possibilité de sélectionner des fonctions de groupes.
      *
-     * @param enable <code>true</code> pour pouvoir sélectioner des fonctions de
-     * groupes, ou <code>false</code> pour l'impossibilité de sélection.
+     * @param enable <code>true</code> pour pouvoir sélectioner des fonctions de groupes, ou <code>false</code>
+     *         pour l'impossibilité de sélection.
      */
     private void setGroupFunctionsEnabled(boolean enable) {
         supervisionPanel.setGroupFonctionsEnabled(enable);
@@ -1103,8 +1085,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
         this.setLocale(locale);
 
         File languageFile = new File(userHome, "language.xml");
-        Utilities.saveText(
-                XMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
 
         //internalisation des différents textes
         resources.updateLocale(locale);
@@ -1160,6 +1141,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Création d'un bouton avec un état avec son type.
      *
      * @param type le type de bouton
+     *
      * @return le bouton créé.
      */
     private StateButton getButton(String type) {
@@ -1177,8 +1159,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param message le message à afficher.
      * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
-     * @return le texte qui a été validé ou <code>null</code> si l'opération a
-     * été annulée.
+     *
+     * @return le texte qui a été validé ou <code>null</code> si l'opération a été annulée.
      */
     protected String showInputDialog(String message, String initValue) {
         return (String) GuiUtilities.showInputDialog(this, message, null, initValue);
@@ -1188,8 +1170,9 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Afficge une boîte de dialogue posant une question.
      *
      * @param message le message à afficher.
+     *
      * @return <code>JOptionPane.YES_OPTION</code> si le bouton oui a été cliqué
-     * ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
+     *         ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
      */
     protected int showOptionDialog(String message) {
         return GuiUtilities.showOptionDialog(this, message, null, null);
@@ -1211,6 +1194,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * @param title le titre de la fenêtre.
      * @param values les valeurs que l'on peut sélectionnées.
      * @param initialValue la valeur sélectionnée au départ.
+     *
      * @return l'Object sélectionnée ou <code>null</code> si pas de sélection.
      */
     private Object showInputDialog(String message, String title,

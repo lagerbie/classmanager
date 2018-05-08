@@ -45,9 +45,9 @@ import thot.model.CommandParamater;
 import thot.model.CommandType;
 import thot.model.Constants;
 import thot.model.ThotPort;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Converter;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /**
  * Noyau pour le contôle des laboratoire élèves.
@@ -134,7 +134,7 @@ public class LaboModule extends LaboCore {
      * @param command la commande.
      */
     private void sendCommand(Command command) {
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         //pour toutes les adresses
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student student = it.next();
@@ -405,7 +405,7 @@ public class LaboModule extends LaboCore {
 
             String xml = inputStream.readUTF();
             LOGGER.info("xml commande de pilotage: " + xml);
-            List<Command> commands = XMLUtilities.parseCommand(xml);
+            List<Command> commands = CommandXMLUtilities.parseCommand(xml);
 
             boolean isOK = false;
             if (!commands.isEmpty()) {

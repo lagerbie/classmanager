@@ -45,6 +45,7 @@ import thot.screen.BlackWindow;
 import thot.screen.CaptureScreen;
 import thot.screen.DeskTopWindow;
 import thot.screen.ScreenWindow;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
 import thot.voip.Voip;
@@ -391,8 +392,7 @@ public class StudentCore implements Runnable {
             return false;
         }
 
-        return Utilities.sendXml(XMLUtilities.getXML(command),
-                masterIP, ThotPort.studentToMasterPort);
+        return Utilities.sendXml(CommandXMLUtilities.getXML(command), masterIP, ThotPort.studentToMasterPort);
     }
 
     /**
@@ -494,8 +494,7 @@ public class StudentCore implements Runnable {
                     }
                 }
 
-                Utilities.sendXml(XMLUtilities.getXML(returnCommand),
-                        remoteHost, ThotPort.studentToMasterPort);
+                Utilities.sendXml(CommandXMLUtilities.getXML(returnCommand), remoteHost, ThotPort.studentToMasterPort);
                 break;
             case SEND_SCREEN:
                 int portBase = command.getParameterAsInt(CommandParamater.SCREEN_PORT);
@@ -793,7 +792,7 @@ public class StudentCore implements Runnable {
                 }
                 LOGGER.info("Recoit Xml: " + xml.toString());
 
-                List<Command> commands = XMLUtilities.parseCommand(xml.toString());
+                List<Command> commands = CommandXMLUtilities.parseCommand(xml.toString());
                 for (Command command : commands) {
                     execute(command);
                 }

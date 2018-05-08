@@ -1,4 +1,4 @@
-package eestudio.utils;
+package thot.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,6 @@ import thot.utils.Utilities;
  * Gestion des tags au format MP3.
  *
  * @author Fabrice Alleau
- * @since version 1.00
  */
 public class TagList {
     /**
@@ -81,8 +80,6 @@ public class TagList {
      *
      * @param key le type du tag.
      * @param value la valeur du tag.
-     *
-     * @since version 1.00
      */
     public void putTag(String key, String value) {
         metadata.put(key, value);
@@ -94,8 +91,6 @@ public class TagList {
      * @param key le type du tag.
      *
      * @return la valeur du tag ou null si le tag n'existe pas.
-     *
-     * @since version 1.00
      */
     public String getTag(String key) {
         return metadata.get(key);
@@ -107,8 +102,6 @@ public class TagList {
      * @param key le type du tag.
      *
      * @return la valeur précédente du tag ou null si le tag n'existait pas.
-     *
-     * @since version 1.00
      */
     public String removeTag(String key) {
         return metadata.remove(key);
@@ -116,8 +109,6 @@ public class TagList {
 
     /**
      * Supprime tous les tags de la liste.
-     *
-     * @since version 1.00
      */
     public void removeAll() {
         metadata.clear();
@@ -127,8 +118,6 @@ public class TagList {
      * Retourne la liste toutes les types de tags contenus dans la liste.
      *
      * @return la liste des types de tags affectés.
-     *
-     * @since version 1.00
      */
     public Set<String> getTagKeys() {
         return metadata.keySet();
@@ -138,8 +127,6 @@ public class TagList {
      * Retourne si la liste des tags est vide.
      *
      * @return si la liste des tags est vide.
-     *
-     * @since version 1.00
      */
     public boolean isEmpty() {
         return metadata.isEmpty();
@@ -151,8 +138,6 @@ public class TagList {
      * @param tags la liste avec laquelle il faut comparer.
      *
      * @return si les deux listes ont le même contenu.
-     *
-     * @since version 1.00
      */
     public boolean isIndenticTo(TagList tags) {
         Set<String> keys = tags.getTagKeys();
@@ -187,7 +172,6 @@ public class TagList {
      * @param file le fichier mp3.
      *
      * @throws IOException
-     * @since version 1.00
      */
     public void writeTagsToMp3(File file) throws IOException {
         String title = getTag(TITLE);
@@ -379,7 +363,6 @@ public class TagList {
      *
      * @throws UnsupportedEncodingException
      * @throws IOException
-     * @since version 1.00
      */
     private long findTagStart(File file) throws UnsupportedEncodingException, IOException {
         // see the getLyrics3 tag for documentation.  Methods are very similar.
@@ -444,8 +427,6 @@ public class TagList {
      * @param length the desired length of the string.
      *
      * @return padded string representation of the integer.
-     *
-     * @since version 1.00
      */
     private String pad(int a, int length) {
         StringBuilder builder = new StringBuilder(length);

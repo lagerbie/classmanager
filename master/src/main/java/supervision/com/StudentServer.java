@@ -41,8 +41,8 @@ import thot.model.Command;
 import thot.model.CommandAction;
 import thot.model.CommandParamater;
 import thot.model.Constants;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /**
  * Serveur pour la gestion des demandes des élèves.
@@ -111,11 +111,11 @@ public class StudentServer extends Server {
 
         //Si pas d'entrée au nom du login
         if (!loginFile.exists()) {
-            String xml = XMLUtilities.getLoginXML(password);
+            String xml = CommandXMLUtilities.getLoginXML(password);
             return Utilities.saveText(xml, loginFile);
         }
 
-        String passwordInFile = XMLUtilities.getPassword(loginFile);
+        String passwordInFile = CommandXMLUtilities.getPassword(loginFile);
         if (password == null || password.isEmpty()) {
             return (passwordInFile == null || passwordInFile.isEmpty());
         } else {
@@ -234,7 +234,7 @@ public class StudentServer extends Server {
         String xml = builder.toString();
         LOGGER.debug("receive student command : " + xml + " from " + addressIP);
 
-        List<Command> commands = XMLUtilities.parseCommand(xml);
+        List<Command> commands = CommandXMLUtilities.parseCommand(xml);
         for (Command command : commands) {
             execute(command, addressIP);
         }

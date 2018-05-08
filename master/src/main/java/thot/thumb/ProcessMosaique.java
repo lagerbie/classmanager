@@ -43,8 +43,8 @@ import thot.model.Command;
 import thot.model.CommandAction;
 import thot.model.CommandParamater;
 import thot.model.CommandType;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /**
  * Gestion de la mosaique avec des processus.
@@ -255,7 +255,7 @@ public class ProcessMosaique extends ProgressThread {
         try {
             socket.connect(socketAddress, timeout);
             outputStream = new DataOutputStream(socket.getOutputStream());
-            outputStream.writeUTF(XMLUtilities.getXML(command));
+            outputStream.writeUTF(CommandXMLUtilities.getXML(command));
             outputStream.flush();
         } catch (IOException e) {
             LOGGER.error("", e);
@@ -287,7 +287,7 @@ public class ProcessMosaique extends ProgressThread {
      */
     private void execute(String xml) {
 //        ProcessCommand command = ProcessCommand.createCommand(xml);
-        List<Command> commands = XMLUtilities.parseCommand(xml);
+        List<Command> commands = CommandXMLUtilities.parseCommand(xml);
         for (Command command : commands) {
             if (command.getAction() == CommandAction.CLOSE) {
                 close();

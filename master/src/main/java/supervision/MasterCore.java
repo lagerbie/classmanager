@@ -48,6 +48,7 @@ import thot.model.ThotPort;
 import thot.screen.CaptureScreen;
 import thot.screen.ScreenWindow;
 import thot.thumb.ProcessMosaique;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
 import thot.voip.Voip;
@@ -809,7 +810,7 @@ public class MasterCore implements Runnable {
         chatVoip.disconnectAll();
 
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_SCREEN_STOP);
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         //Un seul élévé émetteur d'écran 
         if (visualisationMode != NORMAL_MODE && visualisationMode != MOSAIQUE_MODE) {
             Student student = getSelectedClient();
@@ -855,7 +856,7 @@ public class MasterCore implements Runnable {
         command.putParameter(CommandParamater.FPS, (int) fps);
         command.putParameter(CommandParamater.QUALITY, quality);
         command.putParameter(CommandParamater.LINES, nbLines);
-        sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
+        sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
 
         screenWindow.start(addressIP, ThotPort.screenRemotePortBase, false, nbLines, student.getName());
 
@@ -865,7 +866,7 @@ public class MasterCore implements Runnable {
             command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_VOICE);
             command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
             command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
-            sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
+            sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
         }
     }
 
@@ -892,7 +893,7 @@ public class MasterCore implements Runnable {
         command.putParameter(CommandParamater.FPS, (int) fps);
         command.putParameter(CommandParamater.QUALITY, quality);
         command.putParameter(CommandParamater.LINES, nbLines);
-        sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
+        sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
 
         screenWindow.start(addressIP, ThotPort.screenRemotePortBase, true,
                 nbLines, student.getName());
@@ -904,7 +905,7 @@ public class MasterCore implements Runnable {
             command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.SEND_VOICE);
             command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
             command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
-            sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
+            sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
         }
     }
 
@@ -947,7 +948,7 @@ public class MasterCore implements Runnable {
         command.putParameter(CommandParamater.LINES, nbLines);
         command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
 
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
 
         int i = 1;
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
@@ -1009,7 +1010,7 @@ public class MasterCore implements Runnable {
                 command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
                 command.putParameter(CommandParamater.LINES, nbLines);
                 command.putParameter(CommandParamater.TIMEOUT, screenWindow.getTimeout());
-                sendXmlToStudent(XMLUtilities.getXML(command), currentStudent.getAddressIP());
+                sendXmlToStudent(CommandXMLUtilities.getXML(command), currentStudent.getAddressIP());
 
 //                addresses.add(new InetSocketAddress(getAddressIP(i), currentPort));
                 eleve++;
@@ -1038,7 +1039,7 @@ public class MasterCore implements Runnable {
      */
     private void blackScreen() {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_BLACK_SCREEN);
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
             if (isSelectionnedForDiffuse(currentStudent)) {
@@ -1095,7 +1096,7 @@ public class MasterCore implements Runnable {
                 Student currentStudent = it.next();
                 if (student != currentStudent && isSelectionnedForDiffuse(currentStudent)) {
                     command.putParameter(CommandParamater.SCREEN_PORT, currentPort);
-                    sendXmlToStudent(XMLUtilities.getXML(command), currentStudent.getAddressIP());
+                    sendXmlToStudent(CommandXMLUtilities.getXML(command), currentStudent.getAddressIP());
                     currentPort++;
                 }
             }
@@ -1112,7 +1113,7 @@ public class MasterCore implements Runnable {
             if (studentList.length() > 0) {
                 command.putParameter(CommandParamater.LIST, studentList.toString());
             }
-            sendXmlToStudent(XMLUtilities.getXML(command), ipDiffuseur);
+            sendXmlToStudent(CommandXMLUtilities.getXML(command), ipDiffuseur);
 
             screenWindow.start(ipDiffuseur, currentPort, true, nbLines, student.getName());
             chatVoip.connect(ipDiffuseur, ThotPort.audioPort);
@@ -1125,7 +1126,7 @@ public class MasterCore implements Runnable {
     private void pairingStop() {
         setPairingMode(NORMAL_MODE);
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING_STOP);
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
             resetPairing(currentStudent);
@@ -1145,7 +1146,7 @@ public class MasterCore implements Runnable {
         //Anulation du précédent pairing
         Student pairing = student.getPairing();
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING_STOP);
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         if (pairing != null) {
             sendXmlToStudent(xml, student.getAddressIP());
             sendXmlToStudent(xml, pairing.getAddressIP());
@@ -1171,10 +1172,10 @@ public class MasterCore implements Runnable {
             command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PAIRING);
             command.putParameter(CommandParamater.IP_ADDRESS, student.getAddressIP());
             command.putParameter(CommandParamater.AUDIO_PORT, ThotPort.audioPairingPort);
-            sendXmlToStudent(XMLUtilities.getXML(command), pairingFirstSelected.getAddressIP());
+            sendXmlToStudent(CommandXMLUtilities.getXML(command), pairingFirstSelected.getAddressIP());
 
             command.putParameter(CommandParamater.IP_ADDRESS, pairingFirstSelected.getAddressIP());
-            sendXmlToStudent(XMLUtilities.getXML(command), student.getAddressIP());
+            sendXmlToStudent(CommandXMLUtilities.getXML(command), student.getAddressIP());
 
             pairingFirstSelected = null;
         }
@@ -1256,7 +1257,7 @@ public class MasterCore implements Runnable {
 
             addressIP = student.getAddressIP();
             command.putParameter(CommandParamater.PASSWORD_CHECKED, student.isChecked());
-            isSend = sendXmlToStudent(XMLUtilities.getXML(command), addressIP);
+            isSend = sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
 
             student.setOnLine(isSend);
             fireStudentChanged(student);
@@ -1421,7 +1422,7 @@ public class MasterCore implements Runnable {
                 break;
             case GuiConstants.loginSession:
                 command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RESET_LOGIN);
-                String xml = XMLUtilities.getXML(command);
+                String xml = CommandXMLUtilities.getXML(command);
 
                 for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
                     Student currentStudent = it.next();
@@ -1527,7 +1528,7 @@ public class MasterCore implements Runnable {
      * @param command la commande.
      */
     private void sendXmlToSelected(Command command) {
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
             if (isSelectionnedForDiffuse(currentStudent)) {
@@ -1542,7 +1543,7 @@ public class MasterCore implements Runnable {
      * @param command la commande.
      */
     private void sendXmlToOnLan(Command command) {
-        String xml = XMLUtilities.getXML(command);
+        String xml = CommandXMLUtilities.getXML(command);
         for (Iterator<Student> it = studentClass.iterator(); it.hasNext(); ) {
             Student currentStudent = it.next();
             if (currentStudent.isOnLine()) {

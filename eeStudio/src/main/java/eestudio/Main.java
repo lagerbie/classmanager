@@ -13,9 +13,9 @@ import eestudio.gui.GuiUtilities;
 import eestudio.gui.Resources;
 import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
-import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
 
 /**
@@ -66,7 +66,7 @@ public class Main {
         Locale language = Locale.getDefault();
         File languageFile = new File(userHome, "language.xml");
         if (languageFile.exists()) {
-            String defaultLanguage = XMLUtilities.getLanguage(languageFile);
+            String defaultLanguage = CommandXMLUtilities.getLanguage(languageFile);
             if (defaultLanguage != null) {
                 language = new Locale(defaultLanguage);
                 GuiUtilities.setDefaultLocale(language);

@@ -707,7 +707,7 @@ public class Utilities {
      * @return la liste d'index ou une liste vide si pas d'index.
      */
     public static Indexes getIndexes(File file) {
-        return XMLUtilities.loadIndexes(file);
+        return LaboXMLUtilities.loadIndexes(file);
     }
 
     /**
@@ -718,7 +718,7 @@ public class Utilities {
      * @return le projet ou un projet vide.
      */
     public static ProjectFiles getProject(File file) {
-        return XMLUtilities.loadProject(file);
+        return LaboXMLUtilities.loadProject(file);
     }
 
     /**
@@ -730,7 +730,7 @@ public class Utilities {
      * @return la réussite de l'opération.
      */
     public static boolean saveObject(Indexes indexes, File file) {
-        return saveText(XMLUtilities.getXML(indexes), file);
+        return saveText(LaboXMLUtilities.getXML(indexes), file);
     }
 
     /**
@@ -742,7 +742,7 @@ public class Utilities {
      * @return la réussite de l'opération.
      */
     public static boolean saveObject(ProjectFiles project, File file) {
-        return saveText(XMLUtilities.getXML(project), file);
+        return saveText(LaboXMLUtilities.getXML(project), file);
     }
 
     /**

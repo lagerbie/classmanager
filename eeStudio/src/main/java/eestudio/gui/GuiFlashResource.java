@@ -10,12 +10,12 @@ import java.util.Map;
 import javax.swing.*;
 
 import eestudio.Core;
-import eestudio.utils.TagList;
-import eestudio.utils.XMLUtilities;
 import thot.model.Constants;
 import thot.model.Index;
 import thot.model.IndexType;
 import thot.model.ProjectTarget;
+import thot.model.TagList;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
 
 /**
@@ -215,7 +215,7 @@ public class GuiFlashResource {
         }
 
         GuiUtilities.setDefaultLocale(locale);
-        Utilities.saveText(XMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
 
         //internalisation des différents textes
         resources.updateLocale(locale);

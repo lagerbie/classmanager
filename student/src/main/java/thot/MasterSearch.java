@@ -31,8 +31,8 @@ import thot.model.Command;
 import thot.model.CommandAction;
 import thot.model.CommandType;
 import thot.model.Constants;
+import thot.utils.CommandXMLUtilities;
 import thot.utils.Utilities;
-import thot.utils.XMLUtilities;
 
 /**
  * Thread pour la découverte d'un professeur.
@@ -128,7 +128,7 @@ public class MasterSearch extends ProgressThread implements Runnable {
         }
 
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.FIND);
-        String response = XMLUtilities.getXML(command);
+        String response = CommandXMLUtilities.getXML(command);
         String xml;
         String addressIP;
 

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.model.Constants;
 import thot.model.Index;
+import thot.utils.LaboXMLUtilities;
 import thot.utils.Utilities;
 
 /**
@@ -232,8 +233,8 @@ public class FlashCore {
         boolean on = Utilities.parseStringAsBoolean(parameter);
 
         Index index = null;
-        if (parameter != null && parameter.startsWith("<" + XMLUtilities.element_index)) {
-            index = XMLUtilities.parseIndex(parameter);
+        if (parameter != null && parameter.startsWith("<" + LaboXMLUtilities.element_index)) {
+            index = LaboXMLUtilities.parseIndex(parameter);
         }
 
         boolean sendOff = on;
