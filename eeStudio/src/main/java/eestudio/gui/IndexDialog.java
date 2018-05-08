@@ -20,6 +20,7 @@ import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
 import thot.labo.index.Index;
 import thot.labo.index.IndexType;
 import thot.utils.Utilities;

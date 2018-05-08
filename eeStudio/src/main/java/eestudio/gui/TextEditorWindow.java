@@ -8,6 +8,7 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
 
 /**
  * Fenêtre d'édition du texte.

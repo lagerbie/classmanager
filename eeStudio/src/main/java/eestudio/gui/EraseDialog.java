@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.gui.Resources;
 
 /**
  * Fenêtre de dialoque pour l'effacement de données.

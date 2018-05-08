@@ -9,12 +9,12 @@ import javax.swing.*;
 import eestudio.flash.FlashConstants;
 import eestudio.flash.FlashCore;
 import eestudio.gui.GuiFlashResource;
-import eestudio.gui.Resources;
 import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.Utilities;
 
@@ -72,7 +72,7 @@ public class EeStudioLauncher {
                 GuiUtilities.setDefaultLocale(language);
             }
         }
-        Resources resources = new Resources();
+        Resources resources = new Resources("eeStudio");
 
         File currentFile = null;
         try {

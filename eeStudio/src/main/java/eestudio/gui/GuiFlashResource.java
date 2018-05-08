@@ -11,6 +11,7 @@ import javax.swing.*;
 
 import eestudio.Core;
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
 import thot.labo.ProjectTarget;
 import thot.labo.TagList;
 import thot.labo.index.Index;
@@ -105,7 +106,7 @@ public class GuiFlashResource {
     public GuiFlashResource(Core core, File languageFile) {
         this.core = core;
         this.languageFile = languageFile;
-        this.resources = new Resources();
+        this.resources = new Resources("eeStudio");
 
         //création du répertoire utilisateur
         tempPath = new File(System.getProperty("java.io.tmpdir"), "edu4");

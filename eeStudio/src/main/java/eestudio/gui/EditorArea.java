@@ -21,6 +21,7 @@ import javax.swing.undo.UndoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
 
 
 /**
