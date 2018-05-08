@@ -1,4 +1,4 @@
-package supervision;
+package thot;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,13 +7,21 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Serveur pour lancer des applications.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
-public class LaunchServer implements Runnable {
+public class ApplicationLauncherServer implements Runnable {
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationLauncherServer.class);
 
     /**
      * Numéro de port part défaut.
@@ -40,8 +48,8 @@ public class LaunchServer implements Runnable {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        printMessage("version: 1.90.00");
-        LaunchServer launchServer = new LaunchServer(DEFAULT_PORT);
+        LOGGER.info("version: 1.8.4");
+        ApplicationLauncherServer launchServer = new ApplicationLauncherServer(DEFAULT_PORT);
         launchServer.start();
     }
 
@@ -50,18 +58,18 @@ public class LaunchServer implements Runnable {
      *
      * @param port le numéro de port.
      */
-    public LaunchServer(int port) {
+    private ApplicationLauncherServer(int port) {
         this.port = port;
     }
 
     /**
      * Démarage du serveur.
      */
-    public void start() {
+    private void start() {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            printError(e);
+            LOGGER.error("Impossible d'ouvrir une connexion réseau sur le port {}", e, port);
             return;
         }
 
@@ -71,57 +79,28 @@ public class LaunchServer implements Runnable {
     }
 
     /**
-     * Arrête le serveur.
-     */
-    public void stop() {
-        run = false;
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            printError(e);
-        }
-    }
-
-    /**
      * Traitement des ordres.
      */
     @Override
     public void run() {
-        Socket socket = null;
-
-        try {
-            while (run) {
-                //attente de la connection
-                socket = serverSocket.accept();
-                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+        String xml = null;
+        DataInputStream inputStream;
+        while (run) {
+            //attente de la connection
+            try (Socket socket = serverSocket.accept()) {
+                inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
 
-                String xml = inputStream.readUTF();
+                xml = inputStream.readUTF();
 
-                if (xml != null) {
-                    printMessage("requête: " + xml);
-                    executeCommand(new String[]{"/bin/sh", "-c", xml});
-                    outputStream.flush();
-                }
-                socket.close();
-            }
-        } catch (IOException e) {
-            printError(e);
-        } finally {
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-                if (serverSocket != null) {
-                    serverSocket.close();
-                }
+                LOGGER.info("Lancement de l'application {}", xml);
+
+                int exit = executeCommand("/bin/sh", "-c", xml);
+                outputStream.flush();
+
+                LOGGER.info("L'application {} a été exécutée (code de sortie {})", xml, exit);
             } catch (IOException e) {
-                printError(e);
-            }
-
-            if (run) {
-                printMessage("redémarrage de LaunchServer");
-                start();
+                LOGGER.error("Impossible de traiter la requête {}", e, xml);
             }
         }
     }
@@ -130,12 +109,10 @@ public class LaunchServer implements Runnable {
      * Exécute la commande reçue.
      *
      * @param command la commande.
-     * @param output buffer pour la sortie standard.
-     * @param error buffer pour la sortie des erreurs
      *
      * @return la valeur de fin du processus.
      */
-    private int executeCommand(String[] command) {
+    private int executeCommand(String... command) {
         int end = -1;
         Runtime runtime = Runtime.getRuntime();
         Process process = null;
@@ -150,10 +127,10 @@ public class LaunchServer implements Runnable {
             try {
                 end = process.waitFor();
             } catch (InterruptedException e) {
-                printError(e);
+                LOGGER.error("Le processus {} a été interrompu", e, command[0]);
             }
         } catch (IOException e) {
-            printError(e);
+            LOGGER.error("Erreur lors du traitement du processus {}", e, command[0]);
         }
 
         if (process != null) {
@@ -167,12 +144,11 @@ public class LaunchServer implements Runnable {
      * Créer une thread de traitement d'un flux.
      *
      * @param inputStream le flux à gérer.
-     * @param output un StringBuilder initialisé pour afficher la sortie.
      *
      * @return la thread de gestion du flux.
      */
-    private Thread createReadThread(final InputStream inputStream, String name) {
-        Thread thread = new Thread(name) {
+    private Thread createReadThread(final InputStream inputStream, final String name) {
+        return new Thread(name) {
             @Override
             public void run() {
                 byte[] data = new byte[1024];
@@ -183,11 +159,10 @@ public class LaunchServer implements Runnable {
                         cnt = inputStream.read(data);
                     }
                 } catch (IOException e) {
-                    printError(e);
+                    LOGGER.error("Erreur de lecture sur le processus {}", e, name);
                 }
             }
         };
-        return thread;
     }
 
     /**
@@ -200,29 +175,12 @@ public class LaunchServer implements Runnable {
             if (data.length() > 32000) {
                 outputStream.writeUTF(data.substring(0, 32000));
             } else {
-                outputStream.writeUTF(data.toString());
+                outputStream.writeUTF(data);
             }
             outputStream.flush();
         } catch (Exception e) {
-            printError(e);
+            LOGGER.error("Erreur d'écriture", e);
         }
     }
 
-    /**
-     * Affiche un message.
-     *
-     * @param message le mesage.
-     */
-    private static void printMessage(String message) {
-        System.out.println(message);
-    }
-
-    /**
-     * Affiche une erreur.
-     *
-     * @param error l'erreur.
-     */
-    private static void printError(Throwable error) {
-        error.printStackTrace();
-    }
 }
