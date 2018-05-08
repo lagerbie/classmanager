@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Gestion d'un serveur socket.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public abstract class Server implements Runnable {
 
@@ -109,6 +109,7 @@ public abstract class Server implements Runnable {
      * @return si le SeverSocket est initialisé.
      */
     public boolean start() {
+        LOGGER.info("Démarrage du serveur sur le port {}", port);
         try {
             serverSocket = new ServerSocket(port);
             serverSocket.setSoTimeout(timeout);
@@ -128,6 +129,7 @@ public abstract class Server implements Runnable {
      * Arrête le serveur.
      */
     public void stop() {
+        LOGGER.info("Arrêt du serveur sur le port {}", port);
         run = false;
         if (serverSocket != null) {
             try {
@@ -159,13 +161,11 @@ public abstract class Server implements Runnable {
 
     @Override
     public void run() {
-
-
         while (run) {
             //attente de la connection
-            LOGGER.debug("wait connection on {}", this.getClass());
+            LOGGER.info("Attente d'un connexion sur le port {}", port);
             try (Socket socket = serverSocket.accept()) {
-                LOGGER.debug("connection established on {}", this.getClass());
+                LOGGER.debug("Connexion établie sur le port {}", port);
 
                 process(socket);
 
@@ -173,12 +173,12 @@ public abstract class Server implements Runnable {
                 LOGGER.error("Erreur lors du traitement de la requête", e);
             } finally {
                 if (run) {
+                    LOGGER.warn("Redémarrage du server sur le port {}", port);
                     stop();
-                    LOGGER.warn("redémarrage de Server: " + this.getClass());
+
                     start();
                 }
             }
         }
-
     }
 }

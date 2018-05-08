@@ -5,10 +5,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayDeque;
 
-import eestudio.utils.Server;
 import eestudio.utils.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.Server;
 
 /**
  * Client avec liste d'attente pour l'envoi des commandes au Flash.
@@ -59,7 +59,7 @@ public class FlashClient extends Server {
                 outputStream.write(xml.getBytes("UTF-8"));
                 outputStream.write((byte) 0);
                 outputStream.flush();
-                LOGGER.info("send to Flash Command : " + xml);
+                LOGGER.info("send to Flash Command {}", xml);
             }
         }
     }

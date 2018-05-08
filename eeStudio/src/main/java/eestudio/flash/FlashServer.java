@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.List;
 
-import eestudio.utils.Server;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.Server;
 
 /**
  * Serveur pour les requête du Flash.
@@ -75,7 +75,7 @@ public class FlashServer extends Server {
                 commands.clear();
             } catch (Exception e) {
                 //en cas d'erreur de traitement
-                LOGGER.error("", e);
+                LOGGER.error("Erreur lors du traitement de la commande", e);
             }
         }
     }
