@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import thot.model.Constants;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
+import thot.utils.SubtitleUtilities;
 
 /**
  * Utilitaires divers.

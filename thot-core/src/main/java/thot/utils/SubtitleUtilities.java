@@ -28,7 +28,7 @@ import thot.model.Indexes;
  * Utilitaires pour la conversion des soustitres.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class SubtitleUtilities {
 
@@ -36,6 +36,7 @@ public class SubtitleUtilities {
      * Crée les soustitres au format SubRip.
      *
      * @param indexes les index.
+     *
      * @return les soustitres au format SubRip.
      */
     public static String createSRTSubtitle(Indexes indexes) {
@@ -47,7 +48,7 @@ public class SubtitleUtilities {
         buffer.append("00:00:00,001 --> 00:00:00,002\r\n\r\n");
 
         int cnt = 0;
-        for (Iterator<Index> it = indexes.iterator(); it.hasNext();) {
+        for (Iterator<Index> it = indexes.iterator(); it.hasNext(); ) {
             Index index = it.next();
 
             if (index.getSubtitle() == null) {
@@ -72,6 +73,7 @@ public class SubtitleUtilities {
      * Retourne le temps formaté au format SubRip.
      *
      * @param time le temps en millisecondes.
+     *
      * @return le temps formaté au format SubRip.
      */
     private static String getSRTTime(long time) {
@@ -82,6 +84,7 @@ public class SubtitleUtilities {
      * Crée les soustitres au format SubViewer.
      *
      * @param indexes les index.
+     *
      * @return les soustitres au format SubViewer.
      */
     public static String createSUBSubtitle(Indexes indexes) {
@@ -105,7 +108,7 @@ public class SubtitleUtilities {
         buffer.append("00:00:00.00,00:00:00.01\r\n\r\n");
         buffer.append("00:00:00.01,00:00:00.02\r\n\r\n");
 
-        for (Iterator<Index> it = indexes.iterator(); it.hasNext();) {
+        for (Iterator<Index> it = indexes.iterator(); it.hasNext(); ) {
             Index index = it.next();
 
             if (index.getSubtitle() == null) {
@@ -127,24 +130,25 @@ public class SubtitleUtilities {
      * Retourne le temps formaté au format SubViewer.
      *
      * @param time le temps en millisecondes.
+     *
      * @return le temps formaté au format SubViewer.
      */
     private static String getSUBTime(long time) {
-        return String.format("%2$02d:%1$tM:%1$tS.%3$02d",
-                time, time / 3600000, (time % 1000) / 10);
+        return String.format("%2$02d:%1$tM:%1$tS.%3$02d", time, time / 3600000, (time % 1000) / 10);
     }
 
     /**
      * Crée les soustitres au format SubRip.
      *
      * @param indexes les index.
+     *
      * @return les soustitres au format SubRip.
      */
     public static String createLRCSubtitle(Indexes indexes) {
         indexes.sortIndexes();
         StringBuilder buffer = new StringBuilder(1024);
 
-        for (Iterator<Index> it = indexes.iterator(); it.hasNext();) {
+        for (Iterator<Index> it = indexes.iterator(); it.hasNext(); ) {
             Index index = it.next();
 
             if (index.getSubtitle() == null) {
@@ -170,10 +174,10 @@ public class SubtitleUtilities {
      * Retourne le temps formaté au format LRC.
      *
      * @param time le temps en millisecondes.
+     *
      * @return le temps formaté au format LRC.
      */
     private static String getLRCTime(long time) {
-        return String.format("%1$02d:%2$02d.%3$02d",
-                time / 60000, (time % 60000) / 1000, (time % 1000) / 10);
+        return String.format("%1$02d:%2$02d.%3$02d", time / 60000, (time % 60000) / 1000, (time % 1000) / 10);
     }
 }
