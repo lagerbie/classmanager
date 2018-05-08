@@ -1531,7 +1531,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @param destFile le fichier destination.
      */
     public void executeConverter(File srcFile, File destFile) {
-        converter.convert(destFile, srcFile);
+        converter.convert(destFile, srcFile, null);
     }
 
     /**
@@ -1543,7 +1543,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @param channels le nombre de canaux audio.
      */
     public void executeConverter(File srcFile, File destFile, int audioRate, int channels) {
-        converter.convert(destFile, srcFile, audioRate, channels);
+        converter.convert(destFile, srcFile, null, audioRate, channels);
     }
 
     /**

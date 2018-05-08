@@ -24,7 +24,6 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-import eestudio.utils.Converter;
 import eestudio.utils.Wave;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ import thot.labo.index.Indexes;
 import thot.labo.utils.LaboXMLUtilities;
 import thot.utils.Constants;
 import thot.utils.Utilities;
+import thot.video.Converter;
 
 /**
  * Noyau de l'application.
@@ -126,7 +126,7 @@ public class Core {
     /**
      * Temps d'allocation maximum en millisecondes (=60 min)
      */
-    public static final long TIME_MAX = 1000 * 60 * 60;
+    private static final long TIME_MAX = 1000 * 60 * 60;
     /**
      * Temps d'allocation maximum en millisecondes pour les insertions (=10 min)
      */
@@ -2050,8 +2050,7 @@ public class Core {
      * @param videoFile le fichier destination pour la psite vidéo.
      */
     private int extract(File srcFile, File audioFile, File videoFile) {
-        int result = converter.extractToWAVandFLV(srcFile, audioFile, videoFile);
-        return result;
+        return converter.extractToWAVandFLV(srcFile, audioFile, videoFile);
     }
 
     /**

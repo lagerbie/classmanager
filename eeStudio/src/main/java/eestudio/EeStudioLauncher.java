@@ -9,7 +9,6 @@ import javax.swing.*;
 import eestudio.flash.FlashConstants;
 import eestudio.flash.FlashCore;
 import eestudio.gui.GuiFlashResource;
-import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,13 @@ import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.Utilities;
+import thot.video.Converter;
 
 /**
  * Initialisation et lancement de l'application.
  *
  * @author Fabrice Alleau
+ * @version 1.8.4
  */
 public class EeStudioLauncher {
 
@@ -37,8 +38,6 @@ public class EeStudioLauncher {
      * Initialisation et lancement de la'application.
      *
      * @param args les paramètres de lancement.
-     *
-     * @since version 0.94 - version 1.02
      */
     public static void main(String[] args) {
         ArrayList<String> versions = new ArrayList<>(2);
@@ -182,7 +181,6 @@ public class EeStudioLauncher {
         flashThread.start();
 
         guiResource.processBegin(false, "cacheTitle", "cacheMessage");
-        converter.init();
         if (languageFile.exists()) {
             flashCore.sendLanguageToFlash(language);
         }

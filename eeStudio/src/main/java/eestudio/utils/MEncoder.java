@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import thot.labo.TagList;
 import thot.utils.ProgressListener;
 import thot.utils.Utilities;
+import thot.video.Converter;
 
 /**
  * Gestion de Mplayer/Mencoder pour la conversion de fichiers.
@@ -29,27 +30,27 @@ public class MEncoder implements Converter {
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus
      */
-    private static final String durationProperty = "ID_LENGTH=";
+    private static final String DURATION_PROPERTY = "ID_LENGTH=";
     /**
      * Caractères représentant le codec audio
      */
-    private static final String audioCodec = "Selected audio codec:";
+    private static final String SELECTED_AUDIO_CODEC = "Selected audio codec:";
     /**
      * Caractères représentant le codec audio
      */
-    private static final String videoCodec = "Selected video codec:";
+    private static final String SELECTED_VIDEO_CODEC = "Selected video codec:";
     /**
      * Caractères représentant l'entrée d'un flux audio
      */
-    private static final String audioProperty = "AUDIO:";
+    private static final String AUDIO_PROPERTY = "AUDIO:";
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus
      */
-    private static final String videoProperty = "VIDEO:";
+    private static final String VIDEO_PROPERTY = "VIDEO:";
     /**
      * Codec pour la conversion en mp3
      */
-    private static final String codec_mp3lame = "mp3lame";
+    private static final String CODEC_MP3_LAME = "mp3lame";
 
     /**
      * Référence sur l'exécutable de conversion
@@ -117,34 +118,6 @@ public class MEncoder implements Converter {
         listeners = new EventListenerList();
     }
 
-    @Override
-    public void init() {
-        if (player == null || !player.exists()) {
-            return;
-        }
-
-        StringBuilder command = new StringBuilder(1024);
-        command.append(getProtectedName(player.getAbsolutePath()));
-        command.append(" null");
-
-        LOGGER.info("converter command: " + command.toString());
-        duration = -1;
-
-        StringBuilder output = new StringBuilder(1024);
-        StringBuilder error = new StringBuilder(1024);
-
-        fireProcessBegin(false);
-        int exit = executeCommand(command.toString(), null, output, error);
-        fireProcessEnded(exit);
-
-        if (output.length() > 0) {
-            LOGGER.info("converter standard Message:\n" + output.toString());
-        }
-        if (error.length() > 0) {
-            LOGGER.info("converter error Message:\n" + error.toString());
-        }
-    }
-
     /**
      * Arrête le processus.
      */
@@ -160,7 +133,7 @@ public class MEncoder implements Converter {
      *
      * @param processingEnd si le processus termine le traitement.
      */
-    public void setProcessingEnd(boolean processingEnd) {
+    private void setProcessingEnd(boolean processingEnd) {
         this.processingEnd = processingEnd;
         fireProcessEnded(0);
     }
@@ -234,8 +207,7 @@ public class MEncoder implements Converter {
      *
      * @param audioChannels le nombre de canaux audio.
      */
-    @Override
-    public void setAudioChannels(int audioChannels) {
+    private void setAudioChannels(int audioChannels) {
         this.audioChannels = Integer.toString(audioChannels);
     }
 
@@ -244,8 +216,7 @@ public class MEncoder implements Converter {
      *
      * @param audioRate la fréquence en Hz.
      */
-    @Override
-    public void setAudioRate(int audioRate) {
+    private void setAudioRate(int audioRate) {
         this.audioRate = Integer.toString(audioRate);
     }
 
@@ -272,8 +243,8 @@ public class MEncoder implements Converter {
         duration = -1;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
-            if (line.contains(durationProperty)) {
-                String split[] = line.split(durationProperty);
+            if (line.contains(DURATION_PROPERTY)) {
+                String split[] = line.split(DURATION_PROPERTY);
                 split = split[1].split("\n");
                 duration = Utilities.parseStringAsDouble(split[0].trim());
                 break;
@@ -322,8 +293,8 @@ public class MEncoder implements Converter {
         List<String> list = new ArrayList<String>(4);
         String[] lines = input.toString().split("\n");
         for (String line : lines) {
-            if (line.contains(durationProperty) || line.contains(audioCodec) || line.contains(audioProperty) || line
-                    .contains(videoCodec) || line.contains(videoProperty)) {
+            if (line.contains(DURATION_PROPERTY) || line.contains(SELECTED_AUDIO_CODEC) || line.contains(AUDIO_PROPERTY) || line
+                    .contains(SELECTED_VIDEO_CODEC) || line.contains(VIDEO_PROPERTY)) {
                 list.add(line.trim());
             }
         }
@@ -343,7 +314,7 @@ public class MEncoder implements Converter {
         boolean audio = false;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
-            if (line.contains(audioProperty)) {
+            if (line.contains(AUDIO_PROPERTY)) {
                 audio = true;
                 break;
             }
@@ -363,7 +334,7 @@ public class MEncoder implements Converter {
         boolean video = false;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
-            if (line.contains(videoProperty)) {
+            if (line.contains(VIDEO_PROPERTY)) {
                 video = true;
                 break;
             }
@@ -399,7 +370,8 @@ public class MEncoder implements Converter {
      *
      * @return les messages de conversion.
      */
-    private int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
+    @Override
+    public int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
         setAudioBitrate(128000);
         setAudioChannels(channels);
         setAudioRate(audioRate);
@@ -942,7 +914,7 @@ public class MEncoder implements Converter {
         String args = " -oac help";
         StringBuilder audioCodecs = new StringBuilder(1024);
         int result = convert(encoder, args, null, audioCodecs);
-        return audioCodecs.toString().contains(codec_mp3lame);
+        return audioCodecs.toString().contains(CODEC_MP3_LAME);
     }
 
     /**
@@ -1235,23 +1207,19 @@ public class MEncoder implements Converter {
      * @return la thread de gestion du flux.
      */
     private Thread createReadThread(final InputStream inputStream, final StringBuilder output) {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                byte[] data = new byte[1024];
-                try {
-                    int cnt = inputStream.read(data);
-                    while (cnt > 0) {
-                        output.append(new String(data, 0, cnt));
-                        fireNewData(new String(data, 0, cnt));
-                        cnt = inputStream.read(data);
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("", e);
+        return new Thread(() -> {
+            byte[] data = new byte[1024];
+            try {
+                int cnt = inputStream.read(data);
+                while (cnt > 0) {
+                    output.append(new String(data, 0, cnt));
+                    fireNewData(new String(data, 0, cnt));
+                    cnt = inputStream.read(data);
                 }
-            }//end run
-        };
-        return thread;
+            } catch (IOException e) {
+                LOGGER.error("", e);
+            }
+        });
     }
 
     /**
@@ -1260,8 +1228,8 @@ public class MEncoder implements Converter {
      * @param data les nouvelles données.
      */
     private void fireNewData(String data) {
-        if (data.contains(durationProperty)) {
-            String split[] = data.split(durationProperty);
+        if (data.contains(DURATION_PROPERTY)) {
+            String split[] = data.split(DURATION_PROPERTY);
             if (split.length > 1) {
                 split = split[1].split("\n");
                 duration = Utilities.parseStringAsDouble(split[0].trim());
@@ -1313,7 +1281,7 @@ public class MEncoder implements Converter {
 ////        File srtFile = new File(directory, "aabbb.txt");
 ////        File workingDirectory = new File(directory, "img");
 //
-//        final eestudio.gui.ProcessingBar processingBar = new eestudio.gui.ProcessingBar();
+//        final thot.gui.ProcessingBar processingBar = new thot.gui.ProcessingBar(null, null);
 //
 //        processingBar.addWindowListener(new java.awt.event.WindowAdapter() {
 //            @Override
@@ -1322,17 +1290,18 @@ public class MEncoder implements Converter {
 //            }
 //        });
 //
-//        ProgessListener listener = new ProgessListener() {
+//        ProgressListener listener = new ProgressListener() {
 //            @Override
 //            public void processBegin(Object source, boolean determinated) {
-//                processingBar.processBegin(determinated,
-//                        "Conversion", "Conversion de " + srcFile);
+//                processingBar.processBegin(determinated, "Conversion", "Conversion de " + srcFile);
 //            }
+//
 //            @Override
 //            public void processEnded(Object source, int exit) {
 //                processingBar.close();
 ////                println("end statut: " + exit);
 //            }
+//
 //            @Override
 //            public void percentChanged(Object source, int percent) {
 //                processingBar.setValue(percent);
@@ -1371,16 +1340,12 @@ public class MEncoder implements Converter {
 ////        long end = 120000;
 ////        float rate = 2f;
 ////        File normalRate = new File(directory, "123456.flv");
-////        converter.setVideoRate(srcFile, begin, (long) (begin+(end-begin)/rate),
-////                rate, 1f, normalRate);
+////        converter.setVideoRate(srcFile, begin, (long) (begin+(end-begin)/rate), rate, 1f, normalRate);
 //
 //        long elapseTime = System.nanoTime();
-//        println("temps: " + (elapseTime-initTime) + " ns");
-//        println("temps: " + (elapseTime-initTime)/1000000 + " ms");
+//        LOGGER.info("temps: {} ns", (elapseTime - initTime));
+//        LOGGER.info("temps: {} ms", (elapseTime - initTime) / 1000000);
 //    }
-//
-//    private static void println(Object message) {
-//        System.out.println(message);
-//    }
+
 
 }

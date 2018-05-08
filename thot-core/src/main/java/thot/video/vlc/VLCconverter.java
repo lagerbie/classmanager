@@ -14,7 +14,8 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.utils.ProgressPercentListener;
+import thot.labo.TagList;
+import thot.utils.ProgressListener;
 import thot.utils.Utilities;
 import thot.video.Converter;
 
@@ -31,24 +32,23 @@ public class VLCconverter implements Converter {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(VLCconverter.class);
 
-    private static String resamplingError = "Failed to find conversion filter for resampling";
+    private static final String RESAMPLING_ERROR = "Failed to find conversion filter for resampling";
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus.
      */
-    private static final String durationProperty = "ID_LENGTH=";
-    private static final String mux_wav = "wav mux debug:";
+    private static final String WAV_MUX_DEBUG = "wav mux debug:";
     /**
      * Caractères représentant l'entrée d'un flux audio.
      */
-    private static final String audioProperty = "adding";
+    private static final String AUDIO_PROPERTY = "adding";
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus.
      */
-    private static final String videoProperty = "not an audio stream";
+    private static final String VIDEO_PROPERTY = "not an audio stream";
     /**
      * Codec pour la conversion en mp3.
      */
-    private static final String lib_mp3lame = "libmp3lame.so.0";
+    private static final String LIB_MP3_LAME = "libmp3lame.so.0";
     /**
      * Référence sur l'exécutable de conversion.
      */
@@ -70,13 +70,9 @@ public class VLCconverter implements Converter {
      */
     private String audioBitrate = "128";
     /**
-     * Taille de la video.
+     * Taille de la video
      */
-    private String videoSize = "640:480";
-    /**
-     * Durée du media en seconde.
-     */
-    private double duration = -1;
+    private String videoSize = "640x480";
     /**
      * Processus de ffmpeg.
      */
@@ -103,37 +99,13 @@ public class VLCconverter implements Converter {
     }
 
     @Override
-    public void addListener(ProgressPercentListener listener) {
-        listeners.add(ProgressPercentListener.class, listener);
+    public void addListener(ProgressListener listener) {
+        listeners.add(ProgressListener.class, listener);
     }
 
     @Override
-    public void removeListener(ProgressPercentListener listener) {
-        listeners.remove(ProgressPercentListener.class, listener);
-    }
-
-    /**
-     * Notification du changement du titre.
-     *
-     * @param title le nouveau titre.
-     */
-    private void fireTitleChanged(String title) {
-        for (ProgressPercentListener listener :
-                listeners.getListeners(ProgressPercentListener.class)) {
-            listener.processTitleChanged(this, title);
-        }
-    }
-
-    /**
-     * Notification du changement du message.
-     *
-     * @param message le nouveau message.
-     */
-    private void fireMessageChanged(String message) {
-        for (ProgressPercentListener listener :
-                listeners.getListeners(ProgressPercentListener.class)) {
-            listener.processMessageChanged(this, message);
-        }
+    public void removeListener(ProgressListener listener) {
+        listeners.remove(ProgressListener.class, listener);
     }
 
     /**
@@ -142,8 +114,7 @@ public class VLCconverter implements Converter {
      * @param determinated indique si le processus peut afficher un poucentage de progression.
      */
     private void fireProcessBegin(boolean determinated) {
-        for (ProgressPercentListener listener :
-                listeners.getListeners(ProgressPercentListener.class)) {
+        for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
             listener.processBegin(this, determinated);
         }
     }
@@ -154,8 +125,7 @@ public class VLCconverter implements Converter {
      * @param exit la valeur de sortie (par convention 0 équvaut à une sortie normale).
      */
     private void fireProcessEnded(int exit) {
-        for (ProgressPercentListener listener :
-                listeners.getListeners(ProgressPercentListener.class)) {
+        for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
             listener.processEnded(this, exit);
         }
     }
@@ -166,18 +136,16 @@ public class VLCconverter implements Converter {
      * @param percent le nouveau pourcentage de progression.
      */
     private void firePercentChanged(int percent) {
-        for (ProgressPercentListener listener : listeners.getListeners(ProgressPercentListener.class)) {
+        for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
             listener.percentChanged(this, percent);
         }
     }
 
-    @Override
-    public void setAudioRate(int audioRate) {
+    private void setAudioRate(int audioRate) {
         this.audioRate = Integer.toString(audioRate);
     }
 
-    @Override
-    public void setAudioChannels(int audioChannels) {
+    private void setAudioChannels(int audioChannels) {
         this.audioChannels = Integer.toString(audioChannels);
     }
 
@@ -189,6 +157,29 @@ public class VLCconverter implements Converter {
     @Override
     public long getDuration(File file) {
         return -1;
+    }
+
+    @Override
+    public boolean hasAudioSrteam(File file) {
+        return hasTrack(file, AUDIO_PROPERTY);
+    }
+
+    @Override
+    public boolean hasVideoSrteam(File file) {
+        return hasTrack(file, VIDEO_PROPERTY);
+    }
+
+    private boolean hasTrack(File file, String track) {
+        boolean hasTrack = false;
+        List<String> list = getTracksInfo(file);
+        for (String stream : list) {
+            if (stream.contains(track)) {
+                hasTrack = true;
+                break;
+            }
+        }
+        list.clear();
+        return hasTrack;
     }
 
     /**
@@ -207,50 +198,13 @@ public class VLCconverter implements Converter {
         String result = convert(file, vlcArgs);
         String[] lines = result.split("\n");
         for (String line : lines) {
-            if (line.contains(mux_wav) && (line.contains(videoProperty) || line.contains(audioProperty))) {
+            if (line.contains(WAV_MUX_DEBUG) && (line.contains(VIDEO_PROPERTY) || line.contains(AUDIO_PROPERTY))) {
                 list.add(line.trim());
                 LOGGER.info("conveter tracks info:\n{}", line);
             }
         }
 
         return list;
-    }
-
-    @Override
-    public boolean hasAudioSrteam(File file) {
-        boolean audio = false;
-        List<String> list = getTracksInfo(file);
-        for (String stream : list) {
-            if (stream.contains(audioProperty)) {
-                audio = true;
-                break;
-            }
-        }
-        list.clear();
-        return audio;
-    }
-
-    @Override
-    public boolean hasVideoSrteam(File file) {
-        boolean video = false;
-        List<String> list = getTracksInfo(file);
-        for (String stream : list) {
-            if (stream.contains(videoProperty)) {
-                video = true;
-                break;
-            }
-        }
-        list.clear();
-        return video;
-    }
-
-    /**
-     * Teste la présence du codec mp3lame sur l'encodeur.
-     *
-     * @return la présence du codec mp3lame sur l'encodeur.
-     */
-    public boolean hasCodec_mp3lame() {
-        return Utilities.hasFileOnLinux(lib_mp3lame);
     }
 
     /**
@@ -260,12 +214,13 @@ public class VLCconverter implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
+     * @param tags les tags au format mp3.
      *
      * @return les messages de conversion.
      */
     @Override
-    public String convert(File destFile, File srcFile) {
-        return convert(destFile, srcFile, 44100, 2);
+    public int convert(File destFile, File srcFile, TagList tags) {
+        return convert(destFile, srcFile, tags, 44100, 2);
     }
 
     /**
@@ -281,18 +236,144 @@ public class VLCconverter implements Converter {
      * @return les messages de conversion.
      */
     @Override
-    public String convert(File destFile, File srcFile, int audioRate, int channels) {
+    public int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
         setAudioChannels(channels);
         setAudioRate(audioRate);
 
+        String resut;
+
         String type = Utilities.getExtensionFile(destFile);
         if (type.endsWith(".wav")) {
-            return convertToWAV(destFile, srcFile);
+            resut = convertToWAV(destFile, srcFile);
         } else if (type.endsWith(".mp3")) {
-            return convertToMP3(destFile, srcFile);
+            resut = convertToMP3(destFile, srcFile);
         } else {
-            return convertToMP4(destFile, srcFile);
+            resut = convertToMP4(destFile, srcFile);
         }
+
+        return resut.contains("error") ? CONVERSION_ERROR : SUCCESS;
+    }
+
+    /**
+     * Conversion de fichiers. La conversion est définie par le type du fichier destination : Types supportés: .wav,
+     * .mp3, .mp4, .flv Paramètres par défaut: - audio mono à 44,1kHz - 128kbit/s pour le mp3 - VBR (quality 10) pour le
+     * ogg - taille de video "640x480" - 25 images par seconde - pas d'audio pour le flv - audio en mp3 pour le mp4
+     *
+     * @param destFile le fichier de destination.
+     * @param videoFile le fichier pour la piste vidéo.
+     * @param audioFile le fichier pour la piste audio.
+     * @param subtitleFile le fichier pour les soustitres.
+     *
+     * @return les messages de conversion.
+     */
+    @Override
+    public int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Extrait les pistes audio et vidéo du fichier source au format WAV (mono à 44kHz) et FLV ("640x480", 25 fps)
+     *
+     * @param srcFile le fichier source contenant les deux pistes.
+     * @param audioFile le fichier de destination pour la piste audio.
+     * @param videoFile le fichier de destination pour la piste vidéo.
+     *
+     * @return les messages de conversion.
+     */
+    @Override
+    public int extractToWAVandFLV(File srcFile, File audioFile, File videoFile) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Insére une vidéo "blanche" (image fixe) sur une vidéo.
+     *
+     * @param file la vidéo dans la quelle on insère la vidéo "blanche".
+     * @param imageFile l'image fixe à insérer.
+     * @param begin le temps de départ de l'insertion dans la vidéo initiale.
+     * @param duration la durée de la vidéo blanche à insérer.
+     */
+    @Override
+    public int insertBlankVideo(File file, File imageFile, long begin, long duration) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Duplique la plage donnée de la vidéo et l'insére à la fin de la plage.
+     *
+     * @param file la vidéo à modifier.
+     * @param begin le temps de départ de la partie à dupliquer.
+     * @param end le temps de fin de la partie à dupliquer.
+     */
+    @Override
+    public int insertDuplicatedVideo(File file, long begin, long end) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Insére une vidéo dans une vidéo.
+     *
+     * @param file la vidéo dans la quelle on insère la vidéo.
+     * @param insertFile le fichier vidéo à insérer.
+     * @param begin le temps de départ de l'insertion dans la vidéo initiale.
+     */
+    @Override
+    public int insertVideo(File file, File insertFile, long begin) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Crée une vidéo "blanche" (image fixe) d'une durée spécifique.
+     *
+     * @param destFile le fichier de destination de la vidéo.
+     * @param imageFile l'image fixe à insérer.
+     * @param duration la durée de la vidéo blanche.
+     */
+    @Override
+    public int createBlankVideo(File destFile, File imageFile, long duration) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Supprime une partie de la vidéo.
+     *
+     * @param file la vidéo dans la quelle on supprime une plage de temps.
+     * @param begin le temps de départ de la partie à supprimer.
+     * @param end le temps de fin de la partie à supprimer.
+     */
+    @Override
+    public int removeVideo(File file, long begin, long end) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Déplace et redimensionne une partie de la vidéo courante.
+     *
+     * @param file la vidéo.
+     * @param imageFile l'image fixe à insérer.
+     * @param begin le temps de départ de la partie à déplacer.
+     * @param end le temps de fin de la partie à déplacer.
+     * @param newBegin le nouveau temps de départ de la partie à déplacer.
+     * @param duration la nouvelle durée de la partie sélectionnée.
+     */
+    @Override
+    public int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration) {
+        return CONVERSION_ERROR;
+    }
+
+    /**
+     * Modifie la vitesse d'une partie de la vidéo.
+     *
+     * @param file la vidéo.
+     * @param begin le temps de départ de la partie à modifier.
+     * @param end le temps de fin de la partie à modifier.
+     * @param oldRate l'ancienne vitesse de la partie à modifier.
+     * @param newRate la nouvelle vitesse de la partie à modifier.
+     * @param normalFile la vidéo correspondante au temps à un vitesse normale.
+     */
+    @Override
+    public int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile) {
+        return CONVERSION_ERROR;
     }
 
     /**
@@ -336,7 +417,7 @@ public class VLCconverter implements Converter {
          [0132cdd4] stream_out_transcode stream out error: cannot create audio chain
          */
 
-        if (error.contains(resamplingError)) {
+        if (error.contains(RESAMPLING_ERROR)) {
             File audioFileTemp = new File(System.getProperty("java.io.tmpdir"), "temp.wav");
             String resample = convertToWAVinSameSamplerate(audioFileTemp, srcFile);
             if (resample.contains("error")) {
@@ -416,7 +497,6 @@ public class VLCconverter implements Converter {
         command.append(" vlc://quit");
 
         LOGGER.info("VLC command: {}", command);
-        duration = -1;
 
         StringBuilder input = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
@@ -454,6 +534,15 @@ public class VLCconverter implements Converter {
             file = getVLConMac();
         }
         return file;
+    }
+
+    /**
+     * Teste la présence du codec mp3lame sur l'encodeur.
+     *
+     * @return la présence du codec mp3lame sur l'encodeur.
+     */
+    private boolean hasCodec_mp3lame() {
+        return Utilities.hasFileOnLinux(LIB_MP3_LAME);
     }
 
     /**
@@ -601,7 +690,7 @@ public class VLCconverter implements Converter {
      * @return la thread de gestion du flux.
      */
     private Thread createReadThread(final InputStream inputStream, final StringBuilder output, String name) {
-        Thread thread = new Thread(name) {
+        return new Thread(name) {
             @Override
             public void run() {
                 byte[] data = new byte[1024];
@@ -609,7 +698,7 @@ public class VLCconverter implements Converter {
                     int cnt = inputStream.read(data);
                     while (cnt > 0) {
                         output.append(new String(data, 0, cnt));
-//                        fireNewData(new String(data, 0, cnt));
+                        fireNewData(new String(data, 0, cnt));
                         cnt = inputStream.read(data);
                     }
                 } catch (IOException e) {
@@ -617,7 +706,6 @@ public class VLCconverter implements Converter {
                 }
             }
         };
-        return thread;
     }
 
     /**
