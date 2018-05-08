@@ -2,6 +2,12 @@ package thot.exception;
 
 import lombok.Getter;
 
+/**
+ * Code pour les exceptions de l'applacation.
+ *
+ * @author Fabrice Alleau
+ * @version 1.8.4
+ */
 public enum ThotCodeException {
 
     SERVER(100),

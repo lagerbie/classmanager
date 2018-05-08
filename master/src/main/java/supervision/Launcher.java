@@ -29,13 +29,13 @@ import supervision.com.StudentServer;
 import thot.gui.GuiUtilities;
 import thot.gui.MainFrame;
 import thot.gui.Resources;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.CommandXMLUtilities;
+import thot.supervision.voip.Voip;
+import thot.utils.Constants;
 import thot.utils.Converter;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 import thot.utils.VLCconverter;
-import thot.voip.Voip;
 
 /**
  * Lancement de la supervision professeur.

@@ -86,7 +86,7 @@ public class FlashCommand {
     private String parameter;
 
     /**
-     * Initialisation d'une commande sans paramètre. Equivalant à <code> FlashCommand(action, null)</code>.
+     * Initialisation d'une commande sans paramètre. Equivalant à {@code  FlashCommand(action, null)}.
      *
      * @param action le nom de l'action.
      *

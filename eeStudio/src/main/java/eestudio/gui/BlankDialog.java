@@ -26,8 +26,8 @@ import javax.swing.text.StyledEditorKit;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Index;
-import thot.model.IndexType;
+import thot.labo.index.Index;
+import thot.labo.index.IndexType;
 import thot.utils.Utilities;
 
 /**
@@ -642,7 +642,7 @@ public class BlankDialog extends JDialog {
      *
      * @param time le temps à tester
      *
-     * @return <code>true</code>si le champ est compris dans un autre index.
+     * @return {@code true}si le champ est compris dans un autre index.
      */
     private boolean onIndex(long time) {
         for (Iterator<Index> it = core.indexesIterator(); it.hasNext(); ) {
@@ -659,7 +659,7 @@ public class BlankDialog extends JDialog {
      *
      * @param fields les champs de début et de longueur de l'index.
      *
-     * @return <code>true</code> si l'index est identique à un autre index.
+     * @return {@code true} si l'index est identique à un autre index.
      */
     private boolean isIdentical(IndexFields fields) {
         String begin = fields.beginField.getText();
@@ -680,7 +680,7 @@ public class BlankDialog extends JDialog {
     /**
      * Indique si il y a des index non null.
      *
-     * @return <code>true</code> si il y a des index non null.
+     * @return {@code true} si il y a des index non null.
      */
     private boolean hasIndex() {
         for (IndexFields indexFields : indexesFields) {

@@ -19,25 +19,17 @@
  */
 package thot.gui;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Window;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.*;
 
 /**
  * Slider général pour le controle de volume et de vitesse.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public abstract class ControlSlider extends JPanel {
     private static final long serialVersionUID = 19000L;
@@ -96,21 +88,19 @@ public abstract class ControlSlider extends JPanel {
      * @param backgroundImage l'image de fond du slider.
      * @param cursorImage l'image du curseur.
      */
-    public ControlSlider(final Window owner, final JButton mute,
-            Image backgroundImage, Image cursorImage) {
+    public ControlSlider(final Window owner, final JButton mute, Image backgroundImage, Image cursorImage) {
         this.owner = owner;
         this.mute = mute;
 
         this.background = backgroundImage;
         this.cursor = cursorImage;
 
-        min = 0 + cursor.getWidth(null) / 2 + 2;
+        min = cursor.getWidth(null) / 2 + 2;
         max = background.getWidth(null) - cursor.getWidth(null) / 2 - 2;
 
         this.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        this.setPreferredSize(new Dimension(background.getWidth(null),
-                cursor.getHeight(null)));
+        this.setPreferredSize(new Dimension(background.getWidth(null), cursor.getHeight(null)));
 
         this.setPreferredSize(new Dimension(background.getWidth(null), 69));
 
@@ -145,12 +135,7 @@ public abstract class ControlSlider extends JPanel {
         });
 
         //anonymous listeners pour le controle du volume
-        this.mute.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                setMute();
-            }
-        });
+        this.mute.addActionListener(event -> setMute());
     }
 
     /**
@@ -184,10 +169,9 @@ public abstract class ControlSlider extends JPanel {
     }
 
     /**
-     * Change la postion du curseur et modifie la valeur associése en
-     * conséquence.
+     * Change la postion du curseur et modifie la valeur associése en conséquence.
      *
-     * @param position la position du curseur.
+     * @param mousePosition la position du curseur.
      */
     private void setPosition(int mousePosition) {
         this.position = mousePosition;
@@ -236,9 +220,7 @@ public abstract class ControlSlider extends JPanel {
     public void paintComponent(Graphics g) {
         g.drawImage(background, backgroundXoffset, backgroundYoffset, null);
         if (position > min) {
-            g.drawImage(cursor,
-                    cursorXoffset + position - cursor.getWidth(null) / 2,
-                    cursorYoffset, null);
+            g.drawImage(cursor, cursorXoffset + position - cursor.getWidth(null) / 2, cursorYoffset, null);
         }
     }
 }

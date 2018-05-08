@@ -11,9 +11,9 @@ import java.io.File;
 import javax.swing.*;
 
 import eestudio.Core;
-import thot.model.Constants;
-import thot.model.ProjectFiles;
-import thot.model.ProjectTarget;
+import thot.labo.ProjectFiles;
+import thot.labo.ProjectTarget;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**

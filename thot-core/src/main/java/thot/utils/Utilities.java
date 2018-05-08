@@ -60,15 +60,16 @@ import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.gui.GuiUtilities;
-import thot.model.Constants;
-import thot.model.Indexes;
-import thot.model.ProjectFiles;
+import thot.labo.ProjectFiles;
+import thot.labo.index.Indexes;
+import thot.labo.utils.LaboXMLUtilities;
+import thot.labo.utils.SubtitleUtilities;
 
 /**
  * Utilitaires divers.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class Utilities {
 
@@ -319,7 +320,7 @@ public class Utilities {
      *
      * @param file le fichier.
      *
-     * @return l'extension ou <code>null</code>.
+     * @return l'extension ou {@code null}.
      */
     public static String getExtensionFile(File file) {
         String extension = null;
@@ -355,7 +356,7 @@ public class Utilities {
      * @param name le nom du fichier sans extension.
      * @param extensions la liste d'extensions possible du fichier.
      *
-     * @return le fichier existant trouvé ou <code>null</code>.
+     * @return le fichier existant trouvé ou {@code null}.
      */
     public static File searchFile(File directory, String name, String... extensions) {
         for (String extension : extensions) {
@@ -373,7 +374,7 @@ public class Utilities {
      * @param directory le répertoire de recherche.
      * @param extension la liste d'extensions possible du fichier.
      *
-     * @return le fichier existant trouvé ou <code>null</code>.
+     * @return le fichier existant trouvé ou {@code null}.
      */
     public static File searchFile(File directory, String extension) {
         File[] files = directory.listFiles();
@@ -410,7 +411,7 @@ public class Utilities {
      * @param file le fichier à lire.
      * @param charset le charset de lecture ("UTF-8", "windows-1252").
      *
-     * @return le texte décodé ou <code>null<\code>
+     * @return le texte décodé ou {@code null}
      */
     public static String getTextInFile(File file, String charset) {
         StringBuilder text = new StringBuilder(1024);
@@ -459,7 +460,7 @@ public class Utilities {
      *
      * @param file le fichier à tester.
      *
-     * @return <code>true</code> si le fichier est une archive jar.
+     * @return {@code true} si le fichier est une archive jar.
      */
     public static boolean isJarFile(File file) {
         return file.getName().toLowerCase().endsWith(".jar");
@@ -556,7 +557,7 @@ public class Utilities {
      * @param srcFile le fichier au format rtf ou html.
      * @param editorKit l'éditeur de style pour la lecture.
      *
-     * @return le document correspondant ou <code>null</code>.
+     * @return le document correspondant ou {@code null}.
      */
     private static Document readStyledFile(File srcFile, EditorKit editorKit) {
         Document document = editorKit.createDefaultDocument();
@@ -607,8 +608,7 @@ public class Utilities {
                 addText(textPane, child);
                 continue;
             }
-            String text = srcDocument.getText(child.getStartOffset(),
-                    child.getEndOffset() - child.getStartOffset());
+            String text = srcDocument.getText(child.getStartOffset(), child.getEndOffset() - child.getStartOffset());
             AttributeSet attributeSet = child.getAttributes();
             addText(textPane, text, attributeSet);
         }
@@ -753,7 +753,7 @@ public class Utilities {
      * @param indexes les index.
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     public static boolean saveSRTSubtitleFile(Indexes indexes, File file) {
         return Utilities.saveText(SubtitleUtilities.createSRTSubtitle(indexes), file);
@@ -765,7 +765,7 @@ public class Utilities {
      * @param indexes les index.
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     public static boolean saveSUBSubtitleFile(Indexes indexes, File file) {
         return Utilities.saveText(SubtitleUtilities.createSUBSubtitle(indexes), file);
@@ -777,7 +777,7 @@ public class Utilities {
      * @param indexes les index.
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     public static boolean saveLRCSubtitleFile(Indexes indexes, File file) {
         return Utilities.saveText(SubtitleUtilities.createLRCSubtitle(indexes), file);
@@ -966,7 +966,7 @@ public class Utilities {
      * @param output un builder initialisé pour afficher la sortie standard.
      * @param error un builder initialisé pour afficher la sortie des erreur.
      *
-     * @return le processus démarré ou <code>null</code>.
+     * @return le processus démarré ou {@code null}.
      */
     public static Process startProcess(String name, StringBuilder output, StringBuilder error, String... command) {
         return startProcess(name, output, error, null, command);
@@ -981,7 +981,7 @@ public class Utilities {
      * @param error un builder initialisé pour afficher la sortie des erreur.
      * @param workingDirectory le répertoire de travail.
      *
-     * @return le processus démarré ou <code>null</code>.
+     * @return le processus démarré ou {@code null}.
      */
     public static Process startProcess(String name, StringBuilder output, StringBuilder error,
             File workingDirectory, String... command) {
@@ -1265,7 +1265,7 @@ public class Utilities {
      *
      * @param file le chemin absolu.
      *
-     * @return le chemin relatif dans "Program Files" ou <code>null</code> fichier.
+     * @return le chemin relatif dans "Program Files" ou {@code null} fichier.
      */
     public static String pathWithoutWindowsProgramFiles(File file) {
         String absolutePath = file.getAbsolutePath();

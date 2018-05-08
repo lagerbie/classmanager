@@ -36,9 +36,13 @@ import javax.swing.text.DefaultEditorKit;
 
 import thot.LaboratoryCore;
 import thot.LaboratoryListener;
-import thot.model.Constants;
-import thot.model.Index;
-import thot.utils.CommandXMLUtilities;
+import thot.labo.gui.EraseDialog;
+import thot.labo.gui.ExportDialog;
+import thot.labo.gui.ImportDialog;
+import thot.labo.gui.TimeIndexSlider;
+import thot.labo.index.Index;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /*
@@ -1464,9 +1468,9 @@ public class LaboratoryFrame extends JFrame {
      * Affiche une boîte de dialogue avec une entrée texte.
      *
      * @param message le message à afficher.
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return le texte qui a été validé ou <code>null</code> si l'opération a été annulée.
+     * @return le texte qui a été validé ou {@code null} si l'opération a été annulée.
      */
     protected String showInputDialog(String message, String initValue) {
         return (String) GuiUtilities.showInputDialog(this, message, null, initValue);
@@ -1477,8 +1481,8 @@ public class LaboratoryFrame extends JFrame {
      *
      * @param message le message à afficher.
      *
-     * @return <code>JOptionPane.YES_OPTION</code> si le bouton oui a été cliqué
-     *         ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
+     * @return {@code JOptionPane.YES_OPTION} si le bouton oui a été cliqué
+     *         ou {@code JOptionPane.NO_OPTION} si c'est le bouton non.
      */
     protected int showOptionDialog(String message) {
         return GuiUtilities.showOptionDialog(this, message, null, null);
@@ -1501,7 +1505,7 @@ public class LaboratoryFrame extends JFrame {
      * @param values les valeurs que l'on peut sélectionnées.
      * @param initialValue la valeur sélectionnée au départ.
      *
-     * @return l'Object sélectionnée ou <code>null</code> si pas de sélection.
+     * @return l'Object sélectionnée ou {@code null} si pas de sélection.
      */
     private Object showInputDialog(String message, String title,
             Object[] values, Object initialValue) {

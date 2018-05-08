@@ -19,34 +19,14 @@
  */
 package thot.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-//import java.awt.GraphicsEnvironment;
-
-import javax.swing.BoxLayout;
-//import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-//import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.JToolBar;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-//import java.awt.event.ItemEvent;
-//import java.awt.event.ItemListener;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-//import javax.swing.event.CaretEvent;
-//import javax.swing.event.CaretListener;
-
+import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
@@ -54,18 +34,18 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.Utilities;
-
 import javax.swing.undo.UndoManager;
 
 /*
  * resources:
  *  bold, italic, underLine, strikeThrough, colorTitle
  */
+
 /**
  * Zone de texte dans un format stylé.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class EditorArea extends JPanel {
     private static final long serialVersionUID = 19000L;
@@ -92,13 +72,21 @@ public class EditorArea extends JPanel {
     private JButton strikeThroughButton;
 //    /** Bouton pour l'alignement à gauche (pas présent sur l'interface) */
 //    private JButton leftAlignButton;
-//    /** Bouton pour l'alignement à droite (pas présent sur l'interface) */
+//    /**
+//     * Bouton pour l'alignement à droite (pas présent sur l'interface)
+//     */
 //    private JButton rigthAlignButton;
-//    /** Bouton pour l'alignement au centre (pas présent sur l'interface) */
+//    /**
+//     * Bouton pour l'alignement au centre (pas présent sur l'interface)
+//     */
 //    private JButton centerAlignButton;
-//    /** Bouton pour la sélection de taille (pas présent sur l'interface) */
+//    /**
+//     * Bouton pour la sélection de taille (pas présent sur l'interface)
+//     */
 //    private JComboBox sizeComboBox;
-//    /** Bouton pour la sélection de Font (pas présent sur l'interface) */
+//    /**
+//     * Bouton pour la sélection de Font (pas présent sur l'interface)
+//     */
 //    private JComboBox fontComboBox;
 
     /**
@@ -129,8 +117,7 @@ public class EditorArea extends JPanel {
      * @param styledDocument le document qui sauvegarde le texte.
      * @param resources référence pour les textes des boutons.
      */
-    public EditorArea(StyledEditorKit editorKit, StyledDocument styledDocument,
-            Resources resources) {
+    public EditorArea(StyledEditorKit editorKit, StyledDocument styledDocument, Resources resources) {
         super();
 
         colorTitle = resources.getString("colorTitle");
@@ -143,20 +130,20 @@ public class EditorArea extends JPanel {
 //        leftAlignButton = new JButton("Left Align");
 //        centerAlignButton = new JButton("center Align");
 //        rigthAlignButton = new JButton("Rigth Align");
-
-//	fontComboBox = new JComboBox();
+//
+//        fontComboBox = new JComboBox();
 //        fontComboBox.setPreferredSize(new Dimension(200, menuHeight));
 //        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment()
 //                .getAvailableFontFamilyNames();
-//	for(int i=0; i<fonts.length; i++ ) {
+//        for (int i = 0; i < fonts.length; i++) {
 //            fontComboBox.addItem(fonts[i]);
 //        }
-
+//
 //        sizeComboBox = new JComboBox();
-//	for(int i=6; i<=40; i+=2) {
+//        for (int i = 6; i <= 40; i += 2) {
 //            sizeComboBox.addItem(new Integer(i).toString());
 //        }
-//	sizeComboBox.setPreferredSize(new Dimension(64, menuHeight));
+//        sizeComboBox.setPreferredSize(new Dimension(64, menuHeight));
 
         colorPanel = new JPanel();
         colorPanel.setPreferredSize(new Dimension(menuHeight, menuHeight));
@@ -173,18 +160,18 @@ public class EditorArea extends JPanel {
         styledDocument.addUndoableEditListener(undoManager);
 
         JToolBar tools = new JToolBar();
-//	tools.add(fontComboBox);
-//	tools.addSeparator();
+//        tools.add(fontComboBox);
+//        tools.addSeparator();
         tools.add(boldButton);
         tools.add(italicButton);
         tools.add(underLineButton);
         tools.add(strikeThroughButton);
-//	tools.addSeparator();
-//	tools.add(leftAlignButton);
-//	tools.add(centerAlignButton);
-//	tools.add(rigthAlignButton);
-//	tools.addSeparator();
-//	tools.add(sizeComboBox);
+//        tools.addSeparator();
+//        tools.add(leftAlignButton);
+//        tools.add(centerAlignButton);
+//        tools.add(rigthAlignButton);
+//        tools.addSeparator();
+//        tools.add(sizeComboBox);
         tools.addSeparator();
         tools.add(colorPanel);
         tools.addSeparator();
@@ -193,8 +180,7 @@ public class EditorArea extends JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         // RTF barre de format
 //        this.add(tools);
-        textScrollPane = new JScrollPane(textPane,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        textScrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 //        textScrollPane.setMinimumSize(new Dimension(335, 400));
 //        textScrollPane.setPreferredSize(new Dimension(335, 480));//450
@@ -221,34 +207,33 @@ public class EditorArea extends JPanel {
     /**
      * Créer un bouton selon le type avec les images et le texte voulus.
      *
-     * @param images référence pour les noms des images (unused: pas d'images).
      * @param resources référence pour les textes des boutons.
      * @param type le type du bouton : bolt, italic, underLine, strikeThrough.
      * @param animation pour savoir si il y a des effets sur le bouton (unused).
+     *
      * @return le bouton créé.
      */
-    private JButton getButton(Resources resources,
-            String type, boolean animation) {
+    private JButton getButton(Resources resources, String type, boolean animation) {
         JButton button = new JButton(resources.getString(type));
 //        String imagesPath = images.getString("imagesPath");
-//        JButton button = new JButton(new ImageIcon(getClass().getClassLoader()
-//                .getResource(imagesPath + images.getString(type + "Image"))));
-
+//        JButton button = new JButton(
+//                new ImageIcon(getClass().getClassLoader().getResource(imagesPath + images.getString(type + "Image"))));
+//
 //        button.setMargin(new Insets(0, 0, 0, 0));
-
-//        if(animation){
-//            button.setDisabledIcon(new ImageIcon(getClass().getClassLoader()
-//                    .getResource(imagesPath + images.getString(type + "ImageOff"))));
-
-//            button.setRolloverIcon(new ImageIcon(getClass().getClassLoader()
-//                    .getResource(imagesPath + images.getString(type + "ImageSurvol"))));
+//
+//        if (animation) {
+//            button.setDisabledIcon(new ImageIcon(
+//                    getClass().getClassLoader().getResource(imagesPath + images.getString(type + "ImageOff"))));
+//
+//            button.setRolloverIcon(new ImageIcon(
+//                    getClass().getClassLoader().getResource(imagesPath + images.getString(type + "ImageSurvol"))));
 //        }
-
+//
 //        button.setBorderPainted(false);
 //        button.setContentAreaFilled(false);
 //        button.setFocusPainted(false);
 //        button.setOpaque(true);
-//        Color color = new Color(0,0,0,0);
+//        Color color = new Color(0, 0, 0, 0);
 //        button.setBackground(color);
 //        button.setForeground(color);
 
@@ -281,61 +266,26 @@ public class EditorArea extends JPanel {
      * Ajoute les listeners des boutons.
      */
     private void addListeners() {
-        boldButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeAttributes(null, !boldButton.isSelected(), null, null,
-                        null, null, null, null);
-            }
-        });
+        boldButton.addActionListener(e -> changeAttributes(null, !boldButton.isSelected(), null, null,
+                null, null, null, null));
 
-        italicButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeAttributes(null, null, !italicButton.isSelected(), null,
-                        null, null, null, null);
-            }
-        });
+        italicButton.addActionListener(e -> changeAttributes(null, null, !italicButton.isSelected(), null,
+                null, null, null, null));
 
-        underLineButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeAttributes(null, null, null, !underLineButton.isSelected(),
-                        null, null, null, null);
-            }
-        });
+        underLineButton.addActionListener(e -> changeAttributes(null, null, null, !underLineButton.isSelected(),
+                null, null, null, null));
 
-        strikeThroughButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeAttributes(null, null, null, null,
-                        !strikeThroughButton.isSelected(), null, null, null);
-            }
-        });
+        strikeThroughButton.addActionListener(e -> changeAttributes(null, null, null, null,
+                !strikeThroughButton.isSelected(), null, null, null));
 
-//        leftAlignButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                changeAttributes(null, null, null, null, null, null, null,
-//                        StyleConstants.ALIGN_LEFT);
-//            }
-//        });
+//        leftAlignButton.addActionListener(
+//                e -> changeAttributes(null, null, null, null, null, null, null, StyleConstants.ALIGN_LEFT));
 //
-//        centerAlignButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                changeAttributes(null, null, null, null, null, null, null,
-//                        StyleConstants.ALIGN_CENTER);
-//            }
-//        });
+//        centerAlignButton.addActionListener(
+//                e -> changeAttributes(null, null, null, null, null, null, null, StyleConstants.ALIGN_CENTER));
 //
-//        rigthAlignButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                changeAttributes(null, null, null, null, null, null, null,
-//                        StyleConstants.ALIGN_RIGHT);
-//            }
-//        });
+//        rigthAlignButton.addActionListener(
+//                e -> changeAttributes(null, null, null, null, null, null, null, StyleConstants.ALIGN_RIGHT));
 
         colorPanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -343,11 +293,9 @@ public class EditorArea extends JPanel {
                 Color color = JColorChooser.showDialog(textPane, colorTitle,
                         colorPanel.getBackground());
 //                if(System.getProperty("os.name").toLowerCase().contains("linux")) {
-//                    color = AWTOptionPane.showColorChooser(null, colorTitle,
-//                            colorPanel.getBackground());
+//                    color = AWTOptionPane.showColorChooser(null, colorTitle, colorPanel.getBackground());
 //                } else {
-//                    color = JColorChooser.showDialog(textPane, colorTitle,
-//                            colorPanel.getBackground());
+//                    color = JColorChooser.showDialog(textPane, colorTitle, colorPanel.getBackground());
 //                }
 
                 if (color != null) {
@@ -358,34 +306,20 @@ public class EditorArea extends JPanel {
             }
         });
 
-//        fontComboBox.addItemListener(new ItemListener() {
-//            @Override
-//            public void itemStateChanged(ItemEvent e) {
-//                if (e.getStateChange() == ItemEvent.SELECTED) {
-//                    changeAttributes((String) fontComboBox.getSelectedItem(),
-//                            null, null, null, null, null, null, null);
-//                }
+//        fontComboBox.addItemListener((ItemListener) e -> {
+//            if (e.getStateChange() == ItemEvent.SELECTED) {
+//                changeAttributes((String) fontComboBox.getSelectedItem(), null, null, null, null, null, null, null);
 //            }
 //        });
-
-//        sizeComboBox.addItemListener(new ItemListener() {
-//            @Override
-//            public void itemStateChanged(ItemEvent e) {
-//                if (e.getStateChange() == ItemEvent.SELECTED) {
-//                    changeAttributes(null, null, null, null, null,
-//                            labo.utils.Utilities.parseStringAsInt(
-//                            (String) sizeComboBox.getSelectedItem()),
-//                            null, null);
-//                }
+//
+//        sizeComboBox.addItemListener((ItemListener) e -> {
+//            if (e.getStateChange() == ItemEvent.SELECTED) {
+//                changeAttributes(null, null, null, null, null,
+//                        labo.utils.Utilities.parseStringAsInt((String) sizeComboBox.getSelectedItem()), null, null);
 //            }
 //        });
-
-//        textPane.addCaretListener(new CaretListener() {
-//            @Override
-//            public void caretUpdate(CaretEvent e) {
-////                updateToolsPanel();
-//            }
-//        });
+//
+//        textPane.addCaretListener(e -> updateToolsPanel());
 
         textPane.addKeyListener(new KeyAdapter() {
             @Override
@@ -440,31 +374,27 @@ public class EditorArea extends JPanel {
 
 //        fontComboBox.setSelectedItem(StyleConstants.getFontFamily(attributeSet));
 //        sizeComboBox.setSelectedItem(new Integer(StyleConstants.getFontSize(attributeSet)).toString());
-
-//	attributeSet = textPane.getParagraphAttributes();
-//        leftAlignButton.setSelected(
-//                StyleConstants.getAlignment(attributeSet)==StyleConstants.ALIGN_LEFT);
-//        rigthAlignButton.setSelected(
-//                StyleConstants.getAlignment(attributeSet)==StyleConstants.ALIGN_RIGHT);
-//	centerAlignButton.setSelected(
-//                StyleConstants.getAlignment(attributeSet)==StyleConstants.ALIGN_CENTER);
+//
+//        attributeSet = textPane.getParagraphAttributes();
+//        leftAlignButton.setSelected(StyleConstants.getAlignment(attributeSet) == StyleConstants.ALIGN_LEFT);
+//        rigthAlignButton.setSelected(StyleConstants.getAlignment(attributeSet) == StyleConstants.ALIGN_RIGHT);
+//        centerAlignButton.setSelected(StyleConstants.getAlignment(attributeSet) == StyleConstants.ALIGN_CENTER);
     }
 
     /**
      * Modifie les les attributs du texte sélectionné.
      *
-     * @param fontName le nom de la nouvelle police ou <code>null</code>.
-     * @param bold la définition du gras ou <code>null</code>.
-     * @param italic la définition de l'italique ou <code>null</code>.
-     * @param underline la définition de sous-lignement ou <code>null</code>.
-     * @param strikeThrough la définition du barré ou <code>null</code>.
-     * @param size la nouvelle taille ou <code>null</code>.
-     * @param color la nouvelle couleur ou <code>null</code>.
-     * @param alignment le nouvel alignement ou <code>null</code>.
+     * @param fontName le nom de la nouvelle police ou {@code null}.
+     * @param bold la définition du gras ou {@code null}.
+     * @param italic la définition de l'italique ou {@code null}.
+     * @param underline la définition de sous-lignement ou {@code null}.
+     * @param strikeThrough la définition du barré ou {@code null}.
+     * @param size la nouvelle taille ou {@code null}.
+     * @param color la nouvelle couleur ou {@code null}.
+     * @param alignment le nouvel alignement ou {@code null}.
      */
-    private void changeAttributes(String fontName, Boolean bold, Boolean italic,
-            Boolean underline, Boolean strikeThrough, Integer size, Color color,
-            Integer alignment) {
+    private void changeAttributes(String fontName, Boolean bold, Boolean italic, Boolean underline,
+            Boolean strikeThrough, Integer size, Color color, Integer alignment) {
 
         boolean allText = (textPane.getSelectedText() != null);
 
@@ -504,8 +434,7 @@ public class EditorArea extends JPanel {
         if (!allText) {
             int start = textPane.getSelectionStart();
             int end = textPane.getSelectionEnd();
-            styledDocument.setCharacterAttributes(start, end - start,
-                    mutableAttributeSet, false);
+            styledDocument.setCharacterAttributes(start, end - start, mutableAttributeSet, false);
         } else {
             textPane.setCharacterAttributes(mutableAttributeSet, false);
         }
@@ -513,8 +442,7 @@ public class EditorArea extends JPanel {
         if (alignment != null) {
             StyleConstants.setAlignment(mutableAttributeSet, alignment);
             styledDocument.setParagraphAttributes(textPane.getSelectionStart(),
-                    textPane.getSelectionEnd() - textPane.getSelectionStart(),
-                    mutableAttributeSet, false);
+                    textPane.getSelectionEnd() - textPane.getSelectionStart(), mutableAttributeSet, false);
         }
 
         updateToolsPanel();
@@ -605,7 +533,9 @@ public class EditorArea extends JPanel {
      * Selectionne le mot situé à l'index fourni et retourne l'index de fin.
      *
      * @param index l'index dans le texte.
+     *
      * @return l'index de fin du mot.
+     *
      * @throws BadLocationException
      */
     public int selectWord(int index) throws BadLocationException {

@@ -33,15 +33,15 @@ import thot.audio.AudioRecorder;
 import thot.audio.DirectAudioPlayer;
 import thot.audio.DirectAudioRecorder;
 import thot.audio.TimeProcessingListener;
-import thot.model.Constants;
-import thot.model.Index;
-import thot.model.IndexFile;
-import thot.model.IndexType;
-import thot.model.Indexes;
-import thot.model.ProjectFiles;
-import thot.model.ProjectTarget;
-import thot.model.TagList;
-import thot.utils.LaboXMLUtilities;
+import thot.labo.ProjectFiles;
+import thot.labo.ProjectTarget;
+import thot.labo.TagList;
+import thot.labo.index.Index;
+import thot.labo.index.IndexFile;
+import thot.labo.index.IndexType;
+import thot.labo.index.Indexes;
+import thot.labo.utils.LaboXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**
@@ -289,8 +289,8 @@ public class Core {
     }
 
     /**
-     * Met à jour l'état du module audio. Il peut prendre les valeurs suivantes: <code>StudentCore.PAUSE</code>,
-     * <code>StudentCore.PLAYING</code> ou <code>StudentCore.RECORDING</code>.
+     * Met à jour l'état du module audio. Il peut prendre les valeurs suivantes: {@code StudentCore.PAUSE},
+     * {@code StudentCore.PLAYING} ou {@code StudentCore.RECORDING}.
      *
      * @param state la nouvelle valeur de l'état du module audio.
      */
@@ -1317,7 +1317,7 @@ public class Core {
      * @param file le fichier.
      * @param time le temps.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     public boolean insertFile(File file, long time) {
         long begin = time;
@@ -1351,7 +1351,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     private boolean loadFile(File file) {
         boolean success = false;
@@ -1402,7 +1402,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     private boolean loadIndexes(File file) {
         mediaIndexes = Utilities.getIndexes(file);
@@ -1439,7 +1439,7 @@ public class Core {
      *
      * @param file le fichier à charger.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     public boolean loadText(File file) {
         if (!file.exists()) {
@@ -1486,7 +1486,7 @@ public class Core {
      *
      * @param file le fichier à charger.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     private boolean loadTextStyled(File file) {
         try {
@@ -1509,7 +1509,7 @@ public class Core {
      *
      * @param file le fichier a charger.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     private int loadAudio(File file, ByteBuffer byteBuffer) {
         //Java ne décode que le .wav
@@ -1591,7 +1591,7 @@ public class Core {
      *
      * @param file le fichier a charger.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     private boolean loadVideo(File file) {
         if (!file.exists()) {
@@ -1619,7 +1619,7 @@ public class Core {
      * @param file le fichier projet.
      * @param project les éléments à sauvegarder.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     public boolean saveProject(File file, ProjectFiles project) {
         ProjectTarget soft = project.getSoft();
@@ -1751,7 +1751,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     private boolean saveMediaIndexes(File file) {
         Utilities.saveObject(mediaIndexes, file);
@@ -1764,7 +1764,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     private boolean saveSubtitleFile(File file) {
         boolean success = false;
@@ -1789,7 +1789,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     private boolean saveText(File file) {
         boolean saved = false;
@@ -1826,7 +1826,7 @@ public class Core {
      *
      * @param file le fichier.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     private boolean saveTextStyled(File file) {
         try {
@@ -1847,7 +1847,7 @@ public class Core {
      *
      * @param file le fichier où l'on veut enregistrer.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     private boolean saveAudio(File file) {
         boolean success;
@@ -2433,7 +2433,7 @@ public class Core {
     /**
      * Met à jour du format audio pour la capture de sons et de la variable bytePerSample.
      *
-     * @param format le nouveau format. Mettre <code>null</code> pour avoir le format par défaut (8000 Hz, 16
+     * @param format le nouveau format. Mettre {@code null} pour avoir le format par défaut (8000 Hz, 16
      *         bits, mono, signed, little-endian).
      */
     private void setAudioFormat(AudioFormat format) {
@@ -2468,7 +2468,7 @@ public class Core {
     /**
      * Notification interne de la fin des thread de lecture et d'enregistrement.
      *
-     * @param running <code>true</code> si la thread ne sait pas stoppée d'elle même.
+     * @param running {@code true} si la thread ne sait pas stoppée d'elle même.
      */
     private void fireProcessEnded(final boolean running) {
         //Traitement dans un thread séparée pour éviter un blocage

@@ -19,21 +19,12 @@
  */
 package thot.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.BoxLayout;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * Classe présentant une barre de progression.
@@ -155,8 +146,7 @@ public class ProcessingBar {
      * Modifie le poucentage.
      *
      * @param total la nouvelle valeur de progression totale en pourcentage.
-     * @param subTotal la nouvelle valeur de progression intermédiaire en
-     * pourcentage.
+     * @param subTotal la nouvelle valeur de progression intermédiaire en pourcentage.
      */
     public void setValue(int total, int subTotal) {
         progressBar.setValue(total);
@@ -168,8 +158,7 @@ public class ProcessingBar {
     /**
      * Change le statut déterminé de la barre de progression.
      *
-     * @param determinated <code>true</code> pour le mode déterminé, ou
-     * <code>false</code> pour le mode indéterminé.
+     * @param determinated {@code true} pour le mode déterminé, ou {@code false} pour le mode indéterminé.
      */
     public void setDeterminate(boolean determinated) {
         progressBar.setIndeterminate(!determinated);
@@ -178,8 +167,8 @@ public class ProcessingBar {
     /**
      * Modifie l'affichage d'une barre secondaire pour les étapes intermédiares.
      *
-     * @param doubleStatus <code>true</code> pour afficher deux barres de
-     * progression, ou <code>false</code> pour une seule barre.
+     * @param doubleStatus {@code true} pour afficher deux barres de progression, ou {@code false} pour une
+     *         seule barre.
      */
     public void setDoubleProgress(boolean doubleStatus) {
         subProgressBar.setVisible(doubleStatus);
@@ -191,13 +180,10 @@ public class ProcessingBar {
     public void show() {
         setValue(0, 0);
         update();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                dialog.setAlwaysOnTop(true);
-                dialog.setVisible(true);
-                dialog.toFront();
-            }
+        SwingUtilities.invokeLater(() -> {
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
+            dialog.toFront();
         });
     }
 
@@ -205,12 +191,9 @@ public class ProcessingBar {
      * Ferme la barre de progression.
      */
     public void close() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                dialog.setVisible(false);
-                dialog.dispose();
-            }
+        SwingUtilities.invokeLater(() -> {
+            dialog.setVisible(false);
+            dialog.dispose();
         });
     }
 

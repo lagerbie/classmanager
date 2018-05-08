@@ -19,7 +19,7 @@
  */
 package supervision;
 
-import thot.ProgressPercentListener;
+import thot.utils.ProgressPercentListener;
 
 /**
  * Listener pour les évènements du noyau professeur.

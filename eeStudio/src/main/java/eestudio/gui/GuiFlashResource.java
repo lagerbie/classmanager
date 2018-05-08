@@ -10,12 +10,12 @@ import java.util.Map;
 import javax.swing.*;
 
 import eestudio.Core;
-import thot.model.Constants;
-import thot.model.Index;
-import thot.model.IndexType;
-import thot.model.ProjectTarget;
-import thot.model.TagList;
-import thot.utils.CommandXMLUtilities;
+import thot.labo.ProjectTarget;
+import thot.labo.TagList;
+import thot.labo.index.Index;
+import thot.labo.index.IndexType;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**

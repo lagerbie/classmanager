@@ -27,9 +27,9 @@ import javax.swing.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.ProgressPercentListener;
 import thot.StudentCore;
-import thot.model.Constants;
+import thot.utils.Constants;
+import thot.utils.ProgressPercentListener;
 
 /**
  * Barre d'outils.

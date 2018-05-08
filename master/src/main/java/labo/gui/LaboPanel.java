@@ -19,22 +19,7 @@
  */
 package labo.gui;
 
-import thot.gui.TimeIndexSlider;
-import thot.gui.ImportDialog;
-import thot.gui.ExportDialog;
-import thot.gui.EditorArea;
-import thot.gui.VolumeSlider;
-import thot.gui.Resources;
-import thot.gui.FileChooser;
-import thot.gui.VideoCanvas;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -44,24 +29,29 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuListener;
-import labo.LaboModule;
 
-import thot.LaboListener;
-import thot.gui.EraseDialog;
-import thot.gui.StateButton;
-import thot.gui.TabPanel;
+import javax.swing.*;
+import javax.swing.event.PopupMenuListener;
+
+import labo.LaboModule;
+import thot.gui.EditorArea;
+import thot.gui.FileChooser;
 import thot.gui.FilterPanel;
 import thot.gui.GuiUtilities;
 import thot.gui.ImagePanel;
 import thot.gui.ProcessingBar;
-import thot.model.Constants;
-import thot.model.Index;
+import thot.gui.Resources;
+import thot.gui.StateButton;
+import thot.gui.TabPanel;
+import thot.gui.VideoCanvas;
+import thot.gui.VolumeSlider;
+import thot.labo.LaboListener;
+import thot.labo.gui.EraseDialog;
+import thot.labo.gui.ExportDialog;
+import thot.labo.gui.ImportDialog;
+import thot.labo.gui.TimeIndexSlider;
+import thot.labo.index.Index;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**
@@ -853,8 +843,8 @@ public class LaboPanel extends TabPanel {
      * Affiche une boîte de dialogue avec une entrée texte.
      *
      * @param message le message à afficher.
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
-     * @return le texte qui a été validé ou <code>null</code> si l'opération a
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
+     * @return le texte qui a été validé ou {@code null} si l'opération a
      * été annulée.
      */
     private String showInputDialog(String message, String initValue) {
@@ -865,8 +855,8 @@ public class LaboPanel extends TabPanel {
      * Afficge une boîte de dialogue posant une question.
      *
      * @param message le message à afficher.
-     * @return <code>JOptionPane.YES_OPTION</code> si le bouton oui a été cliqué
-     * ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
+     * @return {@code JOptionPane.YES_OPTION} si le bouton oui a été cliqué
+     * ou {@code JOptionPane.NO_OPTION} si c'est le bouton non.
      */
     private int showOptionDialog(String message) {
         return GuiUtilities.showOptionDialog(this.getParentWindow(), message, null, null);

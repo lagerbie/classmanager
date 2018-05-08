@@ -19,16 +19,15 @@
  */
 package thot.gui;
 
-import java.awt.Image;
-import java.awt.Window;
+import java.awt.*;
 
-import javax.swing.JButton;
+import javax.swing.*;
 
 /**
  * Slider pour le conrole de la vitesse de défilement du texte.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public abstract class SpeedSlider extends ControlSlider {
     private static final long serialVersionUID = 19000L;
@@ -41,8 +40,7 @@ public abstract class SpeedSlider extends ControlSlider {
      * @param backgroundImage le chemin de l'image de fond.
      * @param cursorImage le chemin de l'image du curseur.
      */
-    public SpeedSlider(Window owner, JButton mute,
-            Image backgroundImage, Image cursorImage) {
+    public SpeedSlider(Window owner, JButton mute, Image backgroundImage, Image cursorImage) {
         super(owner, mute, backgroundImage, cursorImage);
 
         int backgroundXoffset = 0;

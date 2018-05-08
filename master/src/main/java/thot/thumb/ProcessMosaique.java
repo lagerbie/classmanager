@@ -37,13 +37,13 @@ import javax.swing.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.ProgressThread;
-import thot.Server;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.CommandType;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandType;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.ProgressThread;
+import thot.utils.Server;
 import thot.utils.Utilities;
 
 /**

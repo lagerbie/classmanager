@@ -20,13 +20,12 @@
 package thot.utils;
 
 import java.io.File;
-import thot.ProgressPercentListener;
 
 /**
  * Interface poue la conversion de fichiers.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public interface Converter {
 

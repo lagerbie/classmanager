@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.gui.ToolsDialog;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.CommandXMLUtilities;
+import thot.supervision.voip.Voip;
+import thot.utils.Constants;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
-import thot.voip.Voip;
 
 /**
  * @author Fabrice Alleau

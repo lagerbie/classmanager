@@ -2,7 +2,7 @@ package eestudio.utils;
 
 import java.io.File;
 
-import thot.model.TagList;
+import thot.labo.TagList;
 
 /**
  * Interface poue la conversion de fichiers.

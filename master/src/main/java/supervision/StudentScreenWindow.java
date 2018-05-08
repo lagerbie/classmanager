@@ -19,7 +19,7 @@
  */
 package supervision;
 
-import thot.screen.ScreenWindow;
+import thot.supervision.screen.ScreenWindow;
 
 /**
  * Fenêtre pour afficher l'écran d'un élève.

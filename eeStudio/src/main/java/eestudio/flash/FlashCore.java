@@ -12,9 +12,9 @@ import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Constants;
-import thot.model.Index;
-import thot.utils.LaboXMLUtilities;
+import thot.labo.index.Index;
+import thot.labo.utils.LaboXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**
@@ -232,7 +232,7 @@ public class FlashCore {
         boolean on = Utilities.parseStringAsBoolean(parameter);
 
         Index index = null;
-        if (parameter != null && parameter.startsWith("<" + LaboXMLUtilities.element_index)) {
+        if (parameter != null && parameter.startsWith("<" + LaboXMLUtilities.ELEMENT_INDEX)) {
             index = LaboXMLUtilities.parseIndex(parameter);
         }
 

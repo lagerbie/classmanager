@@ -19,17 +19,15 @@
  */
 package thot.gui;
 
-import java.awt.Component;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JButton;
-import javax.swing.JMenu;
-import javax.swing.JPopupMenu;
+
+import javax.swing.*;
 
 /**
  * Bouton affichant des images avec deux états sélectionnables différents.
@@ -118,8 +116,8 @@ public class StateButton extends JButton {
     /**
      * Modifie l'état du bouton.
      *
-     * @param on <code>true</code> si le bouton n'est pas enfoncé, ou
-     * <code>false</code> si le bouton est enfoncé.
+     * @param on {@code true} si le bouton n'est pas enfoncé, ou
+     * {@code false} si le bouton est enfoncé.
      */
     public void setOn(boolean on) {
         this.on = on;
@@ -135,8 +133,8 @@ public class StateButton extends JButton {
     /**
      * Retourne l'état du bouton.
      *
-     * @return <code>true</code> si le bouton n'est pas enclenché, ou
-     * <code>false</code> si le bouton est enclenché.
+     * @return {@code true} si le bouton n'est pas enclenché, ou
+     * {@code false} si le bouton est enclenché.
      */
     public boolean isOn() {
         return on;
@@ -153,7 +151,7 @@ public class StateButton extends JButton {
 
     /**
      * Inverse l'état du bouton.
-     * Equivalant à <code>setOn(!isOn())</code>.
+     * Equivalant à {@code setOn(!isOn())}.
      */
     public void toggle() {
         setOn(!on);

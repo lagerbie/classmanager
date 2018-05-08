@@ -33,13 +33,12 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.ProgressPercentListener;
 
 /**
  * Outils autour de VLC.
  *
  * @author Fabrice Alleau
- * @version 1.90 (VLC 1.1.x et 1.0.x)
+ * @version 1.8.4 (VLC 1.1.x et 1.0.x)
  */
 public class VLCconverter implements Converter {
 

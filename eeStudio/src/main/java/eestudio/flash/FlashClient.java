@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.Server;
+import thot.utils.Server;
 import thot.utils.Utilities;
 
 /**
@@ -69,7 +69,7 @@ public class FlashClient extends Server {
      *
      * @param xml la commande.
      *
-     * @return toujours <code>true</code>.
+     * @return toujours {@code true}.
      */
     public boolean sendCommand(String xml) {
         return fifo.offer(xml);

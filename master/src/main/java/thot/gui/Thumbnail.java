@@ -19,15 +19,10 @@
  */
 package thot.gui;
 
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseListener;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+
+import javax.swing.*;
 
 /**
  *
@@ -196,7 +191,7 @@ public class Thumbnail extends ImagePanel {
     /**
      * Indique si un message est affiché.
      *
-     * @return <code>true</code> si un message est affiché.
+     * @return {@code true} si un message est affiché.
      */
     public boolean isPostItVisible() {
         return messagePanel.isVisible();
@@ -206,7 +201,7 @@ public class Thumbnail extends ImagePanel {
      * Affiche ou cache un message.
      *
      * @param message le message à afficher
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code>
+     * @param visible {@code true} pour l'afficher, ou {@code false}
      * pour revenir à l'affichage standard.
      */
     public void showPostIt(String message, boolean visible) {
@@ -222,7 +217,7 @@ public class Thumbnail extends ImagePanel {
     /**
      * Affiche ou cache la fenêtre de création de groupes.
      *
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code>
+     * @param visible {@code true} pour l'afficher, ou {@code false}
      * pour revenir à l'affichage standard.
      */
     public void showGroupCreation(boolean visible) {
@@ -236,7 +231,7 @@ public class Thumbnail extends ImagePanel {
     /**
      * Retourne si la vignette est sélectionnée.
      *
-     * @return <code>true</code> si la vignette est sélectionnée.
+     * @return {@code true} si la vignette est sélectionnée.
      */
     public boolean isThumbnailSelected() {
         return !idendityPanel.getBackground().equals(GuiUtilities.TRANSPARENT_COLOR);
@@ -245,8 +240,8 @@ public class Thumbnail extends ImagePanel {
     /**
      * Modifie la sélection de la vignette.
      *
-     * @param selected <code>true</code> pour la sélectionner, ou
-     * <code>false</code> pour la désélectionner.
+     * @param selected {@code true} pour la sélectionner, ou
+     * {@code false} pour la désélectionner.
      */
     public void setThumbnailSelected(boolean selected) {
         if (selected) {
@@ -259,7 +254,7 @@ public class Thumbnail extends ImagePanel {
     /**
      * Indique si le groupe de la vignette est sélectioné.
      *
-     * @return <code>true</code> si le groupe de la vignette est sélectionné.
+     * @return {@code true} si le groupe de la vignette est sélectionné.
      */
     public boolean isGroupSelected() {
         return groupCheck.isSelected();
@@ -268,8 +263,8 @@ public class Thumbnail extends ImagePanel {
     /**
      * Modifie l'état de sélection du groupe.
      *
-     * @param selected <code>true</code> pour la sélection de groupe, ou
-     * <code>false</code> pour la désélection de groupe.
+     * @param selected {@code true} pour la sélection de groupe, ou
+     * {@code false} pour la désélection de groupe.
      */
     public void setGroupSelected(boolean selected) {
         groupCheck.setSelected(selected);

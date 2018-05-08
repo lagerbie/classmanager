@@ -19,14 +19,8 @@
  */
 package thot.gui;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
-
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -34,18 +28,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import thot.StudentCore;
-import thot.model.Constants;
+import thot.utils.Constants;
 
 /**
  * Fenêtre de login des élèves.
@@ -289,7 +275,7 @@ public class Login extends JFrame {
 
     /**
      * Affiche la fenêtre de login.
-     * Remplace la fonction <code>setVisible(true)</code>.
+     * Remplace la fonction {@code setVisible(true)}.
      *
      * @param visible l'état visible ou non.
      */

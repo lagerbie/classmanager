@@ -15,7 +15,7 @@ public interface ProgessListener extends EventListener {
 //     * Notification du changement du mode déterminé de la progression.
 //     *
 //     * @param source la source de l'évènement.
-//     * @param determinated le mode déterminé (<code>true</code> si un pourcentage
+//     * @param determinated le mode déterminé ({@code true} si un pourcentage
 //     *        de progression peut être affiché.
 //     * @since version 0.95 - version 0.98
 //     */
@@ -25,7 +25,7 @@ public interface ProgessListener extends EventListener {
      * Notifiction du démmarrage du processus.
      *
      * @param source la source de l'évènement.
-     * @param determinated le mode déterminé (<code>true</code> si un pourcentage de progression peut être
+     * @param determinated le mode déterminé ({@code true} si un pourcentage de progression peut être
      *         affiché.
      *
      * @since version 0.95 - version 0.98

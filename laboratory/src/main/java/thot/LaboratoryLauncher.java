@@ -28,10 +28,10 @@ import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.LaboratoryFrame;
 import thot.gui.Resources;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Converter;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 import thot.utils.VLCconverter;
 

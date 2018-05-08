@@ -56,7 +56,7 @@ public class ApplicationsList {
      * Ajoute une application.
      *
      * @param application l'application à ajouter.
-     * @return <code>true</true> si l'application a été ajoutée.
+     * @return {@code true</true> si l'application a été ajoutée.
      */
     public boolean addApplication(Application application) {
         return applications.add(application);
@@ -142,7 +142,7 @@ public class ApplicationsList {
      * Retourne l'application avec le nom donné.
      *
      * @param name le nom de l'application.
-     * @return l'application avec le nom donné ou <code>null</code>.
+     * @return l'application avec le nom donné ou {@code null}.
      */
     private Application getApplicationByName(String name) {
         for (Application application : applications) {

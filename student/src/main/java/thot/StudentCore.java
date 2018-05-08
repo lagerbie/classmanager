@@ -35,20 +35,22 @@ import thot.dll.WindowsUtilities;
 import thot.gui.GuiUtilities;
 import thot.gui.Login;
 import thot.gui.Resources;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.CommandType;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.screen.BlackWindow;
-import thot.screen.CaptureScreen;
-import thot.screen.DeskTopWindow;
-import thot.screen.ScreenWindow;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandType;
+import thot.supervision.CommandXMLUtilities;
+import thot.supervision.screen.BlackWindow;
+import thot.supervision.screen.CaptureScreen;
+import thot.supervision.screen.DeskTopWindow;
+import thot.supervision.screen.ScreenWindow;
+import thot.supervision.voip.Voip;
+import thot.utils.Constants;
+import thot.utils.FileTransfert;
+import thot.utils.ProgressListener;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
-import thot.voip.Voip;
 
 /**
  * Coeur de l'application de supervision élève.
@@ -362,7 +364,7 @@ public class StudentCore implements Runnable {
     /**
      * Autoriser ou interdire l'accès à Internet.
      *
-     * @param block <code>true</code> pour bloquer.
+     * @param block {@code true} pour bloquer.
      */
     private void setWebEnable(boolean block) {
         internetBlocked = block;

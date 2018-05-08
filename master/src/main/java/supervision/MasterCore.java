@@ -35,23 +35,23 @@ import supervision.application.Application;
 import supervision.application.ApplicationUtilities;
 import supervision.application.ApplicationsDialog;
 import supervision.application.ApplicationsList;
-import thot.FileTransfert;
-import thot.ProgressListener;
 import thot.gui.GuiConstants;
 import thot.gui.Resources;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.CommandType;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.screen.CaptureScreen;
-import thot.screen.ScreenWindow;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandType;
+import thot.supervision.CommandXMLUtilities;
+import thot.supervision.screen.CaptureScreen;
+import thot.supervision.screen.ScreenWindow;
+import thot.supervision.voip.Voip;
 import thot.thumb.ProcessMosaique;
-import thot.utils.CommandXMLUtilities;
+import thot.utils.Constants;
+import thot.utils.FileTransfert;
+import thot.utils.ProgressListener;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
-import thot.voip.Voip;
 
 /**
  * Coeur de la supervision.
@@ -740,7 +740,7 @@ public class MasterCore implements Runnable {
      *
      * @param addressIP l'adresse IP de l'élève à cherché.
      *
-     * @return l'élève trouvé ou <code>null</code>.
+     * @return l'élève trouvé ou {@code null}.
      */
     public Student getStudentAtIP(String addressIP) {
         return studentClass.getStudent(addressIP);
@@ -751,7 +751,7 @@ public class MasterCore implements Runnable {
      *
      * @param login le login de l'élève à cherché.
      *
-     * @return l'élève trouvé ou <code>null</code>.
+     * @return l'élève trouvé ou {@code null}.
      */
     public Student getStudentAtLogin(String login) {
         return studentClass.getStudentWhithLogin(login);

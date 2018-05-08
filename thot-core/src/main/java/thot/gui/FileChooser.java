@@ -31,7 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * Composant pour chager et sauvegarder des fichiers.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class FileChooser {
 
@@ -99,10 +99,9 @@ public class FileChooser {
     /**
      * Reourne le fichier sélectionné.
      *
-     * @param type le type soit <code>FileChooser.LOAD</code> ou soit
-     *         <code>FileChooser.SAVE</code>.
+     * @param type le type soit {@code FileChooser.LOAD} ou soit {@code FileChooser.SAVE}.
      *
-     * @return le fichier sélectionné ou <code>null</code> si l'opération a été annulée.
+     * @return le fichier sélectionné ou {@code null} si l'opération a été annulée.
      */
     public File getSelectedFile(int type) {
         if (chooserSwing == null) {
@@ -124,10 +123,9 @@ public class FileChooser {
     /**
      * Reourne le fichier sélectionné.
      *
-     * @param type le type soit <code>FileChooser.LOAD</code> ou soit
-     *         <code>FileChooser.SAVE</code>.
+     * @param type le type soit {@code FileChooser.LOAD} ou soit {@code FileChooser.SAVE}.
      *
-     * @return le fichier sélectionné ou <code>null</code> si l'opération a été annulée.
+     * @return le fichier sélectionné ou {@code null} si l'opération a été annulée.
      */
     private File getSelectedFileAWT(int type) {
         File file = null;
@@ -174,8 +172,8 @@ public class FileChooser {
     }
 
     /**
-     * Détermine si le filtre "tous les fichiers" est disponible. Si
-     * <code>true</code> le filtre "tous les fichiers" devient le filtre actif.
+     * Détermine si le filtre "tous les fichiers" est disponible. Si {@code true} le filtre "tous les fichiers" devient
+     * le filtre actif.
      *
      * @param accept si le filtre "tous les fichiers" est actif.
      */

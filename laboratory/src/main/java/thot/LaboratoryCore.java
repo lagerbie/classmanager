@@ -46,15 +46,17 @@ import thot.exception.ThotCodeException;
 import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.Constants;
-import thot.model.Index;
-import thot.model.ProjectFiles;
-import thot.model.ThotPort;
-import thot.utils.CommandXMLUtilities;
+import thot.labo.LaboCore;
+import thot.labo.ProjectFiles;
+import thot.labo.index.Index;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Converter;
+import thot.utils.Server;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 
 /*
@@ -300,7 +302,7 @@ public class LaboratoryCore extends LaboCore {
      *
      * @param file le chemein du fichier a charger.
      *
-     * @return <code>true<\code> si le chargement s'est bien passé.
+     * @return {@code true} si le chargement s'est bien passé.
      */
     @Override
     public boolean audioLoad(File file) {
@@ -371,7 +373,7 @@ public class LaboratoryCore extends LaboCore {
      *
      * @param file le fichier où l'on veut enregistrer.
      *
-     * @return <code>true<\code> si la sauvegarde s'est bien passée.
+     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     @Override
     public boolean saveAudio(File file) {
@@ -446,7 +448,7 @@ public class LaboratoryCore extends LaboCore {
      *
      * @param command la commande à vérifier.
      *
-     * @return <code>true</code> si il faut télécharger un fichier.
+     * @return {@code true} si il faut télécharger un fichier.
      */
     private boolean isDownloadFile(Command command) {
         boolean download = false;
@@ -470,8 +472,8 @@ public class LaboratoryCore extends LaboCore {
      *
      * @param command la commande à exécuter.
      *
-     * @return <code>true</code> si la commande s'est bien effectuée, sinon
-     *         retourne <code>false</code>.
+     * @return {@code true} si la commande s'est bien effectuée, sinon
+     *         retourne {@code false}.
      */
     private boolean executeCommand(Command command) {
         boolean isExecute = true;

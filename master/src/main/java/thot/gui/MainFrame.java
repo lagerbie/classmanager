@@ -42,8 +42,8 @@ import javax.swing.event.PopupMenuListener;
 import supervision.MasterCore;
 import supervision.MasterCoreListener;
 import supervision.Student;
-import thot.model.Constants;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 
 /**
@@ -747,7 +747,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param id l'identifiant de l'élève (= adresse IP).
      *
-     * @return la vignette élève, ou <code>null</code> si il n'y a pas d'élève avec l'identifiant.
+     * @return la vignette élève, ou {@code null} si il n'y a pas d'élève avec l'identifiant.
      */
     private Thumbnail getThumbnail(String id) {
         return thumbnails.get(id);
@@ -889,8 +889,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Modifie l'état de sélection d'un groupe.
      *
      * @param group l'identifiant du groupe.
-     * @param select <code>true</code> pour la sélection de groupe, ou
-     *         <code>false</code> pour la désélection de groupe.
+     * @param select {@code true} pour la sélection de groupe, ou
+     *         {@code false} pour la désélection de groupe.
      */
     private void selectGroup(int group, boolean select) {
         for (Thumbnail thumbnail : thumbnails.values()) {
@@ -917,7 +917,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Affiche ou cache le menu de création de groupes.
      *
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code> pour revenir à l'affichage
+     * @param visible {@code true} pour l'afficher, ou {@code false} pour revenir à l'affichage
      *         standard.
      */
     private void showGroupsCreation(boolean visible) {
@@ -941,7 +941,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Affiche ou cache la sélection potentiel de groupes supplémentaires.
      *
-     * @param visible <code>true</code> pour l'afficher, ou <code>false</code> pour revenir à l'affichage
+     * @param visible {@code true} pour l'afficher, ou {@code false} pour revenir à l'affichage
      *         standard.
      */
     private void setGroupSuppButtonsVisible(boolean visible) {
@@ -973,8 +973,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Sélectionne la vignette élève indiquée par l'identifiant.
      *
      * @param id l'indentifiant de la vignette.
-     * @param selected <code>true</code> pour la sélectionner, ou
-     *         <code>false</code> pour la désélectionner.
+     * @param selected {@code true} pour la sélectionner, ou
+     *         {@code false} pour la désélectionner.
      */
     private void setThumbSelected(String id, boolean selected) {
         Thumbnail thumbnail = getThumbnail(id);
@@ -988,7 +988,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param button le bouton à tester
      *
-     * @return <code>true</code> si le bouton est un bouton de sélection de
+     * @return {@code true} si le bouton est un bouton de sélection de
      *         groupe.
      */
     private boolean isGroupButton(JButton button) {
@@ -1037,8 +1037,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Modifie la possibilité de sélectionner des groupes.
      *
-     * @param enable <code>true</code> pour pouvoir sélectioner des groupes, ou
-     *         <code>false</code> pour l'impossibilité de sélection.
+     * @param enable {@code true} pour pouvoir sélectioner des groupes, ou
+     *         {@code false} pour l'impossibilité de sélection.
      */
     private void setGroupButtonsEnabled(boolean enable) {
         groupAbutton.setEnabled(enable);
@@ -1066,7 +1066,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Modifie la possibilité de sélectionner des fonctions de groupes.
      *
-     * @param enable <code>true</code> pour pouvoir sélectioner des fonctions de groupes, ou <code>false</code>
+     * @param enable {@code true} pour pouvoir sélectioner des fonctions de groupes, ou {@code false}
      *         pour l'impossibilité de sélection.
      */
     private void setGroupFunctionsEnabled(boolean enable) {
@@ -1158,9 +1158,9 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * Affiche une boîte de dialogue avec une entrée texte.
      *
      * @param message le message à afficher.
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return le texte qui a été validé ou <code>null</code> si l'opération a été annulée.
+     * @return le texte qui a été validé ou {@code null} si l'opération a été annulée.
      */
     protected String showInputDialog(String message, String initValue) {
         return (String) GuiUtilities.showInputDialog(this, message, null, initValue);
@@ -1171,8 +1171,8 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @param message le message à afficher.
      *
-     * @return <code>JOptionPane.YES_OPTION</code> si le bouton oui a été cliqué
-     *         ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
+     * @return {@code JOptionPane.YES_OPTION} si le bouton oui a été cliqué
+     *         ou {@code JOptionPane.NO_OPTION} si c'est le bouton non.
      */
     protected int showOptionDialog(String message) {
         return GuiUtilities.showOptionDialog(this, message, null, null);
@@ -1195,7 +1195,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      * @param values les valeurs que l'on peut sélectionnées.
      * @param initialValue la valeur sélectionnée au départ.
      *
-     * @return l'Object sélectionnée ou <code>null</code> si pas de sélection.
+     * @return l'Object sélectionnée ou {@code null} si pas de sélection.
      */
     private Object showInputDialog(String message, String title,
             Object[] values, Object initialValue) {

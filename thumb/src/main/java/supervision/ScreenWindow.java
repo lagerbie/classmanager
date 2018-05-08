@@ -19,40 +19,21 @@
  */
 package supervision;
 
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.Window;
-
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JWindow;
-import javax.swing.SwingUtilities;
-
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+
+import javax.swing.*;
 
 /**
  * Classe permettant d'afficher un écran d'un autre poste.
@@ -264,7 +245,7 @@ public class ScreenWindow implements Runnable {
 
     /**
      * Modifie s'il faut initialiser le focus quand l'on démarre la thread.
-     * Par défaut <code>initKeyboardFocus</code> est à <code>false</code>.
+     * Par défaut {@code initKeyboardFocus} est à {@code false}.
      *
      * @param initFocus l'état pour initialiser le focus.
      */
@@ -356,7 +337,7 @@ public class ScreenWindow implements Runnable {
 
     /**
      * Montre ou cache la fenêtre.
-     * Remplace la fonction <code>setVisible(visible)</code>.
+     * Remplace la fonction {@code setVisible(visible)}.
      *
      * @param visible la visibilité de la fenêtre.
      */
@@ -420,9 +401,9 @@ public class ScreenWindow implements Runnable {
     /**
      * Bascule la fenêtre en plein écran ou en taille normale.
      * Permet de mettre la fenêtre en plein écran ou de la redimensionner à la
-     * taille précisée dans le <code>start()</code>.
+     * taille précisée dans le {@code start()}.
      *
-     * @param fullscreen <code>true</code> pour passer en mode plein écran.
+     * @param fullscreen {@code true} pour passer en mode plein écran.
      */
     private void setFullscreen(boolean fullscreen) {
         this.fullscreen = fullscreen;

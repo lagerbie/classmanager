@@ -19,34 +19,22 @@
  */
 package supervision.application;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import thot.model.Constants;
-import thot.utils.Utilities;
+import javax.swing.*;
+
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
+import thot.utils.Constants;
+import thot.utils.Utilities;
 
 /**
  * Boite de dialogue pour l'édition des index.

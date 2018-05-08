@@ -19,30 +19,22 @@
  */
 package thot.gui;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.JDialog;
-
 import java.util.ArrayList;
+
+import javax.swing.*;
 
 /**
  * Canvas pour afficher la vidéo ou des images.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class VideoCanvas extends Canvas {
     private static final long serialVersionUID = 19000L;
@@ -170,8 +162,7 @@ public class VideoCanvas extends Canvas {
     /**
      * Permet de passer l'image en plein écran.
      *
-     * @param full <code>true</code> pour le plein écran et <code>false</code>
-     * pour revenir en taille normale.
+     * @param full {@code true} pour le plein écran et {@code false} pour revenir en taille normale.
      */
     public void setFullScreen(boolean full) {
         fireFullScreenStateChanged(full);
@@ -212,11 +203,9 @@ public class VideoCanvas extends Canvas {
 //            height = (double) image.getHeight(null) / fullScreen.getHeight();
 
 //            if(width > height)
-//                defaultFullScreenImage = image.getScaledInstance(
-//                        fullScreen.getWidth(), -1, Image.SCALE_DEFAULT);
+//                defaultFullScreenImage = image.getScaledInstance(fullScreen.getWidth(), -1, Image.SCALE_DEFAULT);
 //            else
-//                defaultFullScreenImage = image.getScaledInstance(
-//                        -1, fullScreen.getHeight(), Image.SCALE_DEFAULT);
+//                defaultFullScreenImage = image.getScaledInstance(-1, fullScreen.getHeight(), Image.SCALE_DEFAULT);
         }
         this.repaint();
     }
@@ -235,22 +224,18 @@ public class VideoCanvas extends Canvas {
             double height = (double) image.getHeight(this) / getHeight();
 
             if (width > height) {
-                scaledImage = image.getScaledInstance(
-                        getWidth(), -1, Image.SCALE_DEFAULT);
+                scaledImage = image.getScaledInstance(getWidth(), -1, Image.SCALE_DEFAULT);
             } else {
-                scaledImage = image.getScaledInstance(
-                        -1, getHeight(), Image.SCALE_DEFAULT);
+                scaledImage = image.getScaledInstance(-1, getHeight(), Image.SCALE_DEFAULT);
             }
 
             width = (double) image.getWidth(this) / fullScreen.getWidth();
             height = (double) image.getHeight(this) / fullScreen.getHeight();
 
             if (width > height) {
-                fullScreenImage = image.getScaledInstance(
-                        fullScreen.getWidth(), -1, Image.SCALE_DEFAULT);
+                fullScreenImage = image.getScaledInstance(fullScreen.getWidth(), -1, Image.SCALE_DEFAULT);
             } else {
-                fullScreenImage = image.getScaledInstance(
-                        -1, fullScreen.getHeight(), Image.SCALE_DEFAULT);
+                fullScreenImage = image.getScaledInstance(-1, fullScreen.getHeight(), Image.SCALE_DEFAULT);
             }
         }
         this.repaint();
@@ -289,8 +274,7 @@ public class VideoCanvas extends Canvas {
     }
 
     /**
-     * Dessine le sous-titre sur le graphique avec la largeur et la hauteur de
-     * la fenêtre de dessin.
+     * Dessine le sous-titre sur le graphique avec la largeur et la hauteur de la fenêtre de dessin.
      *
      * @param g le graphique où l'on dessine.
      * @param witdh la largeur du graphique.
@@ -314,12 +298,12 @@ public class VideoCanvas extends Canvas {
             ArrayList<String> lines = new ArrayList<>(2);
 
             StringBuilder buffer = new StringBuilder(32);
-            for (int i = 0; i < words.length; i++) {
-                if (fontMetrics.stringWidth(buffer.toString() + words[i] + " ") < witdh) {
-                    buffer.append(words[i]).append(" ");
+            for (String word : words) {
+                if (fontMetrics.stringWidth(buffer.toString() + word + " ") < witdh) {
+                    buffer.append(word).append(" ");
                 } else {
                     lines.add(buffer.toString());
-                    buffer = new StringBuilder(words[i] + " ");
+                    buffer = new StringBuilder(word + " ");
                 }
             }
             lines.add(buffer.toString());

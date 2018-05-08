@@ -11,7 +11,7 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.TagList;
+import thot.labo.TagList;
 import thot.utils.Utilities;
 
 /**

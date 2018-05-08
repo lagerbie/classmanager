@@ -19,26 +19,17 @@
  */
 package labo.gui;
 
-import thot.gui.WaitDialog;
-import thot.gui.Resources;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.io.File;
 
+import javax.swing.*;
+
 import labo.LaboModule;
-import thot.model.ProjectFiles;
 import thot.gui.GuiUtilities;
+import thot.gui.Resources;
+import thot.gui.WaitDialog;
+import thot.labo.ProjectFiles;
 import thot.utils.Utilities;
 
 /**

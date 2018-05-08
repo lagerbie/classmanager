@@ -19,7 +19,8 @@
  */
 package labo.gui;
 
-import java.awt.Window;
+import java.awt.*;
+
 import thot.gui.GuiUtilities;
 
 /**
@@ -48,8 +49,8 @@ public class Gui {
      * Affiche une boîte de dialogue avec une entrée texte.
      *
      * @param message le message à afficher.
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
-     * @return le texte qui a été validé ou <code>null</code> si l'opération a
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
+     * @return le texte qui a été validé ou {@code null} si l'opération a
      * été annulée.
      * @version 1.82
      */
@@ -64,7 +65,7 @@ public class Gui {
      * @param title le titre de la fenêtre.
      * @param values les valeurs que l'on peut sélectionnées.
      * @param initialValue la valeur sélectionnée au départ.
-     * @return l'Object sélectionnée ou <code>null</code> si pas de sélection.
+     * @return l'Object sélectionnée ou {@code null} si pas de sélection.
      * @version 1.82
      */
     public Object showInputDialog(String message, String title,
@@ -76,8 +77,8 @@ public class Gui {
      * Afficge une boîte de dialogue posant une question.
      *
      * @param message le message à afficher.
-     * @return <code>JOptionPane.YES_OPTION</code> si le bouton oui a été cliqué
-     * ou <code>JOptionPane.NO_OPTION</code> si c'est le bouton non.
+     * @return {@code JOptionPane.YES_OPTION} si le bouton oui a été cliqué
+     * ou {@code JOptionPane.NO_OPTION} si c'est le bouton non.
      * @version 1.82
      */
     public int showOptionDialog(String message) {

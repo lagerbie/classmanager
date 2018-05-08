@@ -25,7 +25,7 @@ import java.util.EventListener;
  * Listener pour les processus de traitement.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public interface TimeProcessingListener extends EventListener {
 

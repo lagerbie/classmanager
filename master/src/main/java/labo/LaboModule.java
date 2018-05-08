@@ -33,20 +33,20 @@ import org.slf4j.LoggerFactory;
 import supervision.MasterCore;
 import supervision.Student;
 import supervision.StudentClass;
-import thot.LaboCore;
-import thot.Server;
 import thot.audio.DummyAudioPlayer;
 import thot.audio.DummyAudioRecorder;
 import thot.gui.GuiConstants;
 import thot.gui.Resources;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.CommandType;
-import thot.model.Constants;
-import thot.model.ThotPort;
-import thot.utils.CommandXMLUtilities;
+import thot.labo.LaboCore;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandType;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
 import thot.utils.Converter;
+import thot.utils.Server;
+import thot.utils.ThotPort;
 import thot.utils.Utilities;
 
 /**
@@ -152,7 +152,7 @@ public class LaboModule extends LaboCore {
      * @param address l'adresse IP de l'élève.
      * @param xml la commande à envoyer.
      *
-     * @return <code>true</code> si la commande a bien été exécuter.
+     * @return {@code true} si la commande a bien été exécuter.
      */
     private boolean sendCommand(String xml, String address) {
         return Utilities.sendXml(xml, address, ThotPort.masterToStudentPort);

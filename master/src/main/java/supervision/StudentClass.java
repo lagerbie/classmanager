@@ -19,9 +19,9 @@
  */
 package supervision;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Liste des élèves actifs durant la session.
@@ -69,7 +69,7 @@ public class StudentClass {
      *
      * @param addressIP l'adresse IP de l'élève.
      * @param group le groupe affecté à l'élève.
-     * @return <code>true</code> si l'élève à été ajouté ou si l'adresse IP est
+     * @return {@code true} si l'élève à été ajouté ou si l'adresse IP est
      * déjà référencée.
      */
     public boolean addStudent(String addressIP, int group) {
@@ -104,7 +104,7 @@ public class StudentClass {
      * Retourne l'élève possédant l'adresse IP indiquée.
      *
      * @param addressIP l'adresse IP.
-     * @return l'élève avec l'adresse IP s'il existe ou <code>null</code>.
+     * @return l'élève avec l'adresse IP s'il existe ou {@code null}.
      */
     public Student getStudent(String addressIP) {
         if (addressIP == null) {
@@ -123,7 +123,7 @@ public class StudentClass {
      * Retourne l'élève avec le login spécifié.
      *
      * @param login le login de l'élève à cherché.
-     * @return l'élève trouvé ou <code>null</code>.
+     * @return l'élève trouvé ou {@code null}.
      */
     public Student getStudentWhithLogin(String login) {
         if (login == null) {
@@ -142,7 +142,7 @@ public class StudentClass {
     /**
      * Retourne le premier élève de la liste.
      *
-     * @return le premier élève ou <code>null</code> si la liste est vide.
+     * @return le premier élève ou {@code null} si la liste est vide.
      */
     public Student getFirstStudent() {
         if (students.isEmpty()) {
@@ -176,7 +176,7 @@ public class StudentClass {
      * Indique si le groupe a des élèves.
      *
      * @param group l'indice du groupe.
-     * @return <code>true</code> si au moins un élève est affecté à ce groupe.
+     * @return {@code true} si au moins un élève est affecté à ce groupe.
      */
     public boolean hasMemberInGroup(int group) {
         boolean hasMember = false;
@@ -231,7 +231,7 @@ public class StudentClass {
      * Retourne l'élève suivant un autre élève dans la liste.
      *
      * @param student l'élève à partir duquel commence la recherche.
-     * @return l'élève suivant dans la liste ou <code>null</code> si il n'y pas
+     * @return l'élève suivant dans la liste ou {@code null} si il n'y pas
      * d'élève suivant.
      */
     public Student next(Student student) {

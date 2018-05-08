@@ -471,7 +471,7 @@ public class DiaporamaDialog extends JDialog {
 //     * @return le temps en millisecondes.
 //     * @since version 1.02
 //     */
-//    private long getValue(JTextField field) {
+//    private long getVlcValue(JTextField field) {
 //        String value = field.getText();
 //        String[] split = value.split("[:,.]");
 //        long minute = Utilities.parseStringAsLong(split[0].trim());
@@ -531,7 +531,7 @@ public class DiaporamaDialog extends JDialog {
 //        long begin = 0;
 //        for(IndexFields indexFields : indexesFields) {
 //            setValue(indexFields.beginField, begin);
-//            begin += getValue(indexFields.lengthField);
+//            begin += getVlcValue(indexFields.lengthField);
 //            setValue(indexFields.endField, begin);
 //        }
 //
@@ -585,7 +585,7 @@ public class DiaporamaDialog extends JDialog {
 //        long duration = 0;
 //        int size = indexesFields.size();
 //        for(IndexFields indexFields : indexesFields) {
-//            duration += getValue(indexFields.lengthField);
+//            duration += getVlcValue(indexFields.lengthField);
 //        }//end for
 //
 //        if(duration > Core.TIME_MAX) {
@@ -599,8 +599,8 @@ public class DiaporamaDialog extends JDialog {
 //        List<Index> indexList = new ArrayList<Index>(size);
 //        for(int i=0; i<size; i++) {
 //            IndexFields indexFields = indexesFields.get(i);
-//            long begin = getValue(indexFields.beginField);
-//            long end = getValue(indexFields.endField);
+//            long begin = getVlcValue(indexFields.beginField);
+//            long end = getVlcValue(indexFields.endField);
 //            String subtitle = indexFields.subtitleField.getText();
 //            if(subtitle != null && subtitle.isEmpty())
 //                subtitle = null;
@@ -643,12 +643,12 @@ public class DiaporamaDialog extends JDialog {
 //    /**
 //     * Indique si il y a des index non null.
 //     * 
-//     * @return <code>true</code> si il y a des index non null.
+//     * @return {@code true} si il y a des index non null.
 //     * @since version 1.02
 //     */
 //    private boolean hasIndex() {
 //        for(IndexFields indexFields : indexesFields) {
-//            if(getValue(indexFields.lengthField) > 0)
+//            if(getVlcValue(indexFields.lengthField) > 0)
 //                return true;
 //        }
 //        return false;

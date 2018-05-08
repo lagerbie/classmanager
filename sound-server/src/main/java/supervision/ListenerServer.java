@@ -19,15 +19,15 @@
  */
 package supervision;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 
 /**
  * Classe pour recevoir des données audio en mode serveur.
@@ -177,7 +177,7 @@ public class ListenerServer implements Runnable {
      * Indique si la ligne est ouverte, c'est à dire si le système a réservé les
      * ressources et si elle est opérationnelle.
      *
-     * @return <code>true</code> si la ligne est ouverte.
+     * @return {@code true} si la ligne est ouverte.
      */
     public boolean isLineOpen() {
         if (sourceDataLine == null) {

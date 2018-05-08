@@ -19,13 +19,12 @@
  */
 package thot.gui;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.MouseListener;
-import javax.swing.JPanel;
 
-import thot.model.Constants;
+import javax.swing.*;
+
+import thot.utils.Constants;
 
 /**
  * Panneau pour afficher les différents groupes lors de la création de groupes.

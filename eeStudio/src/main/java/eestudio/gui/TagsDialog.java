@@ -8,7 +8,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 import eestudio.Core;
-import thot.model.TagList;
+import thot.labo.TagList;
 
 /**
  * Boite de dialogue pour redimensionner un index.

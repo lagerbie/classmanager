@@ -19,21 +19,16 @@
  */
 package thot.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 /**
- *
  * Panel pour l'image de fond.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class FilterPanel extends JPanel {
     private static final long serialVersionUID = 19000L;
@@ -73,9 +68,7 @@ public class FilterPanel extends JPanel {
 
         this.setMaximumSize(dim);
         this.setPreferredSize(dim);
-//        this.setBorder(
-//                BorderFactory.createCompoundBorder(titledBorder,
-//                BorderFactory.createEmptyBorder(-10, -10, -10, -10)));
+//        this.setBorder(BorderFactory.createCompoundBorder(titledBorder, BorderFactory.createEmptyBorder(-10, -10, -10, -10)));
     }
 
     /**
@@ -98,13 +91,12 @@ public class FilterPanel extends JPanel {
         Font font = new Font(Font.SANS_SERIF, Font.BOLD, 11);
         Color color = new Color(0, 0, 0, 97);
 
-        titledBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createEmptyBorder(0, 0, 0, 0),
-                title, position, TitledBorder.TOP, font, color);
+        titledBorder = BorderFactory
+                .createTitledBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0), title, position, TitledBorder.TOP,
+                        font, color);
 
         this.setBorder(
-                BorderFactory.createCompoundBorder(titledBorder,
-                BorderFactory.createEmptyBorder(-20, -20, -20, -20)));
+                BorderFactory.createCompoundBorder(titledBorder, BorderFactory.createEmptyBorder(-20, -20, -20, -20)));
 
         yOffset = (dimension.height - rectHeight) / 2;
     }

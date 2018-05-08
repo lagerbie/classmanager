@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class GuiUtilities {
 
@@ -101,10 +101,10 @@ public class GuiUtilities {
      * @param parent la fenêtre parente.
      * @param message le message à afficher.
      * @param options les valeurs que l'on peut sélectionnées (null si texte).
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return <code>YES_OPTION</code> si le bouton oui a été cliqué ou
-     *         <code>NO_OPTION</code> si c'est le bouton non.
+     * @return {@code YES_OPTION} si le bouton oui a été cliqué ou
+     *         {@code NO_OPTION} si c'est le bouton non.
      */
     public static int showOptionDialog(Window parent, String message, Object[] options, Object initValue) {
         return JOptionPane.showOptionDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
@@ -164,9 +164,9 @@ public class GuiUtilities {
      * @param parent la fenêtre parente.
      * @param message le message à afficher.
      * @param options les valeurs que l'on peut sélectionnées (null si texte).
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return l'Object sélectionné ou <code>null</code> si pas de sélection.
+     * @return l'Object sélectionné ou {@code null} si pas de sélection.
      */
     public static Object showInputDialog(Component parent, String message, Object[] options, Object initValue) {
         return JOptionPane.showInputDialog(parent, message, UIManager.getString("OptionPane.inputDialogTitle"),
@@ -180,9 +180,9 @@ public class GuiUtilities {
      * @param message le message à afficher.
      * @param title le titre de la fenêtre.
      * @param options les valeurs que l'on peut sélectionnées (null si texte).
-     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return l'Object sélectionné ou <code>null</code> si pas de sélection.
+     * @return l'Object sélectionné ou {@code null} si pas de sélection.
      */
     public static Object showInputDialog(Component parent, String message, String title, Object[] options,
             Object initValue) {

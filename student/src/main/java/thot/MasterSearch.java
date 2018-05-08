@@ -27,11 +27,12 @@ import java.net.SocketTimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandType;
-import thot.model.Constants;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandType;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
+import thot.utils.ProgressThread;
 import thot.utils.Utilities;
 
 /**

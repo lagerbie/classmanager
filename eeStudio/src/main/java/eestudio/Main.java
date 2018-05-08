@@ -15,7 +15,7 @@ import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.CommandXMLUtilities;
 import thot.utils.Utilities;
 
 /**
@@ -199,7 +199,7 @@ public class Main {
      * @param filever le chemin de l'exécutable "filever.exe"
      * @param file le fichier dont on veut le numéro de version.
      *
-     * @return le numéro de version ou <code>null</code>.*
+     * @return le numéro de version ou {@code null}.*
      */
     private static String getWindowsFileVersion(File filever, File file) {
         StringBuilder out = new StringBuilder(1024);

@@ -19,16 +19,15 @@
  */
 package thot.gui;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import javax.swing.JPanel;
+import java.awt.*;
+
+import javax.swing.*;
 
 /**
  * Panneau simple pour l'affichage d'une image.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class ImagePanel extends JPanel {
     private static final long serialVersionUID = 19000L;
@@ -39,8 +38,7 @@ public class ImagePanel extends JPanel {
     private Image background;
 
     /**
-     * Initialisation du panneau avec une image. Le panneau est redimensionné
-     * pour s'ajuster aux dimensions de l'image.
+     * Initialisation du panneau avec une image. Le panneau est redimensionné pour s'ajuster aux dimensions de l'image.
      *
      * @param image l'image à afficher.
      */
@@ -49,8 +47,7 @@ public class ImagePanel extends JPanel {
     }
 
     /**
-     * Initialisation du panneau avec une image. L'image est redimensionnée aux
-     * dimensions indiquées.
+     * Initialisation du panneau avec une image. L'image est redimensionnée aux dimensions indiquées.
      *
      * @param image l'image à afficher.
      * @param width la largeur du panneau.

@@ -52,15 +52,15 @@ public class XMLUtilities {
     /**
      * Entête du fichier xml.
      */
-    protected static final String xml_header = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+    protected static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
     /**
      * Balise ouvrant une section CDATA.
      */
-    private static final String cdata_start = "<![CDATA[";
+    private static final String CDATA_START = "<![CDATA[";
     /**
      * Balise fermant une section CDATA.
      */
-    private static final String cdata_end = "]]>";
+    private static final String CDATA_END = "]]>";
 
     /**
      * Retourne la liste de String contenue dans la chaine XML.
@@ -194,7 +194,7 @@ public class XMLUtilities {
      * @return la section CDATA.
      */
     protected static String createCDATA(String value) {
-        return cdata_start + value + cdata_end;
+        return CDATA_START + value + CDATA_END;
     }
 
     /**

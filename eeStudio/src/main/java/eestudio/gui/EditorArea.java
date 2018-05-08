@@ -384,14 +384,14 @@ public class EditorArea extends JPanel {
     /**
      * Modifie les les attributs du texte sélectionné.
      *
-     * @param fontName le nom de la nouvelle police ou <code>null</code>.
-     * @param bold la définition du gras ou <code>null</code>.
-     * @param italic la définition de l'italique ou <code>null</code>.
-     * @param underline la définition de sous-lignement ou <code>null</code>.
-     * @param strikeThrough la définition du barré ou <code>null</code>.
-     * @param size la nouvelle taille ou <code>null</code>.
-     * @param color la nouvelle couleur ou <code>null</code>.
-     * @param alignment le nouvel alignement ou <code>null</code>.
+     * @param fontName le nom de la nouvelle police ou {@code null}.
+     * @param bold la définition du gras ou {@code null}.
+     * @param italic la définition de l'italique ou {@code null}.
+     * @param underline la définition de sous-lignement ou {@code null}.
+     * @param strikeThrough la définition du barré ou {@code null}.
+     * @param size la nouvelle taille ou {@code null}.
+     * @param color la nouvelle couleur ou {@code null}.
+     * @param alignment le nouvel alignement ou {@code null}.
      */
     private void changeAttributes(Boolean bold, Boolean italic, Boolean underline, Boolean strikeThrough, Integer size,
             Color color, String fontName, Integer alignment) {

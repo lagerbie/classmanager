@@ -19,10 +19,9 @@
  */
 package thot.gui;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import javax.swing.JPanel;
+import java.awt.*;
+
+import javax.swing.*;
 
 /**
  * Composant pour la sélection de groupe.
@@ -62,7 +61,7 @@ public class GroupCheck extends JPanel {
     /**
      * Indique si il est sélectionné.
      *
-     * @return <code>true</code> si il est sélectionné.
+     * @return {@code true} si il est sélectionné.
      */
     public boolean isSelected() {
         return selected;
@@ -71,7 +70,7 @@ public class GroupCheck extends JPanel {
     /**
      * Modifie l'état de sélection.
      *
-     * @param selected <code>true</code> pour sélectionné.
+     * @param selected {@code true} pour sélectionné.
      */
     public void setSelected(boolean selected) {
         this.selected = selected;

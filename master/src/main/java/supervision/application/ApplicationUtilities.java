@@ -20,15 +20,13 @@
 package supervision.application;
 
 import java.io.File;
-
 import java.util.Iterator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import thot.model.Constants;
+import thot.utils.Constants;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
 
@@ -127,7 +125,7 @@ public class ApplicationUtilities extends XMLUtilities {
      */
     private static String getXML(ApplicationsList applications) {
         StringBuilder element = new StringBuilder(1024);
-        element.append(xml_header);
+        element.append(XML_HEADER);
         element.append(createElementStart(element_applications));
         for (Iterator<Application> it = applications.iterator(); it.hasNext();) {
             element.append(getXMLDescription(it.next()));
@@ -173,7 +171,7 @@ public class ApplicationUtilities extends XMLUtilities {
      * Parse le noeud xml comme si c'était une liste d'applications.
      *
      * @param node le noeud xml.
-     * @return la liste d'applications ou <code>null</code>.
+     * @return la liste d'applications ou {@code null}.
      */
     private static ApplicationsList parseNodeAsApplicationsList(Node node) {
         ApplicationsList applications = null;
@@ -198,7 +196,7 @@ public class ApplicationUtilities extends XMLUtilities {
      * Parse le noeud xml comme si c'était une application.
      *
      * @param node le noeud xml.
-     * @return l'application ou <code>null</code>.
+     * @return l'application ou {@code null}.
      */
     private static Application parseNodeAsApplication(Node node) {
         Application application = null;

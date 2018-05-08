@@ -19,13 +19,11 @@
  */
 package thot.gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.*;
 
-import thot.model.Constants;
+import javax.swing.*;
+
+import thot.utils.Constants;
 
 /**
  * Composant pour afficher le groupe.

@@ -26,8 +26,8 @@ import javax.swing.text.StyledEditorKit;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Index;
-import thot.model.IndexType;
+import thot.labo.index.Index;
+import thot.labo.index.IndexType;
 import thot.utils.Utilities;
 
 /**
@@ -843,7 +843,7 @@ public class IndexesDialog extends JDialog {
      *
      * @param beginField le champs à tester.
      *
-     * @return <code>true</code>si le champ est compris dans un autre index.
+     * @return {@code true}si le champ est compris dans un autre index.
      */
     private boolean isBeginOverlapped(JTextField beginField) {
         long time = getValue(beginField);
@@ -865,7 +865,7 @@ public class IndexesDialog extends JDialog {
      *
      * @param endField le champs à tester.
      *
-     * @return <code>true</code>si le champ est compris dans un autre index.
+     * @return {@code true}si le champ est compris dans un autre index.
      */
     private boolean isEndOverlapped(JTextField endField) {
         long time = getValue(endField);
@@ -887,7 +887,7 @@ public class IndexesDialog extends JDialog {
      *
      * @param fields les champs graphiques de l'index.
      *
-     * @return <code>true</code> si l'index est identique à un autre index.
+     * @return {@code true} si l'index est identique à un autre index.
      */
     private boolean isIdentical(IndexFields fields) {
         String begin = fields.beginField.getText();

@@ -19,8 +19,8 @@ import javax.swing.text.MaskFormatter;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thot.model.Index;
-import thot.model.IndexType;
+import thot.labo.index.Index;
+import thot.labo.index.IndexType;
 import thot.utils.Utilities;
 
 /**
@@ -885,7 +885,7 @@ public class IndexDialog extends JDialog {
     /**
      * Mise à jour de l'états des boutons suivant qu'il est en lecture ou non.
      *
-     * @param playing <code>true</code> si le poste est en lecture.
+     * @param playing {@code true} si le poste est en lecture.
      */
     public void updateButtons(boolean playing) {
         playButton.setSelected(playing);

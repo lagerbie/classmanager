@@ -19,6 +19,8 @@
  */
 package thot;
 
+import thot.labo.LaboListener;
+
 /**
  * Listener pour écouter les changement d'état du coeur du laboratoire de
  * langue.

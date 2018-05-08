@@ -36,12 +36,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import supervision.MasterCore;
 import supervision.Student;
-import thot.Server;
-import thot.model.Command;
-import thot.model.CommandAction;
-import thot.model.CommandParamater;
-import thot.model.Constants;
-import thot.utils.CommandXMLUtilities;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandXMLUtilities;
+import thot.utils.Constants;
+import thot.utils.Server;
 import thot.utils.Utilities;
 
 /**
@@ -104,7 +104,7 @@ public class StudentServer extends Server {
      * @param login le login de l'élève.
      * @param password le mot de passe associé.
      *
-     * @return <code>true</code> si l'entrée existe.
+     * @return {@code true} si l'entrée existe.
      */
     private boolean verifieLogin(String login, String password) {
         File loginFile = new File(loginsPath, login + ".xml");

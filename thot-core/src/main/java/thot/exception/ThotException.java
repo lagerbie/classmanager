@@ -3,7 +3,10 @@ package thot.exception;
 import lombok.Getter;
 
 /**
+ * Exception de l'applacation.
  *
+ * @author Fabrice Alleau
+ * @version 1.8.4
  */
 public class ThotException extends Exception {
 

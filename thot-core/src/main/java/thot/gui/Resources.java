@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
  * Interface pour la gestion de ressources textuelles.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class Resources {
 
@@ -54,13 +54,14 @@ public class Resources {
      * Retourne le texte localisé suivant la clé.
      *
      * @param key l'identifiant de la ressource.
+     *
      * @return le texte localisé correspondant
      */
     public String getString(String key) {
         String text;
         try {
             text = texts.getString(key);
-        } catch(MissingResourceException e) {
+        } catch (MissingResourceException e) {
             text = "#" + key;
         }
         return text;

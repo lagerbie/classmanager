@@ -19,18 +19,15 @@
  */
 package thot.gui;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Window;
+import java.awt.*;
 
-import javax.swing.JDialog;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 /**
  * Boîte de dialoque pour attendre.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class WaitDialog extends JDialog {
     private static final long serialVersionUID = 19000L;
@@ -54,7 +51,6 @@ public class WaitDialog extends JDialog {
         this.pack();
 
         //centrage de la fenêtre
-        this.setLocation((owner.getWidth() - this.getWidth()) / 2,
-                (owner.getHeight() - this.getHeight()) / 2);
+        this.setLocation((owner.getWidth() - this.getWidth()) / 2, (owner.getHeight() - this.getHeight()) / 2);
     }
 }

@@ -87,8 +87,8 @@ public class ProcessingBar {
     /**
      * Change le statut déterminé de la barre de progression.
      *
-     * @param determinated <code>true</code> pour le mode déterminé, ou
-     *         <code>false</code> pour le mode indéterminé.
+     * @param determinated {@code true} pour le mode déterminé, ou
+     *         {@code false} pour le mode indéterminé.
      *
      * @since version 0.95 - version 0.96
      */

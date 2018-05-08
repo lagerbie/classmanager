@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import thot.model.Index;
-import thot.utils.LaboXMLUtilities;
+import thot.labo.index.Index;
+import thot.labo.utils.LaboXMLUtilities;
 import thot.utils.XMLUtilities;
 
 /**
@@ -104,7 +104,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getXML(FlashCommand command) {
-        return xml_header + createElement(element_command, getXMLDescription(command));
+        return XML_HEADER + createElement(element_command, getXMLDescription(command));
     }
 
     /**
@@ -159,7 +159,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      *
      * @param node le noeud xml.
      *
-     * @return la listes des commandes ou <code>null</code>.
+     * @return la listes des commandes ou {@code null}.
      */
     private static List<FlashCommand> parseNodeAsCommand(Node node) {
         List<FlashCommand> commands = null;
@@ -180,7 +180,7 @@ public class FlashXMLUtilities extends XMLUtilities {
                                 command.setAction(child.getNodeValue());
                             } else if (child.getNodeName().equals(element_parameter) && child.hasChildNodes()) {
                                 command.setParameter(child.getFirstChild().getNodeValue());
-                            } else if (child.getNodeName().equals(LaboXMLUtilities.element_index)) {
+                            } else if (child.getNodeName().equals(LaboXMLUtilities.ELEMENT_INDEX)) {
                                 Index index = LaboXMLUtilities.parseNodeAsIndex(child);
                                 command.setParameter(LaboXMLUtilities.getXMLDescription(index));
                             }
