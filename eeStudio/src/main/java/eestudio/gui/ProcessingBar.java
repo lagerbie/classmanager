@@ -5,6 +5,8 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
+import thot.gui.GuiUtilities;
+
 /**
  * Classe présentant une barre de progression.
  *
@@ -33,7 +35,7 @@ public class ProcessingBar {
         frame = new JDialog(null, JDialog.DEFAULT_MODALITY_TYPE);
         frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         frame.setResizable(false);
-        frame.setIconImages(GuiUtilities.icones);
+        frame.setIconImages(GuiUtilities.getIcons());
 
         label = new JLabel();
 

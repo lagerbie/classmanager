@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import thot.gui.GuiUtilities;
+
 /**
  * Composant pour chager et sauvegarder des fichiers. Il utilise un compsoant Swing pour Windows ou un composant AWT
  * pour linux.

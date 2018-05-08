@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.gui.GuiUtilities;
 import thot.labo.ProjectTarget;
 import thot.labo.TagList;
 import thot.labo.index.Index;
@@ -136,11 +137,11 @@ public class GuiFlashResource {
         window = new JFrame();
         window.setUndecorated(true);
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        window.setIconImages(GuiUtilities.icones);
+        window.setIconImages(GuiUtilities.getIcons());
         window.setLocation(512, 384);
 
         textEditor = new TextEditorWindow(core.getStyledEditorKit(), core.getStyledDocument(), resources);
-        textEditor.setIconImages(GuiUtilities.icones);
+        textEditor.setIconImages(GuiUtilities.getIcons());
         textEditor.setLocation(600, 100);
         textEditor.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

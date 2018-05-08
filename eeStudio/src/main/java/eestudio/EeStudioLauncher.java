@@ -9,12 +9,12 @@ import javax.swing.*;
 import eestudio.flash.FlashConstants;
 import eestudio.flash.FlashCore;
 import eestudio.gui.GuiFlashResource;
-import eestudio.gui.GuiUtilities;
 import eestudio.gui.Resources;
 import eestudio.utils.Converter;
 import eestudio.utils.MEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.gui.GuiUtilities;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.Utilities;
 

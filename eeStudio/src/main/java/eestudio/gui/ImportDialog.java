@@ -11,6 +11,7 @@ import java.io.File;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.gui.GuiUtilities;
 import thot.labo.ProjectFiles;
 import thot.utils.Constants;
 import thot.utils.Utilities;

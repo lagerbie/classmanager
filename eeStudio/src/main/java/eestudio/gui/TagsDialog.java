@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.gui.GuiUtilities;
 import thot.labo.TagList;
 
 /**

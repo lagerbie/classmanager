@@ -20,6 +20,10 @@
 package thot.gui;
 
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -49,6 +53,15 @@ public class GuiUtilities {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuiUtilities.class);
 
     /**
+     * Option "oui" sélectionnée
+     */
+    public static final int YES_OPTION = JOptionPane.YES_OPTION;
+    /**
+     * Option "non" sélectionnée
+     */
+    public static final int NO_OPTION = JOptionPane.NO_OPTION;
+
+    /**
      * Nom de la police d'écriture par défaut.
      */
     public static final String defaultFontName = Font.SANS_SERIF;
@@ -64,10 +77,6 @@ public class GuiUtilities {
      * Couleur noire transparente pour les fonds.
      */
     public static final Color TRANSPARENT_COLOR = new Color(0, 0, 0, 0);
-    /**
-     * Option "oui" sélectionnée.
-     */
-    public static final int YES_OPTION = JOptionPane.YES_OPTION;
 
     /**
      * Chemin des images.
@@ -88,11 +97,46 @@ public class GuiUtilities {
     private static final int imagesDim = 48;
 
     static {
+        // Initilisations des icones.
         Image icon = getImage("icone");
         Image voidIcon = getImage("iconeVide");
         icons = new ArrayList<>(2);
         icons.add(icon);
         icons.add(voidIcon);
+    }
+
+    /**
+     * Modifie de façon générale les propriétés graphiques de certains éléments.
+     *
+     * @param custom indicateur de personnalisation.
+     */
+    public static void manageUI(boolean custom) {
+        Color labelColor = null;
+        Color inactiveColor = null;
+        Color transparentColor = null;
+        Color fieldBackground = null;
+
+        if (custom) {
+            labelColor = Color.WHITE;
+            fieldBackground = Color.WHITE;
+            inactiveColor = new Color(180, 180, 180);
+            transparentColor = new Color(0, 0, 0, 0);
+        }
+
+        UIManager.put("CheckBox.background", transparentColor);
+        UIManager.put("CheckBox.disabledText", inactiveColor);
+        UIManager.put("CheckBox.foreground", labelColor);
+
+        UIManager.put("ComboBox.background", fieldBackground);
+
+        UIManager.put("Label.foreground", labelColor);
+
+        UIManager.put("Panel.background", transparentColor);
+
+        UIManager.put("RadioButton.background", transparentColor);
+        UIManager.put("RadioButton.foreground", labelColor);
+
+        UIManager.put("ScrollPane.background", transparentColor);
     }
 
     /**
@@ -103,13 +147,29 @@ public class GuiUtilities {
      * @param options les valeurs que l'on peut sélectionnées (null si texte).
      * @param initValue la valeur initiale ({@code null} si pas de valeur).
      *
-     * @return {@code YES_OPTION} si le bouton oui a été cliqué ou
-     *         {@code NO_OPTION} si c'est le bouton non.
+     * @return {@code YES_OPTION} si le bouton oui a été cliqué ou {@code NO_OPTION} si c'est le bouton non.
      */
     public static int showOptionDialog(Window parent, String message, Object[] options, Object initValue) {
         return JOptionPane.showOptionDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(), options, initValue);
     }
+
+    /**
+     * Affiche une boîte de dialogue posant une question.
+     *
+     * @param parent la fenêtre parente.
+     * @param message le message à afficher.
+     * @param options les valeurs que l'on peut sélectionnées (null si texte).
+     * @param initValue la valeur initiale ({@code null} si pas de valeur).
+     *
+     * @return {@code YES_OPTION} si le bouton oui a été cliqué ou {@code NO_OPTION} si c'est le bouton non.
+     */
+    public static int showOptionDialogWithCancel(Window parent, String message, Object[] options, Object initValue) {
+        return JOptionPane.showOptionDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(), options, initValue);
+    }
+
+
 
     /**
      * Affiche un message à l'écran.
@@ -120,6 +180,17 @@ public class GuiUtilities {
     public static void showMessageDialog(Window parent, String message) {
         JOptionPane.showMessageDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
                 JOptionPane.INFORMATION_MESSAGE, new ImageIcon());
+    }
+
+    /**
+     * Affiche un message formaté à l'écran.
+     *
+     * @param parent la fenêtre parente.
+     * @param typeFormat le type pour le message formaté à afficher.
+     * @param args les différnts objet du message.
+     */
+    public static void showMessageDialog(Window parent, String typeFormat, Object... args) {
+        showMessageDialog(parent, String.format(typeFormat, args));
     }
 
     /**
@@ -336,5 +407,111 @@ public class GuiUtilities {
      */
     public static List<Image> getIcons() {
         return icons.subList(0, icons.size());
+    }
+
+    /**
+     * Création d'un bouton à deux états actifs avec des images.
+     *
+     * @param parent la fenêtre parente.
+     * @param image l'image du bouton à l'état normal.
+     * @param imageSelected l'image du bouton à l'état sélectionné.
+     * @param text le texte de la bulle d'aide.
+     *
+     * @return le bouton créé.
+     */
+    public static JButton getSelectableButton(Component parent, ImageIcon image, ImageIcon imageSelected, String text) {
+        return getButton(parent, image, null, imageSelected, null, null, text);
+    }
+
+    /**
+     * Création d'un bouton avec des images avec un un effet d'appui.
+     *
+     * @param parent la fenêtre parente.
+     * @param image l'image du bouton à l'état normal.
+     * @param imageoff l'image du bouton à l'état désactivé et appuyé.
+     * @param text le texte de la bulle d'aide.
+     *
+     * @return le bouton créé.
+     */
+    public static JButton getActionButton(Component parent, ImageIcon image, ImageIcon imageoff, String text) {
+        return getButton(parent, image, imageoff, null, imageoff, null, text);
+    }
+
+    /**
+     * Création d'un bouton avec des images.
+     *
+     * @param parent la fenêtre parente.
+     * @param image l'image du bouton à l'état normal.
+     * @param imageDisabled l'image du bouton à l'état désactivé.
+     * @param imageSelected l'image du bouton à l'état sélectionné.
+     * @param imagePressed l'image du bouton à l'état appuyé.
+     * @param imageRollover l'image du bouton à l'état rollover.
+     * @param text le texte de la bulle d'aide.
+     *
+     * @return le bouton créé.
+     */
+    private static JButton getButton(final Component parent, ImageIcon image, ImageIcon imageDisabled,
+            ImageIcon imageSelected, ImageIcon imagePressed, ImageIcon imageRollover, String text) {
+
+        JButton button = new JButton(image);
+        if (imageDisabled != null) {
+            button.setDisabledIcon(imageDisabled);
+        }
+        if (imageSelected != null) {
+            button.setSelectedIcon(imageSelected);
+        }
+        if (imagePressed != null) {
+            button.setPressedIcon(imagePressed);
+        }
+        if (imageRollover != null) {
+            button.setRolloverIcon(imageRollover);
+        }
+
+        button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+
+        button.setToolTipText(text);
+
+        //anonymous listeners pour rafraichir la frame lors d'afichage des toolTip
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                parent.repaint();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                parent.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                parent.repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                parent.repaint();
+            }
+        });
+
+        button.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                parent.repaint();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                parent.repaint();
+            }
+        });
+
+        //pour éviter d'avoir un reste d'image quand le programme désactive le bouton
+        button.addPropertyChangeListener(evt -> parent.repaint());
+
+        return button;
     }
 }
