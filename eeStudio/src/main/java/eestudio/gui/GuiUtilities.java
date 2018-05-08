@@ -17,16 +17,21 @@ import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import eestudio.utils.Edu4Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Utilitaires graphiques.
  *
  * @author Fabrice Alleau
- * @version 1.01
- * @since version 0.94
  */
 public class GuiUtilities {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuiUtilities.class);
+
     /**
      * Option "oui" sélectionnée
      */
@@ -57,7 +62,6 @@ public class GuiUtilities {
     /**
      * Initilisations des icones.
      *
-     * @since version 0.99
      */
     static {
         Image icone = getImage("icone");
@@ -71,8 +75,6 @@ public class GuiUtilities {
      * Modifie de façon générale les propriétés graphiques de certains éléments.
      *
      * @param custom été de personnalisation.
-     *
-     * @since version 1.01
      */
     public static void manageUI(boolean custom) {
         Color labelColor = null;
@@ -112,8 +114,6 @@ public class GuiUtilities {
      * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
      *
      * @return l'Object sélectionné ou <code>null</code> si pas de sélection.
-     *
-     * @since version 0.94
      */
     public static Object showInputDialog(Window parent, String message, Object[] options, Object initValue) {
         return JOptionPane.showInputDialog(parent, message, UIManager.getString("OptionPane.inputDialogTitle"),
@@ -129,7 +129,6 @@ public class GuiUtilities {
 //     * @param options les valeurs que l'on peut sélectionnées (null si texte).
 //     * @param initValue la valeur initiale (<code>null</code> si pas de valeur).
 //     * @return l'Object sélectionné ou <code>null</code> si pas de sélection.
-//     * @since version 0.94
 //     */
 //    public static Object showInputDialog(Window parent, String message,
 //            String title, Object[] options, Object initValue) {
@@ -149,8 +148,6 @@ public class GuiUtilities {
      *
      * @return <code>YES_OPTION</code> si le bouton oui a été cliqué
      *         ou <code>NO_OPTION</code> si c'est le bouton non.
-     *
-     * @since version 0.94
      */
     public static int showOptionDialog(Window parent, String message, Object[] options, Object initValue) {
         return JOptionPane.showOptionDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
@@ -167,8 +164,6 @@ public class GuiUtilities {
      *
      * @return <code>YES_OPTION</code> si le bouton oui a été cliqué
      *         ou <code>NO_OPTION</code> si c'est le bouton non.
-     *
-     * @since version 0.95.11
      */
     public static int showOptionDialogWithCancel(Window parent, String message,
             Object[] options, Object initValue) {
@@ -181,8 +176,6 @@ public class GuiUtilities {
      *
      * @param parent la fenêtre parente.
      * @param message le message à afficher.
-     *
-     * @since version 0.94
      */
     public static void showMessageDialog(Window parent, String message) {
         JOptionPane.showMessageDialog(parent, message, UIManager.getString("OptionPane.messageDialogTitle"),
@@ -195,8 +188,6 @@ public class GuiUtilities {
      * @param parent la fenêtre parente.
      * @param typeFormat le type pour le message formaté à afficher.
      * @param args les différnts objet du message.
-     *
-     * @since version 0.94
      */
     public static void showMessageDialog(Window parent, String typeFormat, Object... args) {
         showMessageDialog(parent, String.format(typeFormat, args));
@@ -208,13 +199,11 @@ public class GuiUtilities {
 //     * @param message le message.
 //     * @param icone l'icone.
 //     * @return la fenêtre ainsi créée.
-//     * @since version 0.94
 //     */
 //    public static JDialog showModelessMessage(String message, ImageIcon icone) {
 //        JOptionPane optionPane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE);
 //
-//        JDialog dialog = optionPane.createDialog(
-//                UIManager.getString("OptionPane.messageDialogTitle"));
+//        JDialog dialog = optionPane.createDialog(UIManager.getString("OptionPane.messageDialogTitle"));
 //        dialog.setModalityType(JDialog.ModalityType.MODELESS);
 //        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 //
@@ -231,8 +220,6 @@ public class GuiUtilities {
      * Change la langue de l'interface.
      *
      * @param locale la nouvelle langue de l'interface.
-     *
-     * @since version 0.94
      */
     public static void setDefaultLocale(Locale locale) {
         Locale.setDefault(locale);
@@ -245,7 +232,6 @@ public class GuiUtilities {
 //     * Change la font par défaut.
 //     * 
 //     * @param fontName le nom la font par défaut.
-//     * @since version 0.94
 //     */
 //    public static void setDefaultFont(String fontName) {
 //        Enumeration<Object> keys = UIManager.getDefaults().keys();
@@ -268,8 +254,6 @@ public class GuiUtilities {
      * @param imageType le type de l'image.
      *
      * @return l'Image correspondante.
-     *
-     * @since version 0.99
      */
     private static Image getImage(String imageType) {
         return getImageIcon(imageType).getImage();
@@ -282,8 +266,6 @@ public class GuiUtilities {
      * @param imageType le type de l'image.
      *
      * @return l'ImageIcon correspondant.
-     *
-     * @since version 0.95.11 - version 0.99
      */
     public static ImageIcon getImageIcon(String imageType) {
         BufferedImage image = null;
@@ -315,7 +297,7 @@ public class GuiUtilities {
             circle.reset();
             graphics.dispose();
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
         return new ImageIcon(image);
     }
@@ -324,7 +306,6 @@ public class GuiUtilities {
 //     * Retourne la liste d'icones de l'application.
 //     * 
 //     * @return la liste d'icones de l'application.
-//     * @since version 0.99
 //     */
 //    public static List<Image> getIcones() {
 //        return icones;
@@ -338,7 +319,6 @@ public class GuiUtilities {
 //     * @param imageDisabled l'image du bouton à l'état désactivé.
 //     * @param text le texte de la bulle d'aide.
 //     * @return le bouton créé.
-//     * @since version 0.95.11
 //     */
 //    public static JButton getDisableButton(Component parent,
 //            String image, String imageDisabled, String text) {
@@ -354,8 +334,6 @@ public class GuiUtilities {
      * @param text le texte de la bulle d'aide.
      *
      * @return le bouton créé.
-     *
-     * @since version 0.95.11 - version 0.99
      */
     public static JButton getSelectableButton(Component parent, ImageIcon image, ImageIcon imageSelected, String text) {
         return getButton(parent, image, null, imageSelected, null, null, text);
@@ -370,8 +348,6 @@ public class GuiUtilities {
      * @param text le texte de la bulle d'aide.
      *
      * @return le bouton créé.
-     *
-     * @since version 0.95.11 - version 0.99
      */
     public static JButton getActionButton(Component parent, ImageIcon image, ImageIcon imageoff, String text) {
         return getButton(parent, image, imageoff, null, imageoff, null, text);
@@ -389,8 +365,6 @@ public class GuiUtilities {
      * @param text le texte de la bulle d'aide.
      *
      * @return le bouton créé.
-     *
-     * @since version 0.95.11 - version 0.99
      */
     private static JButton getButton(final Component parent, ImageIcon image, ImageIcon imageDisabled,
             ImageIcon imageSelected, ImageIcon imagePressed, ImageIcon imageRollover, String text) {

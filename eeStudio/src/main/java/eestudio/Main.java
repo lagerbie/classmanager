@@ -2,7 +2,6 @@ package eestudio;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 
 import javax.swing.*;
@@ -13,19 +12,24 @@ import eestudio.gui.GuiFlashResource;
 import eestudio.gui.GuiUtilities;
 import eestudio.gui.Resources;
 import eestudio.utils.Converter;
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.MEncoder;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initialisation et lancement de l'application.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.94
  */
 public class Main {
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
     private static final String version = "1.03.01";
     private static Core core = null;
 
@@ -37,18 +41,13 @@ public class Main {
      * @since version 0.94 - version 1.02
      */
     public static void main(String[] args) {
-        Calendar calendar = Calendar.getInstance();
-        String logName = String.format("edu4/eeStudio-%1$tF-%1$tH.%1$tM.%1$tS.xml", calendar);
-
         ArrayList<String> versions = new ArrayList<>(2);
         versions.add("eeStudio");
         versions.add(version);
 
 //        boolean microphone = !Constants.LINUX_PLATFORM;
 
-        File logFile = new File(System.getProperty("java.io.tmpdir"), logName);
-        Edu4Logger.setLogFile(logFile);
-        Edu4Logger.info("eeStudio version:" + version);
+        LOGGER.info("eeStudio version:" + version);
 
         File path = new File(System.getProperty("java.home"), "../../");
         File flash = new File("./eeStudioGui.exe");
@@ -88,17 +87,14 @@ public class Main {
                                 String.format(resources.getString("pathError"), args[i + 1]));
                     }
                     path = new File(args[i + 1]);
-                    Edu4Logger.info("paramètre --path: " + path);
-                } else if (parameter.contentEquals("--debug")) {
-                    Edu4Logger.debug();
-                    Edu4Logger.info("Mode débugage activé");
+                    LOGGER.info("paramètre --path: " + path);
                 } else {
                     if (new File(parameter).exists()) {
                         currentFile = new File(parameter);
-                        Edu4Logger.info("paramètre file: " + currentFile);
+                        LOGGER.info("paramètre file: " + currentFile);
                     }
                 }
-            }//end for
+            }
         } catch (Exception e) {
             showMessage(String.format(resources.getString("parameterError"), e.getMessage()));
             printUsage();
@@ -111,7 +107,7 @@ public class Main {
         }
         if (filever.exists()) {
             String exeVersion = getWindowsFileVersion(filever, exe);
-            Edu4Logger.info(exe.getName() + " version:" + exeVersion);
+            LOGGER.info(exe.getName() + " version:" + exeVersion);
             if (exeVersion != null) {
                 versions.add(exe.getName());
                 versions.add(exeVersion);
@@ -159,7 +155,7 @@ public class Main {
         try {
             core = new Core(converter);
         } catch (Exception e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             core = null;
         }
 
@@ -179,7 +175,7 @@ public class Main {
             try {
                 process.waitFor();
             } catch (InterruptedException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
             core.closeApplication();
         });
@@ -204,8 +200,6 @@ public class Main {
      * @param file le fichier dont on veut le numéro de version.
      *
      * @return le numéro de version ou <code>null</code>.*
-     *
-     * @since version 1.02
      */
     private static String getWindowsFileVersion(File filever, File file) {
         StringBuilder out = new StringBuilder(1024);
@@ -225,8 +219,6 @@ public class Main {
      * Affiche un message à l'écran.
      *
      * @param message le message à afficher.
-     *
-     * @since version 0.94 - version 0.97
      */
     private static void showMessage(String message) {
         if (window == null) {
@@ -245,8 +237,6 @@ public class Main {
 
     /**
      * Affichage des options disponibles.
-     *
-     * @since version 0.94 - version 0.99
      */
     private static void printUsage() {
         String usage = "Options :\n"

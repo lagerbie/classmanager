@@ -24,8 +24,9 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 
 import eestudio.Core;
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.model.Index;
 import thot.model.IndexType;
 
@@ -33,11 +34,14 @@ import thot.model.IndexType;
  * Boite de dialogue pour l'édition des index.
  *
  * @author fabrice
- * @version 1.02
- * @since version 1.00
  */
 public class BlankDialog extends JDialog {
     private static final long serialVersionUID = 10200L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Core.class);
 
     /**
      * Couleur sans problème
@@ -171,8 +175,6 @@ public class BlankDialog extends JDialog {
      * @param parent la fenêtre parente (peut être null).
      * @param editorKit l'éditeur pour le texte.
      * @param styledDocument le document qui sauvegarde le texte.
-     *
-     * @since version 1.00 - version 1.01
      */
     public BlankDialog(Window parent, Core core, Resources resources, Map<IndexType, String> indexTypes,
             StyledEditorKit editorKit, StyledDocument styledDocument) {
@@ -201,8 +203,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Initialisation des composants.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void initComponents() {
         int width = 740;
@@ -348,8 +348,6 @@ public class BlankDialog extends JDialog {
      *
      * @param editorKit l'éditeur pour le texte.
      * @param styledDocument le document qui sauvegarde le texte.
-     *
-     * @since version 1.00
      */
     private void initBlocText(StyledEditorKit editorKit, StyledDocument styledDocument) {
         JTextPane textPane = new JTextPane();
@@ -378,8 +376,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Actualiser la taille et la position de la fenêtre.
-     *
-     * @since version 1.00
      */
     private void updateSizeAndLocation() {
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -402,8 +398,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Modifie les textes
-     *
-     * @since version 1.01
      */
     public void updateLanguage() {
         setTitle(resources.getString("blankTitle"));
@@ -443,8 +437,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Initialisation des actions.
-     *
-     * @since version 1.00
      */
     private void initListeners() {
         validButton.addActionListener(e -> {
@@ -471,7 +463,7 @@ public class BlankDialog extends JDialog {
 //                            !indexFields.checkBox.isSelected());
 //                }
 //            }
-//        });//end invertSelection
+//        });
 
         eraseSelection.addActionListener(e -> {
             eraseSelection.setSelected(true);
@@ -530,8 +522,6 @@ public class BlankDialog extends JDialog {
      * Affiche la boite de dialogue.
      *
      * @param nbCreate le nombre d'index à créer.
-     *
-     * @since version 1.00
      */
     public void showDialog(int nbCreate) {
         removeIndexes();
@@ -544,8 +534,6 @@ public class BlankDialog extends JDialog {
      * Ajoute des indes dans la table.
      *
      * @param cnt le nombre d'index à ajouter.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void addIndexes(int cnt) {
         for (int i = 0; i < cnt; i++) {
@@ -558,8 +546,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Ajoute un index dans la table d'affichage.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void addIndex() {
         IndexFields fields = new IndexFields();
@@ -582,8 +568,6 @@ public class BlankDialog extends JDialog {
      *
      * @param type le type initial.
      * @param typeList le composant graphique de la liste.
-     *
-     * @since version 1.00
      */
     private void updateTypeList(IndexType type, JComboBox typeList) {
         typeList.setSelectedItem(resources.getString(indexTypes.get(type)));
@@ -595,8 +579,6 @@ public class BlankDialog extends JDialog {
      * @param textField le champ texte contenat le temps formaté.
      *
      * @return le temps en millisecondes.
-     *
-     * @since version 1.00
      */
     private long getValue(JTextField textField) {
         String value = textField.getText();
@@ -612,8 +594,6 @@ public class BlankDialog extends JDialog {
      *
      * @param textField le champ texte contenat le temps formaté.
      * @param value le temps en millisecondes.
-     *
-     * @since version 1.00
      */
     private void setValue(JTextField textField, long value) {
         textField.setText(String.format("%1$tM:%1$tS" + decimalSeparator + "%1$tL", value));
@@ -624,8 +604,6 @@ public class BlankDialog extends JDialog {
      *
      * @param beginField le champs pour le début d'index.
      * @param lengthField le champs pour la longueur d'index.
-     *
-     * @since version 1.00
      */
     private void updateFields(JTextField beginField, JTextField lengthField) {
         long begin = getValue(beginField);
@@ -665,8 +643,6 @@ public class BlankDialog extends JDialog {
      * @param time le temps à tester
      *
      * @return <code>true</code>si le champ est compris dans un autre index.
-     *
-     * @since version 1.00
      */
     private boolean onIndex(long time) {
         for (Iterator<Index> it = core.indexesIterator(); it.hasNext(); ) {
@@ -684,8 +660,6 @@ public class BlankDialog extends JDialog {
      * @param fields les champs de début et de longueur de l'index.
      *
      * @return <code>true</code> si l'index est identique à un autre index.
-     *
-     * @since version 1.00
      */
     private boolean isIdentical(IndexFields fields) {
         String begin = fields.beginField.getText();
@@ -707,8 +681,6 @@ public class BlankDialog extends JDialog {
      * Indique si il y a des index non null.
      *
      * @return <code>true</code> si il y a des index non null.
-     *
-     * @since version 1.00
      */
     private boolean hasIndex() {
         for (IndexFields indexFields : indexesFields) {
@@ -721,8 +693,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Supprime tous les index de la fenêtre.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void removeIndexes() {
         indexesFields.clear();
@@ -732,8 +702,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Supprime les index sélectionné.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void removeSelectedIndexes() {
         int capacity = indexesFields.size();
@@ -761,8 +729,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Supprime les index sélectionné.
-     *
-     * @since version 1.00 - version 1.02
      */
     private void removeNullIndexes() {
         int capacity = indexesFields.size();
@@ -790,8 +756,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Trie par ordre croissant du temps de départ des index de la table.
-     *
-     * @since version 1.00
      */
     private void sortIndexesFields() {
         int capacity = indexesFields.size();
@@ -833,8 +797,6 @@ public class BlankDialog extends JDialog {
      * Retourne l'indice de l'index de la table qui a le temps de début le plus petit.
      *
      * @return l'indice.
-     *
-     * @since version 1.00
      */
     private IndexFields getFirstIndex() {
         IndexFields first = null;
@@ -852,8 +814,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Test la validité des changements et modifie les index en conséquence.
-     *
-     * @since version 1.00
      */
     private void validAction() {
         boolean overlapped = false;
@@ -915,19 +875,17 @@ public class BlankDialog extends JDialog {
                 return;
             }
             core.addMediaIndexAt(begin, length, type, subtitle);
-        }//end for
+        }
 
         core.removeNullIndex();
         core.sortIndexes();
 
         setVisible(false);
-    }//end validAction()
+    }
 
 
     /**
      * Classe pour la gestion de l'ordre de focus des composants.
-     *
-     * @since version 1.00
      */
     private class LineFocusTraversalPolicy extends FocusTraversalPolicy {
 
@@ -984,9 +942,6 @@ public class BlankDialog extends JDialog {
 
     /**
      * Classe recensant tous les composants graphiques nécessaires pour un index.
-     *
-     * @version 1.02
-     * @since version 1.00
      */
     private class IndexFields extends JPanel {
         private static final long serialVersionUID = 10200L;
@@ -1021,7 +976,7 @@ public class BlankDialog extends JDialog {
                 lengthFormatter = new MaskFormatter("##:##" + decimalSeparator + "###");
                 lengthFormatter.setPlaceholderCharacter('0');
             } catch (ParseException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
 
             checkBox = new JCheckBox();
@@ -1162,7 +1117,7 @@ public class BlankDialog extends JDialog {
             checkBox.addMouseListener(mouseListener);
             checkBox.addFocusListener(focusListener);
         }
-    }//end class IndexFields
+    }
 
 //    public static void main(String[] args) {
 //        GuiUtilities.manageUI(true);

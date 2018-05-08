@@ -28,11 +28,12 @@ import eestudio.audio.Player;
 import eestudio.audio.ProcessingListener;
 import eestudio.audio.Recorder;
 import eestudio.utils.Converter;
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.Wave;
 import eestudio.utils.XMLUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.model.Index;
 import thot.model.IndexFile;
 import thot.model.IndexType;
@@ -44,10 +45,13 @@ import thot.model.ProjectTarget;
  * Noyau de l'application.
  *
  * @author Fabrice Alleau
- * @version 1.01
- * @since version 0.94
  */
 public class Core {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Core.class);
+
     /**
      * Chemin du fichier beep
      */
@@ -738,7 +742,7 @@ public class Core {
         try {
             newIndex = (Index) oldIndex.clone();
         } catch (CloneNotSupportedException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         if (newIndex == null) {
@@ -1539,7 +1543,7 @@ public class Core {
             success = true;
             fireImageChanged(image);
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             fireImageChanged(null);
             return false;
         }//end try
@@ -1614,7 +1618,7 @@ public class Core {
             styledEditorKit.read(fileInputStream, styledDocument, 0);
             fileInputStream.close();
         } catch (Exception e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             return false;
         }//end try
 
@@ -1652,7 +1656,7 @@ public class Core {
                 try {
                     audioInputStream.close();
                 } catch (IOException e) {
-                    Edu4Logger.error(e);
+                    LOGGER.error("", e);
                 }
                 converter(audioFileTemp, file, false);
                 return loadAudio(audioFileTemp, byteBuffer);
@@ -1663,15 +1667,15 @@ public class Core {
                 try {
                     audioInputStream.close();
                 } catch (IOException e) {
-                    Edu4Logger.error(e);
+                    LOGGER.error("", e);
                 }
                 return -byteBuffer.capacity();
             }
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             return -1;
         } catch (UnsupportedAudioFileException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             return -1;
         }
 
@@ -1688,22 +1692,22 @@ public class Core {
                 }
             }//end while
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } catch (BufferOverflowException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } finally {
             try {
                 if (audioInputStream != null) {
                     audioInputStream.close();
                 }
             } catch (IOException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         }
 
         byteBuffer.flip();
         return byteBuffer.limit();
-    }//end loadAudio(File file, ByteBuffer byteBuffer)
+    }
 
     /**
      * Charge un fichier vidéo. Conversion de la vidér en format lisible par le flash sans audio.
@@ -1944,7 +1948,7 @@ public class Core {
                 String text = styledDocument.getText(0, styledDocument.getLength());
                 saved = Utilities.saveText(text, destFile);
             } catch (BadLocationException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         }
         return saved;
@@ -1966,7 +1970,7 @@ public class Core {
             output.flush();
             output.close();
         } catch (Exception e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             return false;
         }//end try
 
@@ -2005,7 +2009,7 @@ public class Core {
                 audioInputStream.close();
                 success = true;
             } catch (IOException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
                 success = false;
             }//end catch
         }//end if
@@ -2032,7 +2036,7 @@ public class Core {
         try {
             styledDocument.remove(0, styledDocument.getLength());
         } catch (BadLocationException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
         projectFiles.setTextFile(null);
         fireTextLoaded(null, false);
@@ -2510,7 +2514,7 @@ public class Core {
             AudioSystem.write(audioInputStream, audioFileFormatType, file);
             audioInputStream.close();
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
     }
 

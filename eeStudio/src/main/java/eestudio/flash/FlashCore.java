@@ -11,19 +11,23 @@ import eestudio.Constants;
 import eestudio.Core;
 import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.model.Index;
 
 /**
  * Fenêtre principale du poste élève.
  *
  * @author fabrice
- * @version 1.01
- * @since version 0.94
  */
 public class FlashCore {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashCore.class);
+
     /**
      * Référence sur le noyau de l'application
      */
@@ -50,7 +54,6 @@ public class FlashCore {
      * @param flashToCorePort
      * @param coreToFlashPort
      *
-     * @since version 0.94
      */
     public FlashCore(Core core, int flashToCorePort, int coreToFlashPort) {
         this.core = core;
@@ -69,7 +72,6 @@ public class FlashCore {
      *
      * @param guiResourcesWithFlash les resources graphiques.
      *
-     * @since version 0.94 - version 0.97
      */
     public void setMainFrame(GuiFlashResource guiResourcesWithFlash) {
         this.guiResources = guiResourcesWithFlash;
@@ -92,7 +94,6 @@ public class FlashCore {
     /**
      * @param list la liste
      *
-     * @since version 1.02
      */
     public void sendVersionToFlash(List<String> list) {
         sendCommandToFlash(Command.VERSION, XMLUtilities.getXMLDescription(list));
@@ -103,7 +104,6 @@ public class FlashCore {
      *
      * @param locale la nouvelle langue.
      *
-     * @since version 1.00
      */
     public void sendLanguageToFlash(Locale locale) {
         sendCommandToFlash(Command.LANGUAGE, locale.getLanguage());
@@ -115,7 +115,6 @@ public class FlashCore {
      * @param action le nom de l'action.
      * @param parameter les parmètres.
      *
-     * @since version 0.94
      */
     private void sendCommandToFlash(String action, String parameter) {
         Command command = new Command(action, parameter);
@@ -127,14 +126,10 @@ public class FlashCore {
      * Ajout des méthodes pour le listener. Utilisation de SwingUtilities.invokeLater(new Runnable()) pour que les
      * modifications touchant l'interface graphique soit appelé par l'EDT.
      *
-     * @since version 0.94 - version 0.99
      */
     private void addCoreListener() {
         core.addListener(new Listener() {
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.94 - version 1.03
-             */
+
             @Override
             public void runningStateChanged(int state) {
                 String runningState;
@@ -152,19 +147,11 @@ public class FlashCore {
                 sendCommandToFlash(Command.RUNNING_STATE, runningState);
             }
 
-            /**
-             * Changement de la durée de la bande.
-             * @since version 0.94
-             */
             @Override
             public void recordTimeMaxChanged(long recordTimeMax) {
                 sendCommandToFlash(Command.TIME_MAX, Long.toString(recordTimeMax));
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.94 - version 0.97
-             */
             @Override
             public void textLoaded(String text, boolean styled) {
                 if (!styled) {
@@ -173,45 +160,25 @@ public class FlashCore {
                 sendCommandToFlash(Command.TEXT, Boolean.toString(core.hasText()));
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.94 - version 0.95.11
-             */
             @Override
             public void timeChanged(long time) {
                 sendCommandToFlash(Command.TIME, Long.toString(time));
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void insertVoiceTimeChanged(long time) {
                 sendCommandToFlash(Command.TIME_INSERT_VOICE, Long.toString(time));
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.94 - version 0.95.11
-             */
             @Override
             public void indexesChanged(String xmlIndexesDescription) {
                 sendCommandToFlash(Command.INDEXES, xmlIndexesDescription);
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.94 - version 0.95.11
-             */
             @Override
             public void imageChanged(Image image) {
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void audioWaveFileChanged(File leftChannelFile, File rigthChannelFile) {
                 String filePath = null;
@@ -227,10 +194,6 @@ public class FlashCore {
                 sendCommandToFlash(Command.AUDIO_RIGHT_CHANNEl_FILE, filePath);
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void videoFileChanged(File file) {
                 String filePath = null;
@@ -240,37 +203,21 @@ public class FlashCore {
                 sendCommandToFlash(Command.PLAYER_FILE, filePath);
             }
 
-//            /**
-//             * Changement d'état de lecture ou enregistrement.
-//             * @since version 0.95
-//             */
 //            @Override
 //            public void processDeterminatedChanged(Object source, boolean determinated) {
 //                guiResources.processDeterminatedChanged(determinated);
 //            }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void processBegin(Object source, boolean determinated) {
                 guiResources.processBegin(determinated);
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void processEnded(Object source, int exit) {
                 guiResources.processEnded();
             }
 
-            /**
-             * Changement d'état de lecture ou enregistrement.
-             * @since version 0.95
-             */
             @Override
             public void percentChanged(Object source, int percent) {
                 guiResources.percentChanged(percent);
@@ -284,10 +231,9 @@ public class FlashCore {
      * @param action le type de la commande.
      * @param parameter le paramètre de la commande.
      *
-     * @since version 0.94 - version 1.01
      */
     public void executeCommand(String action, String parameter) {
-        Edu4Logger.info("command: " + action + " para: " + parameter);
+        LOGGER.info("command: " + action + " para: " + parameter);
 
         //par défaut = false
         boolean on = Utilities.parseStringAsBoolean(parameter);

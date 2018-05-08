@@ -18,17 +18,22 @@ import javax.swing.text.StyledEditorKit;
 import javax.swing.text.Utilities;
 import javax.swing.undo.UndoManager;
 
-import eestudio.utils.Edu4Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Zone de texte dans le style de format RTF ou HTML.
  *
  * @author Fabrice Alleau
- * @version 1.01
- * @since version 0.94
  */
 public class EditorArea extends JPanel {
     private static final long serialVersionUID = 9512L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(EditorArea.class);
 
     /**
      * Resources textuelles
@@ -103,8 +108,6 @@ public class EditorArea extends JPanel {
      * @param resources les resources pour les textes.
      * @param width la largeur de la zone de texte.
      * @param height la hauteur de la zone de texte.
-     *
-     * @since version 0.94 - version 1.01
      */
     public EditorArea(Window parent, StyledEditorKit editorKit, StyledDocument styledDocument, Resources resources,
             int width, int height) {
@@ -127,8 +130,6 @@ public class EditorArea extends JPanel {
      * @param parent la fenêtre parente.
      * @param width la largeur de la zone de texte.
      * @param height la hauteur de la zone de texte.
-     *
-     * @since version 0.95.11 - version 1.01
      */
     private void initComponents(Window parent, int width, int height) {
         Dimension dim;
@@ -222,8 +223,6 @@ public class EditorArea extends JPanel {
 
     /**
      * Met à jour les textes pour le changement de langues.
-     *
-     * @since version 0.94 - version 0.95.12
      */
     public void updateLanguage() {
         boldButton.setToolTipText(resources.getString("bold"));
@@ -236,12 +235,9 @@ public class EditorArea extends JPanel {
 
     /**
      * Ajoute les listeners des boutons.
-     *
-     * @since version 0.94 - version 1.01
      */
     private void initListeners() {
-        //pour éviter d'avoir un reste d'image quand le programme affiche ou
-        //masque la liste
+        //pour éviter d'avoir un reste d'image quand le programme affiche ou masque la liste
         sizeComboBox.addPopupMenuListener(new PopupMenuListener() {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -362,8 +358,6 @@ public class EditorArea extends JPanel {
 
     /**
      * Raffraichissement de la barre des composants.
-     *
-     * @since version 0.94 - version 1.01
      */
     private void updateToolsPanel() {
         update = true;
@@ -398,8 +392,6 @@ public class EditorArea extends JPanel {
      * @param size la nouvelle taille ou <code>null</code>.
      * @param color la nouvelle couleur ou <code>null</code>.
      * @param alignment le nouvel alignement ou <code>null</code>.
-     *
-     * @since version 0.94 - version 0.95.10
      */
     private void changeAttributes(Boolean bold, Boolean italic, Boolean underline, Boolean strikeThrough, Integer size,
             Color color, String fontName, Integer alignment) {
@@ -450,8 +442,6 @@ public class EditorArea extends JPanel {
      * Remplace le texte de la fenêtre.
      *
      * @param text le nouveau texte.
-     *
-     * @since version 0.94
      */
     public void setText(String text) {
         textPane.selectAll();
@@ -462,8 +452,6 @@ public class EditorArea extends JPanel {
 
     /**
      * Selectionne le mot situé à l'index fourni et retourne l'index de fin.
-     *
-     * @since version 0.95.10
      */
     private void selectWords() {
         int start = textPane.getSelectionStart();
@@ -477,7 +465,7 @@ public class EditorArea extends JPanel {
             end = Utilities.getWordEnd(textPane, end);
             textPane.select(start, end);
         } catch (BadLocationException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
     }
 

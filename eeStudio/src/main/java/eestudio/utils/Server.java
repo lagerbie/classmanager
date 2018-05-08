@@ -5,14 +5,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Gestion d'un serveur socket.
  *
  * @author Fabrice Alleau
- * @version 0.99
- * @since version 0.95
  */
 public abstract class Server implements Runnable {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+
     /**
      * Numéro de port du serveur
      */
@@ -63,7 +69,7 @@ public abstract class Server implements Runnable {
             try {
                 serverSocket.setSoTimeout(timeout);
             } catch (SocketException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         }
     }
@@ -94,7 +100,7 @@ public abstract class Server implements Runnable {
             serverSocket = new ServerSocket(port);
             serverSocket.setSoTimeout(timeout);
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
             return false;
         }
 
@@ -116,7 +122,7 @@ public abstract class Server implements Runnable {
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         }
         serverSocket = null;
@@ -155,9 +161,9 @@ public abstract class Server implements Runnable {
         try {
             while (run) {
                 //attente de la connection
-                Edu4Logger.debug("wait connection on " + this.getClass());
+                LOGGER.debug("wait connection on " + this.getClass());
                 socket = serverSocket.accept();
-                Edu4Logger.debug("connection established on " + this.getClass());
+                LOGGER.debug("connection established on " + this.getClass());
 
                 process(socket);
                 //fermeture de la connection et reboucle sur une écoute du
@@ -167,13 +173,13 @@ public abstract class Server implements Runnable {
                 socket = null;
             }//end while
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } finally {
             if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    Edu4Logger.error(e);
+                    LOGGER.error("", e);
                 }//end catch
             }
 
@@ -182,12 +188,12 @@ public abstract class Server implements Runnable {
                     serverSocket.close();
                     serverSocket = null;
                 } catch (IOException e) {
-                    Edu4Logger.error(e);
+                    LOGGER.error("", e);
                 }
             }
 
             if (run) {
-                Edu4Logger.warning("redémarrage de Server: " + this.getClass());
+                LOGGER.warn("redémarrage de Server: " + this.getClass());
                 start();
             }
         }

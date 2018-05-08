@@ -9,14 +9,20 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Création des images représentant les données audio.
  *
  * @author Fabrice Alleau
- * @version 0.96
- * @since version 0.95
  */
 public class Wave {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Wave.class);
+
     /**
      * Largeur maximale de l'image pour flash
      */
@@ -39,12 +45,9 @@ public class Wave {
      * @param buffer les données audio.
      * @param begin le temps de départ dans les données.
      * @param end le temps de fin dans les données.
-     *
-     * @since version 0.94 - version 0.95.12
      */
     public static void createWaveImages(File leftChannelFile, File rigthChannelFile, AudioFormat format,
             ByteBuffer buffer, long begin, long end) {
-
         int channels = format.getChannels();
         int frameSize = format.getFrameSize();
         int sampleSize = format.getSampleSizeInBits() / 8;
@@ -73,7 +76,7 @@ public class Wave {
         info.append(String.format("pour pas=%1$d\n", pas));
         info.append(String.format("pour bufferSize=%1$d\n", bufferSize));
         info.append(String.format("pour nPoints(witdh)=%1$d\n", nPoints));
-        Edu4Logger.debug(info.toString());
+        LOGGER.debug(info.toString());
 
         int[] xPoints = new int[nPoints];
         int[] yRPoints = new int[nPoints];
@@ -149,8 +152,6 @@ public class Wave {
      * @param zeroOffset l'offset du zéro dans l'image.
      *
      * @return la valeur quantifiée.
-     *
-     * @since version 0.95
      */
     private static int rescale(int value, double ratio, int zeroOffset) {
         return (int) (zeroOffset + value * ratio);
@@ -165,11 +166,8 @@ public class Wave {
      * @param xPoints les coordonnées horizontales des points.
      * @param yPoints les coordonnées verticales des points.
      * @param nPoints le nombre de points.
-     *
-     * @since version 0.95 - version 0.96
      */
-    private static void draw(File file, int width, int height,
-            int[] xPoints, int[] yPoints, int nPoints) {
+    private static void draw(File file, int width, int height, int[] xPoints, int[] yPoints, int nPoints) {
         file.delete();
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -187,7 +185,7 @@ public class Wave {
         try {
             ImageIO.write(image, imageExtension, file);
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         graphics.dispose();
@@ -203,8 +201,6 @@ public class Wave {
      * @param bigEndian l'ordre des bytes.
      *
      * @return l'entier correspondant au tableau de Byte.
-     *
-     * @since version 0.95 - version 0.95.10
      */
     private static int bytesToInt(byte[] bytes, int offset, int length, boolean bigEndian) {
         int value;
@@ -218,7 +214,7 @@ public class Wave {
             for (int i = 0; i < length - 1; i++) {
                 value |= ((bytes[offset + i] & 0xFF) << (8 * i));//byte non signé
             }
-        }//end if
+        }
 
         return value;
     }
@@ -230,7 +226,6 @@ public class Wave {
 //     * @param length la dimension du tableau à retourner.
 //     * @param bigEndian l'ordre des bytes.
 //     * @return le tableau de Byte correspondant à l'entier.
-//     * @since version 0.95
 //     */
 //    private byte[] intToBytes(int integer, int length, boolean bigEndian) {
 //        byte bytes[] = new byte[length];

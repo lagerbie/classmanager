@@ -12,6 +12,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import eestudio.flash.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -28,10 +30,13 @@ import thot.model.ProjectTarget;
  * Utilitaires pour la manipulation de fichier XML.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.94
  */
 public class XMLUtilities {
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtilities.class);
 
     /*
      * Descriptif pour la liste d'index:
@@ -305,8 +310,6 @@ public class XMLUtilities {
      * @param file le fichier contenant la liste d'index.
      *
      * @return la liste d'index contenue dans le fichier ou une liste vide.
-     *
-     * @since version 0.94
      */
     public static Indexes loadIndexes(File file) {
         Indexes indexes = null;
@@ -331,8 +334,6 @@ public class XMLUtilities {
      * @param file le fichier contenant le projet.
      *
      * @return le projet contenu dans le fichier ou un projet vide.
-     *
-     * @since version 0.94
      */
     public static ProjectFiles loadProject(File file) {
         ProjectFiles project = null;
@@ -357,8 +358,6 @@ public class XMLUtilities {
      * @param file le fichier contenant les tags.
      *
      * @return les tags contenus dans le fichier ou des tags vides.
-     *
-     * @since version 1.00
      */
     public static TagList loadTags(File file) {
         TagList tags = null;
@@ -383,8 +382,6 @@ public class XMLUtilities {
      * @param language la langue par defaut.
      *
      * @return le xml complet.
-     *
-     * @since version 0.96
      */
     public static String getLanguageXML(String language) {
         StringBuilder element = new StringBuilder(1024);
@@ -400,8 +397,6 @@ public class XMLUtilities {
      * @param languageFile le fichier dde la langue par default.
      *
      * @return la langue par defaut.
-     *
-     * @since version 0.96
      */
     public static String getLanguage(File languageFile) {
         String language = null;
@@ -423,8 +418,6 @@ public class XMLUtilities {
      * @param xml le xml contenant les commandes.
      *
      * @return la liste de commandes contenue dans le xml ou une liste vide.
-     *
-     * @since version 0.94
      */
     public static List<Command> parseCommand(String xml) {
         List<Command> commands = null;
@@ -450,8 +443,6 @@ public class XMLUtilities {
      * @param xml le xml contenant l'index.
      *
      * @return l'index contenu dans dans le xml ou <code>null</code>.
-     *
-     * @since version 0.95
      */
     public static Index parseIndex(String xml) {
         Index index = null;
@@ -472,8 +463,6 @@ public class XMLUtilities {
      * @param xml le xml contenant la liste.
      *
      * @return la liste de String ou une liste vide.
-     *
-     * @since version 1.02
      */
     public static List<String> parseList(String xml) {
         List<String> list = null;
@@ -499,8 +488,6 @@ public class XMLUtilities {
      * @param indexes la liste d'index.
      *
      * @return le xml complet.
-     *
-     * @since version 0.94
      */
     public static String getXML(Indexes indexes) {
         return xml_header + getXMLDescription(indexes);
@@ -512,8 +499,6 @@ public class XMLUtilities {
      * @param project le projet.
      *
      * @return le xml complet.
-     *
-     * @since version 0.94
      */
     public static String getXML(ProjectFiles project) {
         return xml_header + getXMLDescription(project);
@@ -525,8 +510,6 @@ public class XMLUtilities {
      * @param tags les tags.
      *
      * @return le xml complet.
-     *
-     * @since version 1.00
      */
     public static String getXML(TagList tags) {
         return xml_header + getXMLDescription(tags);
@@ -538,8 +521,6 @@ public class XMLUtilities {
      * @param command la commande.
      *
      * @return le xml complet.
-     *
-     * @since version 0.94
      */
     public static String getXML(Command command) {
         StringBuilder element = new StringBuilder(1024);
@@ -555,8 +536,6 @@ public class XMLUtilities {
      * @param indexes la liste des index.
      *
      * @return une description de la liste d'index.
-     *
-     * @since version 0.94 - version 0.95
      */
     public static String getXMLDescription(Indexes indexes) {
         StringBuilder attributes = new StringBuilder(256);
@@ -580,8 +559,6 @@ public class XMLUtilities {
      * @param index l'index.
      *
      * @return une description de l'index.
-     *
-     * @since version 0.94 - version 1.01
      */
     public static String getXMLDescription(Index index) {
         if (index == null) {
@@ -617,8 +594,6 @@ public class XMLUtilities {
      * @param project le projet.
      *
      * @return une description du projet.
-     *
-     * @since version 0.94 - version 1.00
      */
     public static String getXMLDescription(ProjectFiles project) {
         StringBuilder element = new StringBuilder(1024);
@@ -660,8 +635,6 @@ public class XMLUtilities {
      * @param tags les tags.
      *
      * @return une description des tags.
-     *
-     * @since version 1.00
      */
     public static String getXMLDescription(TagList tags) {
         StringBuilder element = new StringBuilder(1024);
@@ -689,8 +662,6 @@ public class XMLUtilities {
      * @param command la commande.
      *
      * @return une description de la commande.
-     *
-     * @since version 0.94
      */
     public static String getXMLDescription(Command command) {
         StringBuilder element = new StringBuilder(1024);
@@ -720,8 +691,6 @@ public class XMLUtilities {
      * @param list la liste des versions (nom suivi du numéro).
      *
      * @return une description de la liste d'index.
-     *
-     * @since version 1.02
      */
     public static String getXMLDescription(List<String> list) {
         StringBuilder element = new StringBuilder(1024);
@@ -741,8 +710,6 @@ public class XMLUtilities {
      * @param value la valeur de l'attribut.
      *
      * @return le descriptif de l'attribut.
-     *
-     * @since version 0.94
      */
     private static String createAttribute(String name, String value) {
         StringBuilder attribute = new StringBuilder(64);
@@ -760,8 +727,6 @@ public class XMLUtilities {
      * @param name le nom de la balise.
      *
      * @return la basile de départ du xml.
-     *
-     * @since version 0.94
      */
     private static String createElementStart(String name) {
         return createElementStart(name, null);
@@ -774,8 +739,6 @@ public class XMLUtilities {
      * @param attributes la liste d'attributs déjà en forme pour le xml.
      *
      * @return la basile de départ du xml.
-     *
-     * @since version 0.94
      */
     private static String createElementStart(String name, StringBuilder attributes) {
         StringBuilder element = new StringBuilder(32);
@@ -794,8 +757,6 @@ public class XMLUtilities {
      * @param name le nom de la balise.
      *
      * @return la basile de fin du xml.
-     *
-     * @since version 0.94
      */
     private static String createElementEnd(String name) {
         StringBuilder element = new StringBuilder(32);
@@ -812,8 +773,6 @@ public class XMLUtilities {
      * @param value la valeur de la section CDATA.
      *
      * @return la balise complete.
-     *
-     * @since version 0.94
      */
     private static String createElement(String name, String value) {
         StringBuilder element = new StringBuilder(256);
@@ -830,8 +789,6 @@ public class XMLUtilities {
      * @param value la valeur de la section CDATA.
      *
      * @return la balise complete.
-     *
-     * @since version 0.94
      */
     private static String createCDATAElement(String name, String value) {
         StringBuilder element = new StringBuilder(256);
@@ -847,8 +804,6 @@ public class XMLUtilities {
      * @param value la valeur de la section CDATA.
      *
      * @return la section CDATA.
-     *
-     * @since version 0.94
      */
     private static String createCDATA(String value) {
         StringBuilder cdata = new StringBuilder(256);
@@ -864,8 +819,6 @@ public class XMLUtilities {
      * @param file le fichier.
      *
      * @return le document xml.
-     *
-     * @since version 0.94 - version 0.95
      */
     protected static Document getDocument(File file) {
         Document document = null;
@@ -883,11 +836,11 @@ public class XMLUtilities {
                 removeEmptyTextNode(document);
             }
         } catch (ParserConfigurationException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } catch (SAXException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         return document;
@@ -899,8 +852,6 @@ public class XMLUtilities {
      * @param xml la chaîne de caractères contenant le xml.
      *
      * @return le document xml.
-     *
-     * @since version 0.94 - version 0.96
      */
     protected static Document getDocument(String xml) {
         Document document = null;
@@ -918,11 +869,11 @@ public class XMLUtilities {
                 removeEmptyTextNode(document);
             }
         } catch (ParserConfigurationException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } catch (SAXException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         return document;
@@ -934,8 +885,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return la liste d'index ou <code>null</code>.
-     *
-     * @since version 0.94
      */
     private static Indexes parseNodeAsIndexes(Node node) {
         Indexes indexes = null;
@@ -975,8 +924,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return l'index ou <code>null</code>.
-     *
-     * @since version 0.94 - version 1.01
      */
     private static Index parseNodeAsIndex(Node node) {
         Index index = null;
@@ -1030,8 +977,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return le projet ou <code>null</code>.
-     *
-     * @since version 0.94 - version 1.00
      */
     private static ProjectFiles parseNodeAsProject(Node node) {
         ProjectFiles project = null;
@@ -1075,8 +1020,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return les tags ou <code>null</code>.
-     *
-     * @since version 1.00
      */
     private static TagList parseNodeAsTags(Node node) {
         TagList tags = null;
@@ -1112,8 +1055,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return la listes des commandes ou <code>null</code>.
-     *
-     * @since version 0.94 - version 0.95
      */
     private static List<Command> parseNodeAsCommand(Node node) {
         List<Command> commands = null;
@@ -1154,8 +1095,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return la langue ou <code>null</code>.
-     *
-     * @since version 0.96
      */
     private static String parseNodeAsLanguage(Node node) {
         String language = null;
@@ -1181,8 +1120,6 @@ public class XMLUtilities {
      * @param node le noeud xml.
      *
      * @return la liste de String.
-     *
-     * @since version 1.02
      */
     private static List<String> parseNodeAsList(Node node) {
         List<String> list = new ArrayList<>(8);
@@ -1206,8 +1143,6 @@ public class XMLUtilities {
      * @param index à convertir.
      *
      * @return l'index converti.
-     *
-     * @since version 0.94
      */
     private static Index convertToIndexFile(Index index) {
         Index indexFile;
@@ -1228,8 +1163,6 @@ public class XMLUtilities {
      * Supprime les noeuds texte contenu dans le noeud ne contenant aucune donnée.
      *
      * @param node le noeud à nettoyer.
-     *
-     * @since version 0.95
      */
     private static void removeEmptyTextNode(Node node) {
         List<Node> removeList = new ArrayList<>(8);

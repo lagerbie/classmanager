@@ -17,8 +17,9 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.MaskFormatter;
 
 import eestudio.Core;
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.Utilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.model.Index;
 import thot.model.IndexType;
 
@@ -26,11 +27,14 @@ import thot.model.IndexType;
  * Boite de dialogue pour redimensionner un index.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.94
  */
 public class IndexDialog extends JDialog {
     private static final long serialVersionUID = 10100L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexDialog.class);
 
     /**
      * Position par défaut dans les champs de temps
@@ -222,8 +226,6 @@ public class IndexDialog extends JDialog {
      * @param indexTypes map pour les resources textuelles suivant le type d'index.
      * @param resources les resources pour les textes.
      * @param parent la fenêtre parente (peut être null).
-     *
-     * @since version 0.94 - version 0.99
      */
     public IndexDialog(Window parent, Core core, Resources resources, Map<IndexType, String> indexTypes) {
         super(parent, resources.getString("indexTitle"), DEFAULT_MODALITY_TYPE);
@@ -240,8 +242,6 @@ public class IndexDialog extends JDialog {
 
     /**
      * Initialise les composants.
-     *
-     * @since version 0.94 - version 1.02
      */
     private void initComponents() {
         int width = 352;
@@ -269,8 +269,8 @@ public class IndexDialog extends JDialog {
             endFormatter = new MaskFormatter("##:##" + decimalSeparator + "###");
             endFormatter.setPlaceholderCharacter('0');
         } catch (ParseException e) {
-            Edu4Logger.error(e);
-        }//end try
+            LOGGER.error("", e);
+        }
 
         beginField = new JFormattedTextField(beginFormatter);
         beginField.setHorizontalAlignment(JTextField.CENTER);
@@ -580,8 +580,6 @@ public class IndexDialog extends JDialog {
 
     /**
      * Initialisation des listeners.
-     *
-     * @since version 0.97 - version 1.01
      */
     private void initListener() {
         //pour éviter d'avoir un reste d'image quand le programme affiche ou masque la liste
@@ -699,8 +697,6 @@ public class IndexDialog extends JDialog {
      * @param field le champ texte contenat le temps formaté.
      *
      * @return le temps en millisecondes.
-     *
-     * @since version 0.94 - version 0.99
      */
     private long getValue(JTextField field) {
         String value = field.getText();
@@ -716,8 +712,6 @@ public class IndexDialog extends JDialog {
      *
      * @param textField le champ texte contenat le temps formaté.
      * @param value le temps en millisecondes.
-     *
-     * @since version 0.99
      */
     private void setValue(JTextField textField, long value) {
         textField.setText(String.format("%1$tM:%1$tS" + decimalSeparator + "%1$tL", value));
@@ -727,8 +721,6 @@ public class IndexDialog extends JDialog {
      * Récupère la vitesse affichée sur le slider.
      *
      * @return la vitesse.
-     *
-     * @since version 1.01
      */
     private float getSpeed() {
 //        double position = speedSlider.getPosition();
@@ -744,8 +736,6 @@ public class IndexDialog extends JDialog {
      * Modifie la vitesse affichée sur le slider.
      *
      * @param speed la vitesse.
-     *
-     * @since version 1.01
      */
     private void setSpeed(float speed) {
 //        double position = (speed - Index.RATE_MIN) / (Index.RATE_MAX - Index.RATE_MIN);
@@ -757,8 +747,6 @@ public class IndexDialog extends JDialog {
 
     /**
      * Mise à jour des champs avec vérifications des valeurs.
-     *
-     * @since version 0.94 - version 0.99
      */
     private void fieldUpdateDialog() {
         begin = getValue(beginField);
@@ -787,8 +775,6 @@ public class IndexDialog extends JDialog {
 
     /**
      * Mise à jour des champs.
-     *
-     * @since version 0.94 - version 0.99
      */
     private void updateDialog() {
         int beginCaretPosition = beginField.getCaretPosition();
@@ -804,8 +790,6 @@ public class IndexDialog extends JDialog {
      * Affiche la boite de dialogue.
      *
      * @param index le numero de l'index initial.
-     *
-     * @since version 0.94
      */
     public void showDialog(Index index) {
         initValues(index);
@@ -816,8 +800,6 @@ public class IndexDialog extends JDialog {
 
     /**
      * Modifie les textes suivant
-     *
-     * @since version 0.94 - version 1.01
      */
     public void updateLanguage() {
         setTitle(resources.getString("indexTitle"));
@@ -837,7 +819,7 @@ public class IndexDialog extends JDialog {
             beginFormatter.setMask("##:##" + decimalSeparator + "###");
             endFormatter.setMask("##:##" + decimalSeparator + "###");
         } catch (ParseException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         IndexType currentType = indexTypesRevert.get((String) typeList.getSelectedItem());
@@ -872,8 +854,6 @@ public class IndexDialog extends JDialog {
      * Initialise les valeurs initiales et courantes.
      *
      * @param index l'index courant.
-     *
-     * @since version 0.94 - version 1.01
      */
     private void initValues(Index index) {
         this.currentIndex = index;
@@ -906,8 +886,6 @@ public class IndexDialog extends JDialog {
      * Mise à jour de l'états des boutons suivant qu'il est en lecture ou non.
      *
      * @param playing <code>true</code> si le poste est en lecture.
-     *
-     * @since version 0.94 - version 0.97
      */
     public void updateButtons(boolean playing) {
         playButton.setSelected(playing);
@@ -922,8 +900,6 @@ public class IndexDialog extends JDialog {
      * Mise à jour de la liste des types possibles avec un type initial.
      *
      * @param type le type initial.
-     *
-     * @since version 0.95.10 - version 1.01
      */
     private void updateTypeList(IndexType type) {
         typeList.removeAllItems();
@@ -965,8 +941,6 @@ public class IndexDialog extends JDialog {
      * @param speed la vitesse.
      *
      * @return si la sauvegarde a été effectuée.
-     *
-     * @since version 0.94 - version 1.01
      */
     private boolean saveIndex(long begin, long end, IndexType type, String subtitle, float speed) {
         if (end < begin) {
@@ -996,8 +970,6 @@ public class IndexDialog extends JDialog {
      *
      * @param begin le temps de début.
      * @param end le temps de fin.
-     *
-     * @since version 0.94 - version 1.01
      */
     private boolean saveIndex(long begin, long end) {
         IndexType type = indexTypesRevert.get((String) typeList.getSelectedItem());
@@ -1013,8 +985,6 @@ public class IndexDialog extends JDialog {
      * Traitement des actions longues dans un thread séparée.
      *
      * @param source la source de l'action.
-     *
-     * @since version 0.97 _ version 1.01
      */
     private void action(final Object source) {
         Thread thread = new Thread(() -> {
@@ -1063,8 +1033,6 @@ public class IndexDialog extends JDialog {
      * Retourne si l'index a changé depuis la dernière validation.
      *
      * @return si l'index a changé.
-     *
-     * @since version 0.95.11 - version 1.01
      */
     private boolean isChanged() {
         if (begin != currentIndex.getInitialTime()) {
@@ -1075,7 +1043,7 @@ public class IndexDialog extends JDialog {
         }
 
         IndexType type = indexTypesRevert.get((String) typeList.getSelectedItem());
-        if (type!=currentIndex.getType()) {
+        if (type != currentIndex.getType()) {
             return true;
         }
 
@@ -1104,8 +1072,6 @@ public class IndexDialog extends JDialog {
      * @param message le message.
      *
      * @return l'option choisie.
-     *
-     * @since version 0.95.11
      */
     private int showCancelableMessage(String message) {
         return GuiUtilities.showOptionDialogWithCancel(this, message, null, null);

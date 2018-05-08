@@ -5,18 +5,21 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayDeque;
 
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.Server;
 import eestudio.utils.Utilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Client avec liste d'attente pour l'envoi des commandes au Flash.
  *
  * @author Fabrice Alleau
- * @version 0.95
- * @since version 0.94
  */
 public class FlashClient extends Server {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashClient.class);
     /**
      * Taille de la liste d'attente
      */
@@ -30,8 +33,6 @@ public class FlashClient extends Server {
      * Initialisation.
      *
      * @param port port de communication.
-     *
-     * @since version 0.94
      */
     public FlashClient(int port) {
         super(port);
@@ -43,7 +44,6 @@ public class FlashClient extends Server {
      * @param socket la connexion.
      *
      * @throws IOException problème de transmission
-     * @since version 0.95 (équivalent au traitement de la 0.94)
      */
     @Override
     protected void process(Socket socket) throws IOException {
@@ -59,7 +59,7 @@ public class FlashClient extends Server {
                 outputStream.write(xml.getBytes("UTF-8"));
                 outputStream.write((byte) 0);
                 outputStream.flush();
-                Edu4Logger.info("send to Flash Command : " + xml);
+                LOGGER.info("send to Flash Command : " + xml);
             }
         }
     }
@@ -70,8 +70,6 @@ public class FlashClient extends Server {
      * @param xml la commande.
      *
      * @return toujours <code>true</code>.
-     *
-     * @since version 0.94
      */
     public boolean sendCommand(String xml) {
         return fifo.offer(xml);

@@ -5,18 +5,23 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.List;
 
-import eestudio.utils.Edu4Logger;
 import eestudio.utils.Server;
 import eestudio.utils.XMLUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Serveur pour les requête du Flash.
  *
  * @author Fabrice Alleau
- * @version 0.96
- * @since version 0.94
  */
 public class FlashServer extends Server {
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashServer.class);
+
     /**
      * référence pour exécuter une commande
      */
@@ -27,8 +32,6 @@ public class FlashServer extends Server {
      *
      * @param core le noyau de supervision.
      * @param port le port d'écoute des commandes.
-     *
-     * @since version 0.94 - version 0.95
      */
     public FlashServer(FlashCore core, int port) {
         super(port);
@@ -41,7 +44,6 @@ public class FlashServer extends Server {
      * @param socket la connexion.
      *
      * @throws IOException
-     * @since version 0.95 (équivalent au traitement de la version 0.94) - version 0.96
      */
     @Override
     protected void process(Socket socket) throws IOException {
@@ -62,7 +64,7 @@ public class FlashServer extends Server {
 
         if (xml.length() > 0) {
             String request = xml.substring(0, xml.length() - 1);
-            Edu4Logger.info("Flash request: " + request);
+            LOGGER.info("Flash request: {}", request);
 
             try {
                 List<Command> commands = XMLUtilities.parseCommand(request);
@@ -73,7 +75,7 @@ public class FlashServer extends Server {
                 commands.clear();
             } catch (Exception e) {
                 //en cas d'erreur de traitement
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         }
     }

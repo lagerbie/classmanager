@@ -10,15 +10,20 @@ import java.util.StringTokenizer;
 import javax.swing.event.EventListenerList;
 
 import eestudio.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Gestion de Mplayer/Mencoder pour la conversion de fichiers.
  *
  * @author Fabrice Alleau
- * @version 1.03
- * @since version 0.96
  */
 public class MEncoder implements Converter {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(MEncoder.class);
+
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus
      */
@@ -99,8 +104,6 @@ public class MEncoder implements Converter {
      *
      * @param encoder l'exécutable "mencoder" pour la conversion.
      * @param player l'exécutable "mplayer" pour la conversion.
-     *
-     * @since version 0.96 - version 0.99
      */
     public MEncoder(File encoder, File player) {
         this.encoder = encoder;
@@ -122,7 +125,7 @@ public class MEncoder implements Converter {
         command.append(getProtectedName(player.getAbsolutePath()));
         command.append(" null");
 
-        Edu4Logger.info("converter command: " + command.toString());
+        LOGGER.info("converter command: " + command.toString());
         duration = -1;
 
         StringBuilder output = new StringBuilder(1024);
@@ -133,17 +136,15 @@ public class MEncoder implements Converter {
         fireProcessEnded(exit);
 
         if (output.length() > 0) {
-            Edu4Logger.info("converter standard Message:\n" + output.toString());
+            LOGGER.info("converter standard Message:\n" + output.toString());
         }
         if (error.length() > 0) {
-            Edu4Logger.info("converter error Message:\n" + error.toString());
+            LOGGER.info("converter error Message:\n" + error.toString());
         }
     }
 
     /**
      * Arrête le processus.
-     *
-     * @since version 0.96
      */
     @Override
     public void cancel() {
@@ -156,8 +157,6 @@ public class MEncoder implements Converter {
      * Indique si le processus termine le traitement.
      *
      * @param processingEnd si le processus termine le traitement.
-     *
-     * @since version 0.97
      */
     public void setProcessingEnd(boolean processingEnd) {
         this.processingEnd = processingEnd;
@@ -168,8 +167,6 @@ public class MEncoder implements Converter {
      * Ajoute d'une écoute de type ProgessListener.
      *
      * @param listener l'écoute à ajouter.
-     *
-     * @since version 0.96
      */
     @Override
     public void addListener(ProgessListener listener) {
@@ -180,8 +177,6 @@ public class MEncoder implements Converter {
      * Enlève une écoute de type ProgessListener.
      *
      * @param listener l'écoute à enlever.
-     *
-     * @since version 0.96
      */
     @Override
     public void removeListener(ProgessListener listener) {
@@ -192,8 +187,6 @@ public class MEncoder implements Converter {
      * Notification du début du traitement.
      *
      * @param determinated indique si le processus peut afficher un poucentage de progression.
-     *
-     * @since version 0.96
      */
     private void fireProcessBegin(boolean determinated) {
         for (ProgessListener listener : listeners.getListeners(ProgessListener.class)) {
@@ -205,8 +198,6 @@ public class MEncoder implements Converter {
      * Notification de fin du traitement.
      *
      * @param exit la valeur de sortie (par convention 0 équvaut à une sortie normale).
-     *
-     * @since version 0.96 - version 0.97
      */
     private void fireProcessEnded(int exit) {
         if (processingEnd) {
@@ -220,8 +211,6 @@ public class MEncoder implements Converter {
      * Notification du début du traitement.
      *
      * @param percent le nouveau pourcentage de progression.
-     *
-     * @since version 0.96
      */
     private void firePercentChanged(int percent) {
         for (ProgessListener listener : listeners.getListeners(ProgessListener.class)) {
@@ -233,8 +222,6 @@ public class MEncoder implements Converter {
      * Modifie le bitrate de l'audio.
      *
      * @param audioBitrate le birate en bit/s.
-     *
-     * @since version 0.96
      */
     private void setAudioBitrate(int audioBitrate) {
         this.audioBitrate = Integer.toString(audioBitrate / 1000);
@@ -244,8 +231,6 @@ public class MEncoder implements Converter {
      * Modifie le nombre de canaux audio.
      *
      * @param audioChannels le nombre de canaux audio.
-     *
-     * @since version 0.96
      */
     @Override
     public void setAudioChannels(int audioChannels) {
@@ -256,8 +241,6 @@ public class MEncoder implements Converter {
      * Modifie le taux d'échantillonage.
      *
      * @param audioRate la fréquence en Hz.
-     *
-     * @since version 0.96
      */
     @Override
     public void setAudioRate(int audioRate) {
@@ -269,8 +252,6 @@ public class MEncoder implements Converter {
      *
      * @param width la largeur.
      * @param height la hauteur.
-     *
-     * @since version 0.96
      */
     @Override
     public void setVideoSize(int width, int height) {
@@ -283,8 +264,6 @@ public class MEncoder implements Converter {
      * @param file le fichier.
      *
      * @return la durée du fichier en ms.
-     *
-     * @since version 0.96 - version 0.99
      */
     @Override
     public long getDuration(File file) {
@@ -309,8 +288,6 @@ public class MEncoder implements Converter {
      * @param file le fichier.
      *
      * @return la liste des pistes.
-     *
-     * @since version 0.96 - version 0.99
      */
     private List<String> getTracksInfo(File file) {
         if (player == null || !player.exists()) {
@@ -327,7 +304,7 @@ public class MEncoder implements Converter {
         command.append(" -msglevel identify=4 -ao null -vo null -frames 0 ");
         command.append(getProtectedName(file.getAbsolutePath()));
 
-        Edu4Logger.info("mplayer command: " + command.toString());
+        LOGGER.info("mplayer command: " + command.toString());
         duration = -1;
 
         StringBuilder input = new StringBuilder(1024);
@@ -358,8 +335,6 @@ public class MEncoder implements Converter {
      * @param file le fichier.
      *
      * @return si le fichier possède un flux audio.
-     *
-     * @since version 0.96
      */
     @Override
     public boolean hasAudioSrteam(File file) {
@@ -380,8 +355,6 @@ public class MEncoder implements Converter {
      * @param file le fichier.
      *
      * @return si le fichier possède un flux vidéo.
-     *
-     * @since version 0.96
      */
     @Override
     public boolean hasVideoSrteam(File file) {
@@ -406,8 +379,6 @@ public class MEncoder implements Converter {
      * @param tags les tags au format mp3.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     @Override
     public int convert(File destFile, File srcFile, TagList tags) {
@@ -425,8 +396,6 @@ public class MEncoder implements Converter {
      * @param channels le nombre de canaux audio.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.99 - version 1.03
      */
     private int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
         setAudioBitrate(128000);
@@ -459,8 +428,6 @@ public class MEncoder implements Converter {
      * @param subtitleFile le fichier pour les soustitres.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     @Override
     public int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
@@ -491,8 +458,6 @@ public class MEncoder implements Converter {
      * @param videoFile le fichier de destination pour la piste vidéo.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     @Override
     public int extractToWAVandFLV(File srcFile, File audioFile, File videoFile) {
@@ -540,8 +505,6 @@ public class MEncoder implements Converter {
      * @param imageFile l'image fixe à insérer.
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param duration la durée de la vidéo blanche à insérer.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
     public int insertBlankVideo(File file, File imageFile, long begin, long duration) {
@@ -560,8 +523,6 @@ public class MEncoder implements Converter {
      * @param file la vidéo à modifier.
      * @param begin le temps de départ de la partie à dupliquer.
      * @param end le temps de fin de la partie à dupliquer.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
     public int insertDuplicatedVideo(File file, long begin, long end) {
@@ -580,8 +541,6 @@ public class MEncoder implements Converter {
      * @param file la vidéo dans la quelle on insère la vidéo.
      * @param insertFile le fichier vidéo à insérer.
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
     public int insertVideo(File file, File insertFile, long begin) {
@@ -605,8 +564,6 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination de la vidéo.
      * @param imageFile l'image fixe à insérer.
      * @param duration la durée de la vidéo blanche.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
     public int createBlankVideo(File destFile, File imageFile, long duration) {
@@ -622,8 +579,6 @@ public class MEncoder implements Converter {
      * @param file la vidéo dans la quelle on supprime une plage de temps.
      * @param begin le temps de départ de la partie à supprimer.
      * @param end le temps de fin de la partie à supprimer.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
     public int removeVideo(File file, long begin, long end) {
@@ -651,12 +606,9 @@ public class MEncoder implements Converter {
      * @param end le temps de fin de la partie à déplacer.
      * @param newBegin le nouveau temps de départ de la partie à déplacer.
      * @param duration la nouvelle durée de la partie sélectionnée.
-     *
-     * @since version 0.99 - version 1.03
      */
     @Override
-    public int moveVideoAndResize(File file, File imageFile,
-            long begin, long end, long newBegin, long duration) {
+    public int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration) {
         setProcessingEnd(false);
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
@@ -704,12 +656,9 @@ public class MEncoder implements Converter {
      * @param oldRate l'ancienne vitesse de la partie à modifier.
      * @param newRate la nouvelle vitesse de la partie à modifier.
      * @param normalFile la vidéo correspondante au temps à un vitesse normale.
-     *
-     * @since version 1.01 - version 1.03
      */
     @Override
-    public int setVideoRate(File file, long begin, long end,
-            float oldRate, float newRate, File normalFile) {
+    public int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile) {
         setProcessingEnd(false);
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
@@ -749,8 +698,6 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int convertToMP3(File destFile, File srcFile, TagList tags) {
         StringBuilder args = new StringBuilder(1024);
@@ -781,7 +728,7 @@ public class MEncoder implements Converter {
             try {
                 tags.writeTagsToMp3(destFile);
             } catch (IOException e) {
-                Edu4Logger.error(e.getMessage());
+                LOGGER.error("", e);
             }
         }
         return result;
@@ -794,8 +741,6 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int convertToWAV(File destFile, File srcFile) {
         destFile.delete();
@@ -824,11 +769,8 @@ public class MEncoder implements Converter {
      * @param subtitleFile le fichier pour les soustitres.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.94 - version 1.03
      */
-    private int convertToMP4(File destFile, File audioFile, File videoFile,
-            File subtitleFile, TagList tags) {
+    private int convertToMP4(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
         StringBuilder args = new StringBuilder(1024);
 
         args.append(getProtectedName(videoFile.getAbsolutePath()));
@@ -910,8 +852,6 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int convertToFLV(File destFile, File srcFile) {
         StringBuilder args = new StringBuilder(1024);
@@ -937,8 +877,6 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int convertToFLV(File destFile, File srcFile, float rate) {
         StringBuilder args = new StringBuilder(1024);
@@ -965,7 +903,6 @@ public class MEncoder implements Converter {
 //     * @param destFile le fichier de destination.
 //     * @param videoFile  le fichier video à convertir.
 //     * @return les messages de conversion.
-//     * @since version 1.82
 //     */
 //    private int convertToXvid(File destFile, File videoFile) {
 //        StringBuilder args = new StringBuilder(1024);
@@ -998,8 +935,6 @@ public class MEncoder implements Converter {
      * Teste la présence du codec mp3lame sur l'encodeur.
      *
      * @return la présence du codec mp3lame sur l'encodeur.
-     *
-     * @since version 0.99 - version 1.03
      */
     private boolean hasCodec_mp3lame() {
         String args = " -oac help";
@@ -1016,12 +951,10 @@ public class MEncoder implements Converter {
      * @param workingDirectory le répertoire de travail (utile pour les images).
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int convert(File binary, String args, File workingDirectory, StringBuilder out) {
         if (binary == null || !binary.exists()) {
-            Edu4Logger.error("Converter binary not found: " + binary);
+            LOGGER.error("Converter binary not found: " + binary);
             return FILE_NOT_FIND;
         }
 
@@ -1030,7 +963,7 @@ public class MEncoder implements Converter {
         command.append(" ");
         command.append(args);
 
-        Edu4Logger.info("converter command: " + command.toString());
+        LOGGER.info("converter command: " + command.toString());
         duration = -1;
 
         StringBuilder output = new StringBuilder(1024);
@@ -1044,10 +977,10 @@ public class MEncoder implements Converter {
             if (out != null) {
                 out.append(output);
             }
-            Edu4Logger.info("converter standard Message:\n" + output.toString());
+            LOGGER.info("converter standard Message:\n" + output.toString());
         }
         if (error.length() > 0) {
-            Edu4Logger.info("converter error Message:\n" + error.toString());
+            LOGGER.info("converter error Message:\n" + error.toString());
         }
 
         if (output.length() > 0) {
@@ -1064,16 +997,14 @@ public class MEncoder implements Converter {
      * @param videoArgs les arguments de la convertion de la piste vidéo.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int extract(String audioArgs, String videoArgs) {
         if (player == null || !player.exists()) {
-            Edu4Logger.error("Converter binary not found: " + player);
+            LOGGER.error("Converter binary not found: " + player);
             return FILE_NOT_FIND;
         }
         if (encoder == null || !encoder.exists()) {
-            Edu4Logger.error("Converter binary not found: " + encoder);
+            LOGGER.error("Converter binary not found: " + encoder);
             return FILE_NOT_FIND;
         }
 
@@ -1082,7 +1013,7 @@ public class MEncoder implements Converter {
         command.append(" ");
         command.append(audioArgs);
 
-        Edu4Logger.info("mplayer command: " + command.toString());
+        LOGGER.info("mplayer command: " + command.toString());
         duration = -1;
 
         StringBuilder output = new StringBuilder(1024);
@@ -1092,10 +1023,10 @@ public class MEncoder implements Converter {
         int exit = executeCommand(command.toString(), null, output, error);
 
         if (output.length() > 0) {
-            Edu4Logger.info("extract audio standard Message:\n" + output.toString());
+            LOGGER.info("extract audio standard Message:\n" + output.toString());
         }
         if (error.length() > 0) {
-            Edu4Logger.info("extract audio error Message:\n" + error.toString());
+            LOGGER.info("extract audio error Message:\n" + error.toString());
         }
         if (exit != 0) {
             return CONVERSION_ERROR;
@@ -1108,7 +1039,7 @@ public class MEncoder implements Converter {
         command.append(" ");
         command.append(videoArgs);
 
-        Edu4Logger.info("mencoder command: " + command.toString());
+        LOGGER.info("mencoder command: " + command.toString());
         duration = -1;
 
         fireProcessBegin(true);
@@ -1116,10 +1047,10 @@ public class MEncoder implements Converter {
         fireProcessEnded(exit);
 
         if (output.length() > 0) {
-            Edu4Logger.info("extract video standard Message:\n" + output.toString());
+            LOGGER.info("extract video standard Message:\n" + output.toString());
         }
         if (error.length() > 0) {
-            Edu4Logger.info("extract video Message:\n" + error.toString());
+            LOGGER.info("extract video Message:\n" + error.toString());
         }
 
         if (output.length() > 0) {
@@ -1139,11 +1070,8 @@ public class MEncoder implements Converter {
      * @param imageFile
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
-    private int createVideoFile(File destFile, long duration,
-            File workingDirectory, File imageFile) {
+    private int createVideoFile(File destFile, long duration, File workingDirectory, File imageFile) {
 
         String extension = Utilities.getExtensionFile(imageFile);
         for (int i = 0; i < 10; i++) {
@@ -1154,7 +1082,7 @@ public class MEncoder implements Converter {
         double nb = 0;
         String names[] = workingDirectory.list();
         if (names == null) {
-            Edu4Logger.error("error: no file");
+            LOGGER.error("error: no file");
             return FILE_NOT_FIND;
         }
         for (String name : names) {
@@ -1164,7 +1092,7 @@ public class MEncoder implements Converter {
             }
         }
         if (nb == 0) {
-            Edu4Logger.error("error: no image file");
+            LOGGER.error("error: no image file");
             return FILE_NOT_FIND;
         }
 
@@ -1192,8 +1120,6 @@ public class MEncoder implements Converter {
      * @param srcFiles les différents fichiers sources.
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int joinVideoFile(File destFile, File... srcFiles) {
         StringBuilder args = new StringBuilder(1024);
@@ -1221,8 +1147,6 @@ public class MEncoder implements Converter {
      * @param end le temps de fin de la partie à extraire (en ms).
      *
      * @return les messages de conversion.
-     *
-     * @since version 0.96 - version 1.03
      */
     private int extractVideoFile(File destFile, File srcFile, long begin, long end) {
         StringBuilder args = new StringBuilder(1024);
@@ -1246,14 +1170,11 @@ public class MEncoder implements Converter {
      * @param error un StringBuilder initialisé pour afficher la sortie des erreur.
      *
      * @return la valeur de sortie du processus résultat de la commande.
-     *
-     * @since version 0.96 - version 0.99
      */
     private int executeCommand(String command, File workingDirectory,
             StringBuilder output, StringBuilder error) {
         if (Constants.LINUX_PLATFORM) {
-            return executeCommand(new String[]{"/bin/sh", "-c", command},
-                    workingDirectory, output, error);
+            return executeCommand(new String[]{"/bin/sh", "-c", command}, workingDirectory, output, error);
         }
 
         StringTokenizer tokenizer = new StringTokenizer(command);
@@ -1274,31 +1195,26 @@ public class MEncoder implements Converter {
      * @param error un StringBuilder initialisé pour afficher la sortie des erreur.
      *
      * @return la valeur de sortie du processus résultat de la commande.
-     *
-     * @since version 0.99
      */
-    private int executeCommand(String[] command, File workingDirectory,
-            StringBuilder output, StringBuilder error) {
+    private int executeCommand(String[] command, File workingDirectory, StringBuilder output, StringBuilder error) {
         int end = -1;
         Runtime runtime = Runtime.getRuntime();
         process = null;
 
         try {
             process = runtime.exec(command, null, workingDirectory);
-            Thread outputThread = createReadThread(process.getInputStream(),
-                    output);
-            Thread errorThread = createReadThread(process.getErrorStream(),
-                    error);
+            Thread outputThread = createReadThread(process.getInputStream(), output);
+            Thread errorThread = createReadThread(process.getErrorStream(), error);
             outputThread.start();
             errorThread.start();
 
             try {
                 end = process.waitFor();
             } catch (InterruptedException e) {
-                Edu4Logger.error(e);
+                LOGGER.error("", e);
             }
         } catch (IOException e) {
-            Edu4Logger.error(e);
+            LOGGER.error("", e);
         }
 
         if (process != null) {
@@ -1315,11 +1231,8 @@ public class MEncoder implements Converter {
      * @param output un StringBuilder initialisé pour afficher la sortie.
      *
      * @return la thread de gestion du flux.
-     *
-     * @since version 0.96 - version 0.99
      */
-    private Thread createReadThread(final InputStream inputStream,
-            final StringBuilder output) {
+    private Thread createReadThread(final InputStream inputStream, final StringBuilder output) {
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -1332,7 +1245,7 @@ public class MEncoder implements Converter {
                         cnt = inputStream.read(data);
                     }
                 } catch (IOException e) {
-                    Edu4Logger.error(e);
+                    LOGGER.error("", e);
                 }
             }//end run
         };
@@ -1343,8 +1256,6 @@ public class MEncoder implements Converter {
      * Traitement des nouvelles données pour déterminer le pourcentage de conversion.
      *
      * @param data les nouvelles données.
-     *
-     * @since version 0.96 - version 0.99
      */
     private void fireNewData(String data) {
         if (data.contains(durationProperty)) {
@@ -1369,8 +1280,6 @@ public class MEncoder implements Converter {
      * @param name le nom du fichier.
      *
      * @return le nom protégé.
-     *
-     * @since version 0.96
      */
     private String getProtectedName(String name) {
         if (!name.contains(" ")) {
@@ -1472,4 +1381,4 @@ public class MEncoder implements Converter {
 //        System.out.println(message);
 //    }
 
-}//end
+}
