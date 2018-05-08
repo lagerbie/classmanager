@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-import eestudio.Constants;
 import eestudio.Core;
 import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
@@ -15,6 +14,7 @@ import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.model.Constants;
 import thot.model.Index;
 
 /**
@@ -53,7 +53,6 @@ public class FlashCore {
      * @param core le noyau de l'application.
      * @param flashToCorePort
      * @param coreToFlashPort
-     *
      */
     public FlashCore(Core core, int flashToCorePort, int coreToFlashPort) {
         this.core = core;
@@ -71,7 +70,6 @@ public class FlashCore {
      * Affecte les resources graphiques.
      *
      * @param guiResourcesWithFlash les resources graphiques.
-     *
      */
     public void setMainFrame(GuiFlashResource guiResourcesWithFlash) {
         this.guiResources = guiResourcesWithFlash;
@@ -93,7 +91,6 @@ public class FlashCore {
 
     /**
      * @param list la liste
-     *
      */
     public void sendVersionToFlash(List<String> list) {
         sendCommandToFlash(Command.VERSION, XMLUtilities.getXMLDescription(list));
@@ -103,7 +100,6 @@ public class FlashCore {
      * Envoie la commande de changement de langue.
      *
      * @param locale la nouvelle langue.
-     *
      */
     public void sendLanguageToFlash(Locale locale) {
         sendCommandToFlash(Command.LANGUAGE, locale.getLanguage());
@@ -114,7 +110,6 @@ public class FlashCore {
      *
      * @param action le nom de l'action.
      * @param parameter les parmètres.
-     *
      */
     private void sendCommandToFlash(String action, String parameter) {
         Command command = new Command(action, parameter);
@@ -125,7 +120,6 @@ public class FlashCore {
     /**
      * Ajout des méthodes pour le listener. Utilisation de SwingUtilities.invokeLater(new Runnable()) pour que les
      * modifications touchant l'interface graphique soit appelé par l'EDT.
-     *
      */
     private void addCoreListener() {
         core.addListener(new Listener() {
@@ -230,7 +224,6 @@ public class FlashCore {
      *
      * @param action le type de la commande.
      * @param parameter le paramètre de la commande.
-     *
      */
     public void executeCommand(String action, String parameter) {
         LOGGER.info("command: " + action + " para: " + parameter);

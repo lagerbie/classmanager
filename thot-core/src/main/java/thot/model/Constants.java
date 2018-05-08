@@ -23,7 +23,7 @@ package thot.model;
  * Constantes.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public interface Constants {
 
@@ -155,6 +155,28 @@ public interface Constants {
     int IMAGE_FILE = 3;
 
     /**
+     * Nom du charset pour le format UTF-8
+     */
+    String UTF8_CHARSET = "UTF-8";
+    /**
+     * Nom du charset pour le format des fenêtres DOS
+     */
+    String DOS_CHARSET = "IBM850";
+    /**
+     * Nom du charset pour le format par défaut de Windows
+     */
+    String WINDOWS_CHARSET = "windows-1252";
+
+    /**
+     * Vérification si la plateforme est Linux
+     */
+    boolean LINUX_PLATFORM = System.getProperty("os.name").toLowerCase().contains("linux");
+    /**
+     * Vérification si la plateforme est Windows
+     */
+    boolean WINDOWS_PLATFORM = System.getProperty("os.name").toLowerCase().contains("windows");
+
+    /**
      * Nom de l'extension d'un projet.
      */
     String projectExtension = ".ees";
@@ -167,6 +189,10 @@ public interface Constants {
      */
     String indexesExtension = ".index";
     /**
+     * Nom de l'extension d'un fichier de tags
+     */
+    String tagExtension = ".tag";
+    /**
      * Nom de l'extension par le format wav.
      */
     String WAV_extension = ".wav";
@@ -178,6 +204,10 @@ public interface Constants {
      * Nom de l'extension par le format avi.
      */
     String AVI_extension = ".avi";
+    /**
+     * Nom de l'extension par le format flv
+     */
+    String FLV_extension = ".flv";
     /**
      * Nom de l'extension par défaut pour l'enregistrement du fichier audio.
      */

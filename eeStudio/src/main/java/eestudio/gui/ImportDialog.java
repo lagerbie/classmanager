@@ -10,17 +10,15 @@ import java.io.File;
 
 import javax.swing.*;
 
-import eestudio.Constants;
 import eestudio.Core;
 import eestudio.utils.Utilities;
+import thot.model.Constants;
 import thot.model.ProjectFiles;
 
 /**
  * Fenêtre de dialogue pour l'exportation.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.95
  */
 public class ImportDialog extends JDialog {
     private static final long serialVersionUID = 9512L;
@@ -133,8 +131,6 @@ public class ImportDialog extends JDialog {
      * @param resources les resources textuelles.
      * @param processingBar barre de progression pour les traitements.
      * @param tempPath le dossier temporaire pour des manipulation.
-     *
-     * @since version 0.95 - version 0.99
      */
     public ImportDialog(Window parent, Core core, Resources resources, ProcessingBar processingBar, File tempPath) {
         super(parent, resources.getString("importTitle"), DEFAULT_MODALITY_TYPE);
@@ -149,8 +145,6 @@ public class ImportDialog extends JDialog {
 
     /**
      * Initialisation des composants graphiques.
-     *
-     * @since version 0.95.12 - version 1.01
      */
     private void initComponents() {
         int margin = 20;
@@ -363,8 +357,6 @@ public class ImportDialog extends JDialog {
 
     /**
      * Modification des textes pour un changement de langue.
-     *
-     * @since version 0.95.12
      */
     public void updateLanguage() {
         this.setTitle(resources.getString("importTitle"));
@@ -389,8 +381,6 @@ public class ImportDialog extends JDialog {
 
     /**
      * Teste la validité des choix et importe ou efface les éléments en conséquence.
-     *
-     * @since version 0.95.12 - version 1.01
      */
     private void validAction() {
         ProjectFiles project = new ProjectFiles();
@@ -436,8 +426,6 @@ public class ImportDialog extends JDialog {
      * indique. Si un élément doit être effacer, null est indiqué.
      *
      * @param project les différents éléments.
-     *
-     * @since version 0.95.13
      */
     private void performLoad(final ProjectFiles project) {
         processingBar
@@ -453,8 +441,6 @@ public class ImportDialog extends JDialog {
 
     /**
      * Ferme la fenêtre et les resources associées.
-     *
-     * @since version 0.95.12
      */
     public void close() {
         processingBar.close();
@@ -466,8 +452,6 @@ public class ImportDialog extends JDialog {
      * Affiche la fenêtre et initialise les différents éléments de choix.
      *
      * @param file le fichier principal de l'importation.
-     *
-     * @since version 0.95 - version 1.00
      */
     public void showDialog(File file) {
         this.file = file;
@@ -510,25 +494,11 @@ public class ImportDialog extends JDialog {
         videoFile = null;
         textFile = null;
 
-        String name = Utilities.getNameWithoutExtension(file);
         File path = null;
         File projectFile = null;
 
-        //on récupère le fichier projet associé
-        //si c'est un fichier edu4, on le décompresse
-        if (Utilities.isEdu4File(file)) {
-            path = new File(tempPath, name);
-            boolean hasFile = Utilities.extractArchive(file, path);
-            if (!hasFile) {
-                GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("loadError"), file));
-            }
-
-            projectFile = Utilities.searchFile(path, name, Constants.projectExtension);
-            //nom différent (renommage du fichier projet après la sauvegarde)
-            if (projectFile == null) {
-                projectFile = Utilities.searchFile(path, Constants.projectExtension);
-            }
-        } else if (Utilities.isProjectFile(file)) {
+        //on récupère le fichier projet associé si c'est un fichier edu4, on le décompresse
+        if (Utilities.isProjectFile(file)) {
             projectFile = file;
         }
 
@@ -543,8 +513,7 @@ public class ImportDialog extends JDialog {
                 newProject.setIndexesFile(file.getAbsolutePath());
             } else {
 //                if(core.getFileDuration(file) < 100) {
-//                    GuiUtilities.showMessageDialog(getOwner(), String.format(
-//                            resources.getString("fileFormatNotSupported"), file));
+//                    GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("fileFormatNotSupported"), file));
 //                    return;
 //                }
                 if (core.hasAudioSrteam(file)) {
@@ -670,7 +639,7 @@ public class ImportDialog extends JDialog {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation((dim.width - this.getWidth()) / 2, (dim.height - this.getHeight()) / 2);
         this.setVisible(true);
-    }//end showDialog(...)
+    }
 
 //    public static void main(String[] args){
 //        GuiUtilities.manageUI(true);

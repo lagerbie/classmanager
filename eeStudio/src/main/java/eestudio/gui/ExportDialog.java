@@ -10,9 +10,9 @@ import java.io.File;
 
 import javax.swing.*;
 
-import eestudio.Constants;
 import eestudio.Core;
 import eestudio.utils.Utilities;
+import thot.model.Constants;
 import thot.model.ProjectFiles;
 import thot.model.ProjectTarget;
 
@@ -20,8 +20,6 @@ import thot.model.ProjectTarget;
  * Fenêtre de dialogue pour l'exportation.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.95
  */
 public class ExportDialog extends JDialog {
     private static final long serialVersionUID = 9800L;
@@ -114,8 +112,6 @@ public class ExportDialog extends JDialog {
      * @param resources les resources textuelles.
      * @param soft le choix du logiciel initial.
      * @param processingBar barre de progression pour les traitements.
-     *
-     * @since version 0.95 - version 0.99
      */
     public ExportDialog(Window parent, Core core, Resources resources, ProjectTarget soft,
             ProcessingBar processingBar) {
@@ -131,8 +127,6 @@ public class ExportDialog extends JDialog {
 
     /**
      * Initialisation des composants graphiques.
-     *
-     * @since version 0.95 - version 1.02
      */
     private void initComponents() {
         int margin = 20;
@@ -399,8 +393,6 @@ public class ExportDialog extends JDialog {
 
     /**
      * Ferme la fenêtre et les resources associées.
-     *
-     * @since version 0.95.12
      */
     public void close() {
         processingBar.close();
@@ -412,15 +404,9 @@ public class ExportDialog extends JDialog {
      * Affiche la fenêtre et initialise les différents éléments de choix.
      *
      * @param file le fichier principal de l'exportation.
-     *
-     * @since version 0.95 - version 0.98
      */
     public void showDialog(File file) {
         this.file = file;
-
-        if (!Utilities.isEdu4File(file)) {
-            this.file = Utilities.returnFileWithExtension(file, Constants.edu4Extension);
-        }
 
         //Vérification si le fichier de sauvegarde existe déjà
         if (this.file.exists()) {

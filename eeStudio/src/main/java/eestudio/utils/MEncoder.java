@@ -9,9 +9,9 @@ import java.util.StringTokenizer;
 
 import javax.swing.event.EventListenerList;
 
-import eestudio.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.model.Constants;
 
 /**
  * Gestion de Mplayer/Mencoder pour la conversion de fichiers.

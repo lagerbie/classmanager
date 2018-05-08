@@ -17,6 +17,7 @@ import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.model.Constants;
 
 /**
  * Initialisation et lancement de l'application.

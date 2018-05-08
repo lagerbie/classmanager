@@ -28,9 +28,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import eestudio.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.model.Constants;
 import thot.model.Indexes;
 import thot.model.ProjectFiles;
 
@@ -39,6 +39,7 @@ import thot.model.ProjectFiles;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public class Utilities {
     /**
      * Instance de log.
@@ -142,17 +143,6 @@ public class Utilities {
             LOGGER.warn("parseStringAsBoolean: " + e.getMessage());
         }
         return parseValue;
-    }
-
-    /**
-     * Indique si le fichier porte l'extension des fichiers Edu4.
-     *
-     * @param file le fichier.
-     *
-     * @return si le fichier est du type Edu4.
-     */
-    public static boolean isEdu4File(File file) {
-        return file.getName().toLowerCase().endsWith(Constants.edu4Extension);
     }
 
     /**

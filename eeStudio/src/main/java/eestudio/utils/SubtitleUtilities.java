@@ -12,6 +12,7 @@ import thot.model.Indexes;
  * @version 0.97
  * @since version 0.94
  */
+@Deprecated
 public class SubtitleUtilities {
 
     /**

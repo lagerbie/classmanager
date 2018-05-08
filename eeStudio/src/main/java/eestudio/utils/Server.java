@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public abstract class Server implements Runnable {
     /**
      * Instance de log.

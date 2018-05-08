@@ -61,17 +61,9 @@ public interface ThotPort {
      */
     int thumbToMosaiquePort = 7210;
     /**
-     * Port de base pour l'envoi d'écran.
-     */
-    int screenRemotePort = 7211;
-    /**
      * Port pour les évènements de control clavier / souris.
      */
     int keyboardAndMousePort = 7212;
-    /**
-     * Port de base pour le transfert de fichiers.
-     */
-    int fileTransfertPort = 7213;
 
     /**
      * Port d'envoi audio principal.
@@ -81,10 +73,7 @@ public interface ThotPort {
      * Port d'envoi audio secondaire.
      */
     int audioPairingPort = 7221;
-//    /** Port d'envoi audio tertiaire */
-//    int audioTriPort = 7222;
-//    /** Port d'envoi audio qua */
-//    int audioQuaPort = 7223;
+
     /**
      * Port d'envoi audio principal du professeur.
      */

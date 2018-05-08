@@ -31,6 +31,7 @@ import thot.model.ProjectTarget;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public class XMLUtilities {
 
     /**

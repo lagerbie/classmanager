@@ -9,11 +9,11 @@ import java.util.Map;
 
 import javax.swing.*;
 
-import eestudio.Constants;
 import eestudio.Core;
 import eestudio.utils.TagList;
 import eestudio.utils.Utilities;
 import eestudio.utils.XMLUtilities;
+import thot.model.Constants;
 import thot.model.Index;
 import thot.model.IndexType;
 import thot.model.ProjectTarget;
@@ -22,8 +22,6 @@ import thot.model.ProjectTarget;
  * Gestion des resources graphiques.
  *
  * @author Fabrice Alleau
- * @version 1.02
- * @since version 0.94
  */
 public class GuiFlashResource {
     /**
@@ -102,8 +100,6 @@ public class GuiFlashResource {
      *
      * @param core le noyau de l'application.
      * @param languageFile le fichier pour la sauvegarde de la langue.
-     *
-     * @since version 0.94 - version 1.00
      */
     public GuiFlashResource(Core core, File languageFile) {
         this.core = core;
@@ -131,8 +127,6 @@ public class GuiFlashResource {
 
     /**
      * Initialise la fenêtre principale.
-     *
-     * @since version 0.94 - version 1.02
      */
     private void initComponents() {
         processingBar = new ProcessingBar();
@@ -182,8 +176,6 @@ public class GuiFlashResource {
      * Ajoute un WindowListener à la fenêtre d'édition du texte.
      *
      * @param listener le WindowListener.
-     *
-     * @since version 0.95 - version 0.97
      */
     public void addEditorWindowListener(WindowListener listener) {
         textEditor.addWindowListener(listener);
@@ -194,8 +186,6 @@ public class GuiFlashResource {
      * Ajoute un WindowListener aux fenêtres de progression.
      *
      * @param listener le WindowListener.
-     *
-     * @since version 0.96 - version 0.97
      */
     public void addProcessingBarWindowListener(WindowListener listener) {
         processingBar.addWindowListener(listener);
@@ -205,8 +195,6 @@ public class GuiFlashResource {
      * Change la langue de l'interface.
      *
      * @param language la nouvelle langue de l'interface.
-     *
-     * @since version 0.94 - version 1.00
      */
     public void flashChangeLanguage(String language) {
         Locale locale = null;
@@ -259,8 +247,6 @@ public class GuiFlashResource {
      * @param message le message pour la barre de progression.
      * @param formatValue les objets pour le message si il est formaté
      * @param determinated si le processus à un poucentage déterminé.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void processBegin(boolean determinated, String title, String message, Object... formatValue) {
         processingBar.processBegin(determinated, resources.getString(title), resources.getString(message), formatValue);
@@ -270,8 +256,6 @@ public class GuiFlashResource {
      * Débute un processus d'attente.
      *
      * @param determinated indique si le processus à un poucentage déterminé.
-     *
-     * @since version 0.94 - version 0.97
      */
     public void processBegin(boolean determinated) {
         processingBar.processBegin(determinated);
@@ -279,8 +263,6 @@ public class GuiFlashResource {
 
     /**
      * Ferme la barre de progression.
-     *
-     * @since version 0.94 - version 0.97
      */
     public void processEnded() {
         if (!indexEditor.isVisible()) {
@@ -293,8 +275,6 @@ public class GuiFlashResource {
      * Change la valeur de la barre de progression.
      *
      * @param percent la nouvelle valeur de progression totale en pourcentage.
-     *
-     * @since version 0.94 - version 0.97
      */
     public void percentChanged(int percent) {
         processingBar.setValue(percent);
@@ -302,16 +282,13 @@ public class GuiFlashResource {
 
     /**
      * chargement d'un fichier.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashLoad() {
-//        chooser.addChoosableFileFilter(resources.getString("imageFilter"), Core.imageExtension);
+//        chooser.addChoosableFileFilter(resources.getString("imageFilter"), Constants.imageExtension);
         fileChooser.addChoosableFileFilter(resources.getString("textFilter"), Constants.textExtension);
         fileChooser.addChoosableFileFilter(resources.getString("audioFilter"), Constants.audioExtension);
         fileChooser.addChoosableFileFilter(resources.getString("videoFilter"), Constants.videoExtension);
-        fileChooser.addChoosableFileFilter(resources.getString("projectFilter"), Constants.indexesExtension,
-                Constants.projectExtension, Constants.edu4Extension);
+        fileChooser.addChoosableFileFilter(resources.getString("projectFilter"), Constants.projectExtension);
         fileChooser.setAcceptAllFileFilterUsed(true);
 
         File file = fileChooser.getSelectedFile(getMainWindow(), FileChooser.LOAD);
@@ -325,8 +302,6 @@ public class GuiFlashResource {
      * chargement d'un fichier prédéterminé.
      *
      * @param file le fichier.
-     *
-     * @since version 0.97
      */
     public void flashLoad(File file) {
         closeMainWindow();
@@ -335,12 +310,9 @@ public class GuiFlashResource {
 
     /**
      * sauvegarde du projet.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashSave() {
-        fileChooser.setFileFilter(resources.getString("projectFilter"), Constants.indexesExtension,
-                Constants.projectExtension, Constants.edu4Extension);
+        fileChooser.setFileFilter(resources.getString("projectFilter"), Constants.projectExtension);
 
         File file = fileChooser.getSelectedFile(getMainWindow(), FileChooser.SAVE);
         closeMainWindow();
@@ -353,8 +325,6 @@ public class GuiFlashResource {
      * Edition de tous les index.
      *
      * @param nbIndexes le nombre d'index à créer.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashEditAll(int nbIndexes) {
         if (nbIndexes > 0) {
@@ -378,8 +348,6 @@ public class GuiFlashResource {
      * Edition de tous les index.
      *
      * @param nbIndexes le nombre d'index à créer.
-     *
-     * @since version 0.99
      */
     public void flashInsertBlank(int nbIndexes) {
         if (nbIndexes > 0) {
@@ -403,8 +371,6 @@ public class GuiFlashResource {
      * Edition des tags.
      *
      * @param tags Les tags initiaux
-     *
-     * @since version 0.99
      */
     public void flashEditTags(TagList tags) {
         tagsEditor.showDialog(tags);
@@ -412,8 +378,6 @@ public class GuiFlashResource {
 
     /**
      * effacement du projet.
-     *
-     * @since version 0.94 - version 0.95.12
      */
     public void flashErase() {
         eraseDialog.showDialog();
@@ -424,8 +388,6 @@ public class GuiFlashResource {
      *
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
-     *
-     * @since version 0.94
      */
     public void flashIndexSubtitle(long begin, long end) {
         long length = end - begin;
@@ -439,8 +401,6 @@ public class GuiFlashResource {
      *
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexBlank(long begin, long end) {
         long lengthMax = end;
@@ -479,8 +439,6 @@ public class GuiFlashResource {
      * insérer un fichier.
      *
      * @param begin le temps de début de l'index.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexFile(long begin) {
         fileChooser.setAcceptAllFileFilterUsed(true);
@@ -506,15 +464,13 @@ public class GuiFlashResource {
                 boolean success = core.insertFile(file, begin);
                 processEnded();
             }
-        }//end if
+        }
     }
 
     /**
      * insérer la voix.
      *
      * @param begin le temps de début de l'index.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexVoice(long begin) {
         Index currentIndex = core.getIndexAtTime(begin);
@@ -530,8 +486,6 @@ public class GuiFlashResource {
      * éditer un index.
      *
      * @param time le temps de l'index à éditer.
-     *
-     * @since version 0.94
      */
     public void flashIndexEdit(long time) {
         indexEditor.showDialog(core.getIndexAtTime(time));
@@ -542,8 +496,6 @@ public class GuiFlashResource {
      *
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexAfter(long begin, long end) {
         double length = (end - begin) / 1000.0;
@@ -567,8 +519,6 @@ public class GuiFlashResource {
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
      * @param subtitle le sous-titre de l'indes.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexRepeat(long begin, long end, String subtitle) {
         long length = end - begin;
@@ -586,8 +536,6 @@ public class GuiFlashResource {
      * efface l'enregistrement audio de l'index.
      *
      * @param begin le temps de début de l'index.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexErase(long begin) {
         int choix = GuiUtilities.showOptionDialog(getMainWindow(), resources.getString("eraseIndex"), null, null);
@@ -604,8 +552,6 @@ public class GuiFlashResource {
      * efface l'index et les données.
      *
      * @param time le temps de l'index à supprimer.
-     *
-     * @since version 0.94 - version 0.99
      */
     public void flashIndexDelete(long time) {
         int choix = GuiUtilities.showOptionDialog(getMainWindow(), resources.getString("deleteIndex"), null, null);
@@ -622,8 +568,6 @@ public class GuiFlashResource {
      * affiche l'éditeur de texte.
      *
      * @param visible
-     *
-     * @since version 0.94
      */
     public void flashText(boolean visible) {
         textEditor.showWindow(visible);
@@ -631,8 +575,6 @@ public class GuiFlashResource {
 
     /**
      * charge un fichier texte.
-     *
-     * @since version 0.94 - version 0.99
      */
     private void flashTextLoad() {
         fileChooser.setFileFilter(resources.getString("textFilter"), Constants.textExtension);
@@ -661,8 +603,6 @@ public class GuiFlashResource {
 
     /**
      * efface le texte.
-     *
-     * @since version 0.94 - version 0.99
      */
     private void flashTextErase() {
         int choix = GuiUtilities.showOptionDialog(textEditor, resources.getString("eraseTextConfirm"), null, null);
@@ -675,8 +615,6 @@ public class GuiFlashResource {
      * Retourne le fenêtre principale tout en la mettant eu premier plan.
      *
      * @return la fenêtre principale.
-     *
-     * @since version 0.94
      */
     private Window getMainWindow() {
         window.setAlwaysOnTop(true);
@@ -685,7 +623,6 @@ public class GuiFlashResource {
     }
 
     /**
-     * @since version 0.94 - version 0.95.12
      */
     private void closeMainWindow() {
         importDialog.close();
@@ -697,8 +634,6 @@ public class GuiFlashResource {
 
     /**
      * @param text
-     *
-     * @since version 0.94 - version 0.95.13
      */
     public void old_textLoaded(final String text) {
 //        SwingUtilities.invokeLater(new Runnable() {
@@ -711,8 +646,6 @@ public class GuiFlashResource {
 
     /**
      * @param state
-     *
-     * @since version 0.94
      */
     public void old_runningStateChanged(final int state) {
         SwingUtilities.invokeLater(() -> {

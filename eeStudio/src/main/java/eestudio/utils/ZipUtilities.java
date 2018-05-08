@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
  * @version 0.96
  * @since version 0.94
  */
+@Deprecated
 public class ZipUtilities {
     private static int BUFFER_SIZE = 94000;
 
