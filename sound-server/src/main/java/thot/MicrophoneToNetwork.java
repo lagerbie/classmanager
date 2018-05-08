@@ -1,4 +1,4 @@
-package supervision;
+package thot;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -65,7 +65,7 @@ public class MicrophoneToNetwork implements Runnable {
      *
      * @param audioFormat le format de capture.
      */
-    public MicrophoneToNetwork(AudioFormat audioFormat) {
+    MicrophoneToNetwork(AudioFormat audioFormat) {
         clients = new ArrayList<>(4);
         this.audioFormat = audioFormat;
     }
@@ -87,7 +87,7 @@ public class MicrophoneToNetwork implements Runnable {
     /**
      * Démarre le serveur.
      */
-    public void start() throws LineUnavailableException, SocketException {
+    void start() throws LineUnavailableException, SocketException {
         LOGGER.info("Démarrage du serveur d'envoi des données du microphone");
         socket = new DatagramSocket();
         openLine(audioFormat);
@@ -102,7 +102,7 @@ public class MicrophoneToNetwork implements Runnable {
     /**
      * Stoppe le serveur.
      */
-    public void stop() {
+    void stop() {
         LOGGER.info("Arrêt du serveur d'envoi des données du microphone");
         send = false;
     }
@@ -115,7 +115,7 @@ public class MicrophoneToNetwork implements Runnable {
      *
      * @return si la connection est établie.
      */
-    public boolean connect(String addressIP, int port) {
+    boolean connect(String addressIP, int port) {
         LOGGER.info("Ajout du client {}:{}", addressIP, port);
         InetSocketAddress socketAddress = new InetSocketAddress(addressIP, port);
 
@@ -134,7 +134,7 @@ public class MicrophoneToNetwork implements Runnable {
      * @param addressIP l'adresse IP du serveur d'écoute.
      * @param port le port du serveur d'écoute.
      */
-    public void disconnect(String addressIP, int port) {
+    void disconnect(String addressIP, int port) {
         InetSocketAddress socketAddress = new InetSocketAddress(addressIP, port);
         disconnect(socketAddress);
     }

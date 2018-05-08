@@ -1,4 +1,4 @@
-package supervision;
+package thot;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +64,7 @@ public class NetworkToAudio implements Runnable {
      * @param audioFormat le format de la ligne microphone.
      * @param port le port du receveur.
      */
-    public NetworkToAudio(AudioFormat audioFormat, int port) {
+    NetworkToAudio(AudioFormat audioFormat, int port) {
         this.audioFormat = audioFormat;
         this.port = port;
     }
@@ -84,7 +84,7 @@ public class NetworkToAudio implements Runnable {
     /**
      * Démarre la réception des données et leur lecture.
      */
-    public void start() throws LineUnavailableException, IOException {
+    void start() throws LineUnavailableException, IOException {
         LOGGER.info("Démarrage du serveur de réception des données audio");
         serverSocket = new ServerSocket(port);
         //Ouverture de la ligne pour écouter les données
@@ -100,7 +100,7 @@ public class NetworkToAudio implements Runnable {
     /**
      * Stoppe le serveur.
      */
-    public void stop() {
+    void stop() {
         LOGGER.info("Arrêt du serveur de réception des données audio");
         receive = false;
     }

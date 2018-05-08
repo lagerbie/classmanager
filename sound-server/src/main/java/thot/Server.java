@@ -1,4 +1,4 @@
-package supervision;
+package thot;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -157,7 +157,12 @@ public class Server implements Runnable {
                     String addressIP = split[1];
                     int portAudio = Integer.parseInt(split[2]);
                     if (xml.contains("<connection>")) {
-                        captureServer.connect(addressIP, portAudio);
+                        boolean connected = captureServer.connect(addressIP, portAudio);
+                        if (connected) {
+                            LOGGER.info("Le client a été connecté {}:{}", addressIP, portAudio);
+                        } else {
+                            LOGGER.info("Impssible de connecter le client {}:{}", addressIP, portAudio);
+                        }
                     } else if (xml.contains("<disconnection>")) {
                         captureServer.disconnect(addressIP, portAudio);
                     }
