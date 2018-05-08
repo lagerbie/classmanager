@@ -2,13 +2,13 @@ package thot.supervision.thumb;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import thot.supervision.CommonLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fenêtre pour la visualisation d'un élève en mode mosaique et plein écran.
@@ -17,7 +17,11 @@ import thot.supervision.CommonLogger;
  * @version 1.8.4
  */
 public class ProcessScreenWindow extends ScreenWindow {
-    private static final long serialVersionUID = 19000L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessScreenWindow.class);
 
     /**
      * Temps d'attente maximum pour l'envoi des ordres (=2s).
@@ -58,16 +62,13 @@ public class ProcessScreenWindow extends ScreenWindow {
         int timeout = 100;
         boolean initKeyboardFocus = false;
 
-        File logFile = new File(System.getProperty("java.io.tmpdir"),
-                "Siclic/thumb%u.xml");
-        CommonLogger.setLogFile(logFile);
-        CommonLogger.info("version 1.90.00");
+        LOGGER.info("version 1.8.4");
 
         try {
             for (int i = 1; i < args.length; i += 2) {
                 String option = args[i - 1];
                 String value = args[i];
-                CommonLogger.info("parameter: " + option + " " + value);
+                LOGGER.info("parameter: " + option + " " + value);
 
                 switch (option) {
                     case "--numero":
@@ -112,20 +113,24 @@ public class ProcessScreenWindow extends ScreenWindow {
                 }
             }
         } catch (Exception e) {
-            CommonLogger.error(e);
+            LOGGER.error("Erreur lors du traitement des paramètres", e);
             return;
         }
 
-        ProcessScreenWindow screenWindow = new ProcessScreenWindow(
-                numero, mosaiqueToThumbPort, thumbToMosaiquePort);
+        ProcessScreenWindow screenWindow = new ProcessScreenWindow(numero, mosaiqueToThumbPort, thumbToMosaiquePort);
         screenWindow.setTimeout(timeout);
 
         if (initKeyboardFocus) {
             screenWindow.setInitFocus(initKeyboardFocus);
         }
 
-        screenWindow.startListenOrder();
-        screenWindow.start(addressIP, port, nbLines, name, x, y, width, height);
+        try {
+            screenWindow.startListenOrder();
+            screenWindow.start(addressIP, port, nbLines, name, x, y, width, height);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -135,8 +140,7 @@ public class ProcessScreenWindow extends ScreenWindow {
      * @param mosaiqueToThumbPort le port de communication mosaïque -> thumb.
      * @param thumbToMosaiquePort le port de communication thumb -> mosaïque.
      */
-    public ProcessScreenWindow(int numero,
-            int mosaiqueToThumbPort, int thumbToMosaiquePort) {
+    private ProcessScreenWindow(int numero, int mosaiqueToThumbPort, int thumbToMosaiquePort) {
         super();
         this.numero = numero;
         this.mosaiqueToThumbPort = mosaiqueToThumbPort;
@@ -150,27 +154,18 @@ public class ProcessScreenWindow extends ScreenWindow {
      */
     private void sendToMosaique(String action) {
         ProcessCommand command = new ProcessCommand(action, numero);
-        CommonLogger.info("ProcessScreenWindow sendToMosaique: "
-                + command.createXMLCommand());
+        LOGGER.info("ProcessScreenWindow sendToMosaique {}", command.createXMLCommand());
 
-        Socket socket = new Socket();
         DataOutputStream outputStream;
-        InetSocketAddress socketAddress
-                = new InetSocketAddress("127.0.0.1", thumbToMosaiquePort);
+        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", thumbToMosaiquePort);
 
-        try {
+        try(Socket socket = new Socket()) {
             socket.connect(socketAddress, TIME_MAX_FOR_ORDER);
             outputStream = new DataOutputStream(socket.getOutputStream());
             outputStream.writeUTF(command.createXMLCommand());
             outputStream.flush();
         } catch (IOException e) {
-            CommonLogger.error("IOerror in sendToMosaique: " + e.getMessage());
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                CommonLogger.error(e);
-            }
+            LOGGER.error("Error in sendToMosaique", e);
         }
     }
 
@@ -179,7 +174,6 @@ public class ProcessScreenWindow extends ScreenWindow {
      */
     @Override
     protected void closeCommand() {
-        CommonLogger.info("Thumb closeCommand()");
         sendToMosaique(ProcessCommand.CLOSE);
     }
 
@@ -200,7 +194,7 @@ public class ProcessScreenWindow extends ScreenWindow {
     /**
      * Démarre le serveur pour la gestion des requêtes des processus déportés.
      */
-    private void startListenOrder() {
+    private void startListenOrder() throws IOException {
         listenOrder = new ListenOrder();
         listenOrder.start();
     }
@@ -218,23 +212,16 @@ public class ProcessScreenWindow extends ScreenWindow {
          * Etat pour l'arrêt de la thread.
          */
         private boolean run = false;
-        private Thread thread;
 
         /**
          * Démarre le serveur.
          */
-        public boolean start() {
-            try {
-                serverSocket = new ServerSocket(mosaiqueToThumbPort);
-            } catch (IOException e) {
-                CommonLogger.error("IOError in ListenOrder.start: " + e.getMessage());
-                return false;
-            }
+        public void start() throws IOException {
+            serverSocket = new ServerSocket(mosaiqueToThumbPort);
 
             run = true;
-            thread = new Thread(this, this.getClass().getName());
+            Thread thread = new Thread(this, this.getClass().getName());
             thread.start();
-            return true;
         }
 
         /**
@@ -246,7 +233,7 @@ public class ProcessScreenWindow extends ScreenWindow {
                 try {
                     serverSocket.close();
                 } catch (IOException e) {
-                    CommonLogger.error(e);
+                    LOGGER.error("Impossible de fermer le serveur", e);
                 }
             }
         }
@@ -256,53 +243,21 @@ public class ProcessScreenWindow extends ScreenWindow {
          */
         @Override
         public void run() {
-            Socket socket = null;
             DataInputStream inputStream;
-
-            try {
-                while (run) {
-                    //attente de la connection
-                    socket = serverSocket.accept();
-
+            while (run) {
+                //attente de la connection
+                try (Socket socket = serverSocket.accept()) {
                     inputStream = new DataInputStream(socket.getInputStream());
 
                     String xml = inputStream.readUTF();
-                    CommonLogger.info("mosaique commande : " + xml);
+                    LOGGER.info("mosaique commande {}", xml);
                     execute(xml);
-
-                    //fermeture de la connection et reboucle sur une écoute du
-                    //port (si la connection n'est pas fermée, utilisation
-                    //inutile du cpu).
-                    socket.close();
-                }
-            } catch (IOException e) {
-                CommonLogger.error("ProcessScreenWindow error on run port : "
-                        + mosaiqueToThumbPort);
-                CommonLogger.error(e);
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        CommonLogger.error(e);
-                    }
-                }
-
-                if (serverSocket != null) {
-                    try {
-                        serverSocket.close();
-                    } catch (IOException e) {
-                        CommonLogger.error(e);
-                    }
-                }
-
-                if (run) {
-                    CommonLogger.info("redémarrage de Processus");
-                    start();
-                } else {
-                    System.exit(0);
+                } catch (IOException e) {
+                    LOGGER.error("ProcessScreenWindow error on run port {}", e, mosaiqueToThumbPort);
                 }
             }
+
+            stop();
         }
     }
 }

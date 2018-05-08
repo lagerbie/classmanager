@@ -228,21 +228,14 @@ public class ProcessMosaique extends ProgressThread {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.getCommandAction(action));
         command.putParameter(CommandParamater.PARAMETER, parameter);
         InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", mosaiqueToThumbPortBase + numero);
-        Socket socket = new Socket();
-        DataOutputStream outputStream;
-        try {
+
+        try (Socket socket = new Socket()) {
             socket.connect(socketAddress, timeout);
-            outputStream = new DataOutputStream(socket.getOutputStream());
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
             outputStream.writeUTF(CommandXMLUtilities.getXML(command));
             outputStream.flush();
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                LOGGER.error("", e);
-            }
         }
     }
 
@@ -335,7 +328,7 @@ public class ProcessMosaique extends ProgressThread {
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
             String xml = inputStream.readUTF();
-            LOGGER.info("ProcessMosaique commande : " + xml);
+            LOGGER.info("ProcessMosaique commande {}", xml);
             execute(xml);
         }
     }

@@ -16,7 +16,9 @@ import java.net.SocketTimeoutException;
 
 import javax.swing.*;
 
-import thot.supervision.CommonLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import thot.utils.Utilities;
 
 /**
  * Classe permettant d'afficher un écran d'un autre poste.
@@ -27,9 +29,10 @@ import thot.supervision.CommonLogger;
 public class ScreenWindow implements Runnable {
 
     /**
-     * Vérification si la plateforme est Linux.
+     * Instance de log.
      */
-    private static final boolean LINUX_PLATFORM = System.getProperty("os.name").toLowerCase().contains("linux");
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessScreenWindow.class);
+
     /**
      * Nom de l'envoyeur.
      */
@@ -157,7 +160,7 @@ public class ScreenWindow implements Runnable {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            CommonLogger.error(e);
+            LOGGER.error("", e);
             System.exit(-1);
         }
 
@@ -185,7 +188,7 @@ public class ScreenWindow implements Runnable {
         };
         backgroundPanel.setBackground(Color.BLACK);
 
-        if (LINUX_PLATFORM) {
+        if (Utilities.LINUX_PLATFORM) {
             //utilisation d'une JWindow pour masquer les 2 barres d'Ubuntu
             //implique l'utilisation d'une JFrame pour la capture des évènements
             //clavier.
@@ -299,7 +302,7 @@ public class ScreenWindow implements Runnable {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
-                        CommonLogger.error(e);
+                        LOGGER.error("", e);
                     }
                     performClick(x + width / 2, y + height / 2);
                 }
@@ -324,7 +327,7 @@ public class ScreenWindow implements Runnable {
      */
     private void showWindow(boolean visible) {
         if (visible) {
-            if (LINUX_PLATFORM) {
+            if (Utilities.LINUX_PLATFORM) {
                 dialogLinux.setVisible(true);
                 dialogLinux.requestFocus();
                 dialogLinux.toFront();//add v1.70 à tester
@@ -335,7 +338,7 @@ public class ScreenWindow implements Runnable {
             window.toFront();
             window.repaint();
         } else {
-            if (LINUX_PLATFORM) {
+            if (Utilities.LINUX_PLATFORM) {
                 //initialise l'affichage pour que la frame est le focus du clavier.
                 if (!window.isVisible()) {
                     window.setVisible(true);
@@ -372,7 +375,7 @@ public class ScreenWindow implements Runnable {
             }
         }
 
-        if (LINUX_PLATFORM) {
+        if (Utilities.LINUX_PLATFORM) {
             dialogLinux.dispose();
         }
 
@@ -393,13 +396,13 @@ public class ScreenWindow implements Runnable {
             window.setSize(screen);
             window.toFront();
         } else {
-            if (LINUX_PLATFORM) {
+            if (Utilities.LINUX_PLATFORM) {
                 window.dispose();
             }
             window.setLocation(x, y);
             window.setSize(width, height);
 //            window.toFront();
-            if (LINUX_PLATFORM) {
+            if (Utilities.LINUX_PLATFORM) {
                 showWindow(true);
             }
         }
@@ -482,7 +485,7 @@ public class ScreenWindow implements Runnable {
      */
     private boolean connectReception() throws IOException {
         boolean connected = false;
-        CommonLogger.info("connection reception to addressIP:" + addressIP + " port:" + receptionPort);
+        LOGGER.info("connection reception to {}:{}", addressIP, receptionPort);
         InetSocketAddress socketAddress = new InetSocketAddress(addressIP, receptionPort);
         socketReception = new Socket();
         socketReception.setTcpNoDelay(true);
@@ -490,10 +493,10 @@ public class ScreenWindow implements Runnable {
         try {
             socketReception.connect(socketAddress, timeout);
             inputStream = socketReception.getInputStream();
-            CommonLogger.info("...reception etablished");
+            LOGGER.info("...reception etablished");
             connected = true;
         } catch (SocketTimeoutException e) {
-            CommonLogger.error("Err connectReception dans ScreenWindow: " + e);
+            LOGGER.error("Err connectReception dans ScreenWindow", e);
         }
         return connected;
     }
@@ -508,8 +511,7 @@ public class ScreenWindow implements Runnable {
                 socketReception = null;
                 inputStream = null;
             } catch (IOException e) {
-                CommonLogger.error("Err disconnectReception dans ScreenWindow: " + e);
-                CommonLogger.error(e);
+                LOGGER.error("Err disconnectReception dans ScreenWindow", e);
             }
         }
     }
@@ -621,7 +623,7 @@ public class ScreenWindow implements Runnable {
                 try {
                     tracker.waitForID(0);
                 } catch (InterruptedException e) {
-                    CommonLogger.error(e);
+                    LOGGER.error("", e);
                 }
 
                 if (tracker.getErrorsID(0) == null) {
@@ -636,10 +638,10 @@ public class ScreenWindow implements Runnable {
                         }
                     }
                 } else {
-                    CommonLogger.error("err in track=" + tracker.getErrorsID(0));
-                    Object[] erors = tracker.getErrorsAny();
-                    for (Object object : erors) {
-                        CommonLogger.error("err in track :" + object);
+                    LOGGER.error("err in track={}", tracker.getErrorsID(0));
+                    Object[] errors = tracker.getErrorsAny();
+                    for (Object error : errors) {
+                        LOGGER.error("err in track : {}", error);
                     }
                 }
 
@@ -660,14 +662,14 @@ public class ScreenWindow implements Runnable {
 
             end = timeTransfert;
         } catch (SocketTimeoutException e) {
-            CommonLogger.error("ScreenWindow timeout: " + timeout);
+            LOGGER.error("ScreenWindow timeout {}", e, timeout);
             end = -1;
         } catch (IOException e) {
-            CommonLogger.error("ScreenWindow IO error in AnalyseJpeg: " + e.getMessage());
+            LOGGER.error("ScreenWindow IO error in AnalyseJpeg", e);
             end = -2;
         } catch (Exception e) {
             //erreur non standard comme ArrayIndexOutOfBoundsException au cas où
-            CommonLogger.error("ScreenWindow error in AnalyseJpeg: " + e.getMessage());
+            LOGGER.error("ScreenWindow error in AnalyseJpeg", e);
             end = -3;
         }
 
@@ -737,7 +739,7 @@ public class ScreenWindow implements Runnable {
                         try {
                             Thread.sleep(timeout);
                         } catch (InterruptedException e) {
-                            CommonLogger.error(e);
+                            LOGGER.error("", e);
                         }
                         errorConnected++;
                         if (errorConnected > 32) {
@@ -745,7 +747,7 @@ public class ScreenWindow implements Runnable {
                         }
                     }
                 } catch (IOException e) {
-                    CommonLogger.error(e);
+                    LOGGER.error("", e);
                     run = false;
                 }
             } else {
@@ -772,10 +774,10 @@ public class ScreenWindow implements Runnable {
 
         long secondToNano = 1000000;
         double timeGlobal = System.nanoTime() - initTime;
-        CommonLogger.info("global: " + timeGlobal / secondToNano + " transfert: " + timeTransfert / secondToNano
+        LOGGER.info("global: " + timeGlobal / secondToNano + " transfert: " + timeTransfert / secondToNano
                 + " passe: " + passe);
         if (passe > 0) {
-            CommonLogger.info("global: " + timeGlobal / secondToNano / passe + " transfert: "
+            LOGGER.info("global: " + timeGlobal / secondToNano / passe + " transfert: "
                     + timeTransfert / secondToNano / passe);
         }
 
@@ -800,7 +802,7 @@ public class ScreenWindow implements Runnable {
             try {
                 createScaledImage();
             } catch (Exception e) {
-                CommonLogger.error(e);
+                LOGGER.error("", e);
             }
             graphics2D.drawImage(scaleImage, xOffset, yOffset, null);
         }
