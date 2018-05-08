@@ -1,29 +1,9 @@
-/*
- * ClassManager - Supervision de classes et Laboratoire de langue
- * Copyright (C) 2013 Fabrice Alleau <fabrice.alleau@siclic.fr>
- *
- * This file is part of ClassManager.
- *
- * ClassManager is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * ClassManager is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with ClassManager.  If not, see <http://www.gnu.org/licenses/>.
- */
 package supervision;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -152,6 +132,7 @@ public class LaunchServer implements Runnable {
      * @param command la commande.
      * @param output buffer pour la sortie standard.
      * @param error buffer pour la sortie des erreurs
+     *
      * @return la valeur de fin du processus.
      */
     private int executeCommand(String[] command) {
@@ -187,6 +168,7 @@ public class LaunchServer implements Runnable {
      *
      * @param inputStream le flux à gérer.
      * @param output un StringBuilder initialisé pour afficher la sortie.
+     *
      * @return la thread de gestion du flux.
      */
     private Thread createReadThread(final InputStream inputStream, String name) {

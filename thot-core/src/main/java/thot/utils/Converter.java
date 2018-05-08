@@ -1,22 +1,3 @@
-/*
- * ClassManager - Supervision de classes et Laboratoire de langue
- * Copyright (C) 2013 Fabrice Alleau <fabrice.alleau@siclic.fr>
- *
- * This file is part of ClassManager.
- *
- * ClassManager is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * ClassManager is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with ClassManager.  If not, see <http://www.gnu.org/licenses/>.
- */
 package thot.utils;
 
 import java.io.File;
@@ -81,6 +62,7 @@ public interface Converter {
      * Retourne la durée du fichier en ms.
      *
      * @param file le fichier.
+     *
      * @return la durée du fichier en ms.
      */
     long getDuration(File file);
@@ -89,6 +71,7 @@ public interface Converter {
      * Détermine si le fichier possède un flux audio.
      *
      * @param file le fichier.
+     *
      * @return si le fichier possède un flux audio.
      */
     boolean hasAudioSrteam(File file);
@@ -97,28 +80,29 @@ public interface Converter {
      * Détermine si le fichier possède un flux vidéo.
      *
      * @param file le fichier.
+     *
      * @return si le fichier possède un flux vidéo.
      */
     boolean hasVideoSrteam(File file);
 
     /**
-     * Conversion de fichiers. La conversion est définie par le type du fichier
-     * destination.
+     * Conversion de fichiers. La conversion est définie par le type du fichier destination.
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
+     *
      * @return les messages de conversion.
      */
     String convert(File destFile, File srcFile);
 
     /**
-     * Conversion de fichiers. La conversion est définie par le type du fichier
-     * destination.
+     * Conversion de fichiers. La conversion est définie par le type du fichier destination.
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
      * @param audioRate la fréquence en Hz.
      * @param channels le nombre de canaux audio.
+     *
      * @return les messages de conversion.
      */
     String convert(File destFile, File srcFile, int audioRate, int channels);

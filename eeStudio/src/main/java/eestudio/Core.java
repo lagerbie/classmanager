@@ -289,8 +289,8 @@ public class Core {
     }
 
     /**
-     * Met à jour l'état du module audio. Il peut prendre les valeurs suivantes: {@code StudentCore.PAUSE},
-     * {@code StudentCore.PLAYING} ou {@code StudentCore.RECORDING}.
+     * Met à jour l'état du module audio. Il peut prendre les valeurs suivantes: {@code StudentCore.PAUSE}, {@code
+     * StudentCore.PLAYING} ou {@code StudentCore.RECORDING}.
      *
      * @param state la nouvelle valeur de l'état du module audio.
      */
@@ -2433,8 +2433,8 @@ public class Core {
     /**
      * Met à jour du format audio pour la capture de sons et de la variable bytePerSample.
      *
-     * @param format le nouveau format. Mettre {@code null} pour avoir le format par défaut (8000 Hz, 16
-     *         bits, mono, signed, little-endian).
+     * @param format le nouveau format. Mettre {@code null} pour avoir le format par défaut (8000 Hz, 16 bits,
+     *         mono, signed, little-endian).
      */
     private void setAudioFormat(AudioFormat format) {
         if (format == null) {

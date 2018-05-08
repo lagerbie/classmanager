@@ -26,8 +26,7 @@ public interface ProgessListener extends EventListener {
      * Notifiction du démmarrage du processus.
      *
      * @param source la source de l'évènement.
-     * @param determinated le mode déterminé ({@code true} si un pourcentage de progression peut être
-     *         affiché.
+     * @param determinated le mode déterminé ({@code true} si un pourcentage de progression peut être affiché.
      *
      * @since version 0.95 - version 0.98
      */

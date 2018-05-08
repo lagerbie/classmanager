@@ -63,8 +63,7 @@ public class FileChooser {
      * Reourne le fichier sélectionné.
      *
      * @param parent la fenêtre parente.
-     * @param type le type soit {@code FileChooser.LOAD} ou soit
-     *         {@code FileChooser.SAVE}.
+     * @param type le type soit {@code FileChooser.LOAD} ou soit {@code FileChooser.SAVE}.
      *
      * @return le fichier sélectionné ou {@code null} si l'opération a été annulée.
      *
@@ -119,8 +118,8 @@ public class FileChooser {
     }
 
     /**
-     * Détermine si le filtre "tous les fichiers" est disponible. Si {@code true} le filtre "tous les fichiers"
-     * devient le filtre actif.
+     * Détermine si le filtre "tous les fichiers" est disponible. Si {@code true} le filtre "tous les fichiers" devient
+     * le filtre actif.
      *
      * @param accept si le filtre "tous les fichiers" est actif.
      *
