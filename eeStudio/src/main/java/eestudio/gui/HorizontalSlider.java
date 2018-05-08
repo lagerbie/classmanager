@@ -19,6 +19,7 @@ import javax.swing.*;
  * @version 1.02
  * @since version 1.01
  */
+@Deprecated
 public class HorizontalSlider extends JPanel {
     private static final long serialVersionUID = 10100L;
 

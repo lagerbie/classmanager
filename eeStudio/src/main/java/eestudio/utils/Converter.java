@@ -11,6 +11,7 @@ import thot.labo.TagList;
  * @since version 0.99
  * @version 1.03
  */
+@Deprecated
 public interface Converter {
     /** Conversion réussi avec success */
      int SUCCESS = 0;

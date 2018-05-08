@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public class EditorArea extends JPanel {
     private static final long serialVersionUID = 9512L;
 

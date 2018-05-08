@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
  * @version 0.99
  * @since version 0.94
  */
+@Deprecated
 public class Resources {
     /**
      * Nom pour les fichiers de ressources textes

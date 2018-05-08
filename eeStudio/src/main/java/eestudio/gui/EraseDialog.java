@@ -18,6 +18,7 @@ import eestudio.Core;
  * @version 1.02
  * @since version 0.95
  */
+@Deprecated
 public class EraseDialog extends JDialog {
     private static final long serialVersionUID = 9701L;
 

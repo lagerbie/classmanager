@@ -16,6 +16,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @version 1.02
  * @since version 0.94
  */
+@Deprecated
 public class FileChooser {
     /**
      * Option pour le chargement de fichier

@@ -12,6 +12,7 @@ import javax.swing.*;
  * @version 0.99
  * @since version 0.95
  */
+@Deprecated
 public class ProcessingBar {
     private JDialog frame;
     /**

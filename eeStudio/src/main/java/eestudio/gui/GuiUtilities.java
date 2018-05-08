@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public class GuiUtilities {
     /**
      * Instance de log.

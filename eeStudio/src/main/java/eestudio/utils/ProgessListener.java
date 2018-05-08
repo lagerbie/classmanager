@@ -9,6 +9,7 @@ import java.util.EventListener;
  * @version 0.99
  * @since version 0.95
  */
+@Deprecated
 public interface ProgessListener extends EventListener {
 
 //    /**

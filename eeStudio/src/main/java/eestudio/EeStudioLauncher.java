@@ -23,12 +23,12 @@ import thot.utils.Utilities;
  *
  * @author Fabrice Alleau
  */
-public class Main {
+public class EeStudioLauncher {
 
     /**
      * Instance de log.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EeStudioLauncher.class);
 
     private static final String version = "1.03.01";
     private static Core core = null;

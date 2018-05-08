@@ -21,6 +21,7 @@ import thot.utils.Utilities;
  *
  * @author Fabrice Alleau
  */
+@Deprecated
 public class ExportDialog extends JDialog {
     private static final long serialVersionUID = 9800L;
 
