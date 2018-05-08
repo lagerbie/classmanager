@@ -114,6 +114,7 @@ public class CommandXMLUtilities extends XMLUtilities {
      * @return la liste des commandes contenue dans le xml ou une liste vide.
      */
     public static List<Command> parseCommand(String xml) {
+        LOGGER.info("Parsing du xml {}", xml);
         List<Command> commands = null;
 
         // lecture du contenu d'un fichier XML avec DOM
@@ -131,7 +132,6 @@ public class CommandXMLUtilities extends XMLUtilities {
         return commands;
     }
 
-
     /**
      * Retourne le xml complet de la commande.
      *
@@ -140,12 +140,7 @@ public class CommandXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getXML(Command command) {
-        StringBuilder element = new StringBuilder(1024);
-        element.append(createElementStart(element_command));
-        element.append(getXMLDescription(command));
-        element.append(createElementEnd(element_command));
-
-        return xml_header + element.toString();
+        return xml_header + createElement(element_command, getXMLDescription(command));
     }
 
     /**
@@ -190,12 +185,7 @@ public class CommandXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getLoginXML(String password) {
-        StringBuilder element = new StringBuilder(1024);
-        element.append(createElementStart(element_login));
-        element.append(createCDATAElement(element_password, password));
-        element.append(createElementEnd(element_login));
-
-        return xml_header + element.toString();
+        return xml_header + createElement(element_login, createCDATAElement(element_password, password));
     }
 
     /**
@@ -227,12 +217,7 @@ public class CommandXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getLanguageXML(String language) {
-        StringBuilder element = new StringBuilder(1024);
-        element.append(createElementStart(element_language));
-        element.append(createCDATAElement(element_language, language));
-        element.append(createElementEnd(element_language));
-
-        return xml_header + element.toString();
+        return xml_header + createElement(element_language, createCDATAElement(element_language, language));
     }
 
     /**
@@ -312,28 +297,6 @@ public class CommandXMLUtilities extends XMLUtilities {
         }
 
         return commands;
-    }
-
-    /**
-     * Parse le noeud xml comme si c'était une liste de String.
-     *
-     * @param node le noeud xml.
-     *
-     * @return la liste de String.
-     */
-    private static List<String> parseNodeAsList(Node node) {
-        List<String> list = new ArrayList<>(8);
-        NodeList childList = node.getChildNodes();
-
-        for (int i = 0; i < childList.getLength(); i++) {
-            Node child = childList.item(i);
-            if (child.getNodeType() == Node.TEXT_NODE && child.getNodeValue() != null) {
-                list.add(child.getNodeValue());
-            } else if (child.getFirstChild() != null && child.getFirstChild().getNodeValue() != null) {
-                list.add(child.getFirstChild().getNodeValue());
-            }
-        }
-        return list;
     }
 
     /**

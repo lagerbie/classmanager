@@ -20,7 +20,6 @@
 package thot.vlc.event;
 
 import com.sun.jna.Pointer;
-
 import thot.vlc.MediaPlayer;
 import thot.vlc.internal.libvlc_callback_t;
 import thot.vlc.internal.libvlc_event_e;
@@ -49,15 +48,13 @@ public class MediaPlayerCallback implements libvlc_callback_t {
     /**
      * Offset pour les évènements des versions antérieures (VLC >= 1.0.x).
      */
-    private static final int OLD_OFFSET
-            = libvlc_event_e.libvlc_MediaPlayerNothingSpecial.intValue() - 6;
+    private static final int OLD_OFFSET = libvlc_event_e.libvlc_MediaPlayerNothingSpecial.intValue() - 6;
 
     /**
      * Initialisation du callback.
      *
      * @param mediaPlayer le lecteur multimédia.
      * @param listener le listener.
-     * @version 1.1.0
      */
     public MediaPlayerCallback(MediaPlayer mediaPlayer, MediaPlayerListener listener) {
         this.mediaPlayer = mediaPlayer;
@@ -71,20 +68,9 @@ public class MediaPlayerCallback implements libvlc_callback_t {
     }
 
     /**
-     * Retourne l'offset sur les id des évènements.
-     *
-     * @return l'offset pour les évènement.
-     * @since version 1.1.0
-     */
-    public int getEventOffset() {
-        return eventOffset;
-    }
-
-    /**
      * Retourne le listener du callback.
      *
      * @return le listener du callback.
-     * @since version 0.9.0
      */
     public MediaPlayerListener getListener() {
         return listener;
@@ -95,12 +81,11 @@ public class MediaPlayerCallback implements libvlc_callback_t {
      *
      * @param libvlc_event l'évènement.
      * @param userData les données de l'évènement.
-     * @version 1.1.0
      */
     @Override
     public void callback(libvlc_event_t libvlc_event, Pointer userData) {
         int type = libvlc_event.type;
-        MediaPlayerEvent event = new MediaPlayerEvent(mediaPlayer, type);
+        MediaPlayerEvent event = new MediaPlayerEvent(mediaPlayer);
 
         switch (libvlc_event_e.event(type + eventOffset)) {
             case libvlc_MediaPlayerEndReached:

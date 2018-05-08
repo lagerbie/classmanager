@@ -73,15 +73,15 @@ public class MasterCore implements Runnable {
     /**
      * Mode en écoute discrete.
      */
-    public static final int LISTENING_MODE = 1;
+    private static final int LISTENING_MODE = 1;
     /**
      * En prise en main.
      */
-    public static final int CONTROL_MODE = 2;
+    private static final int CONTROL_MODE = 2;
     /**
      * En en envoi d'écran élève.
      */
-    public static final int STUDENT_MODE = 3;
+    private static final int STUDENT_MODE = 3;
     /**
      * En en scrutation automatique.
      */
@@ -93,11 +93,11 @@ public class MasterCore implements Runnable {
     /**
      * Mode Programmation du Pairing.
      */
-    public static final int PAIRING_PROGRAMMATION = 1;
+    private static final int PAIRING_PROGRAMMATION = 1;
     /**
      * Mode Pairing actif.
      */
-    public static final int PAIRING_ACTIF = 2;
+    private static final int PAIRING_ACTIF = 2;
 
     /**
      * Liste des apprenants.
@@ -1479,7 +1479,7 @@ public class MasterCore implements Runnable {
 
                 StringBuilder out = new StringBuilder(1024);
                 StringBuilder err = new StringBuilder(1024);
-                Utilities.startProcess("jclicReports", jclicReports, out, err);
+                Utilities.startProcess("jclicReports", out, err, jclicReports);
                 break;
             case GuiConstants.jclic:
                 String file = "jclic";
@@ -1580,8 +1580,7 @@ public class MasterCore implements Runnable {
 
                 startListening(scanningStudent);
                 time = 0;
-                //attente de la fin du temps de scrutation en ne bloquant pas
-                //une annulation.
+                //attente de la fin du temps de scrutation en ne bloquant pas une annulation.
                 while (time < scanningTime) {
                     Utilities.waitInMillisecond(100);
                     time += 100;

@@ -20,18 +20,10 @@
 package thot.vlc.internal;
 
 /**
- * Note the order of libvlc_state_t enum must match exactly the order of
- * \see mediacontrol_PlayerStatus, \see input_state_e enums,
- * and VideoLAN.LibVLC.State (at bindings/cil/src/media.cs).
+ * Note the order of libvlc_state_t enum must match exactly the order of \see mediacontrol_PlayerStatus, \see
+ * input_state_e enums, and VideoLAN.LibVLC.State (at bindings/cil/src/media.cs).
  *
- * typedef enum libvlc_state_t
- *
- * Expected states by web plugins are:
- * IDLE/CLOSE=0, OPENING=1, BUFFERING=2, PLAYING=3, PAUSED=4,
- * STOPPING=5, ENDED=6, ERROR=7
  * @author Fabrice Alleau
- * @since 0.9.0
- * @version 1.0.0 (VLC 1.0.x à 2.1.x et compatible JET)
  */
 public enum libvlc_state_t {
 
@@ -41,12 +33,12 @@ public enum libvlc_state_t {
     libvlc_Playing(3),
     libvlc_Paused(4),
     libvlc_Stopped(5),
-    libvlc_Ended(6), //=8 vlc 0.9.x (libvlc_Forward(6))
-    libvlc_Error(7); //=9 vlc 0.9.x (libvlc_Backward(7))
+    libvlc_Ended(6),
+    libvlc_Error(7);
 
     private int intValue;
 
-    private libvlc_state_t(int intValue) {
+    libvlc_state_t(int intValue) {
         this.intValue = intValue;
     }
 

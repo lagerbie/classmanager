@@ -19,7 +19,7 @@
  */
 package thot.screen;
 
-import java.awt.Graphics;
+import java.awt.*;
 
 /**
  * Classe bloquant le clavier et la souris.

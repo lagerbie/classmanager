@@ -170,7 +170,7 @@ public class Main {
 
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
-        final Process process = Utilities.startProcess("flash", flash.getAbsolutePath(), out, err);
+        final Process process = Utilities.startProcess("flash", out, err, flash.getAbsolutePath());
         Thread flashThread = new Thread(() -> {
             try {
                 process.waitFor();
@@ -205,7 +205,7 @@ public class Main {
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
         String command = "\"" + filever.getAbsolutePath() + "\" /EAD \"" + file.getAbsolutePath() + "\"";
-        Utilities.executeCommand("getFileVersion", command, out, err);
+        Utilities.executeCommand("getFileVersion", out, err, command);
         String[] split = out.toString().split("[ ]+");
         if (split.length > 3) {
             return split[3];

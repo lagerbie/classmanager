@@ -33,27 +33,12 @@ public class MediaPlayerEvent extends EventObject {
     private static final long serialVersionUID = 90000L;
 
     /**
-     * Type de l'évènement.
-     */
-    private int eventType;
-
-    /**
      * Initiallisation de l'évenement du lectuer multimédia.
      *
      * @param source la source de l'évènement.
-     * @param eventType le type de l'évènement.
      */
-    public MediaPlayerEvent(MediaPlayer source, int eventType) {
+    public MediaPlayerEvent(MediaPlayer source) {
         super(source);
-        this.eventType = eventType;
     }
 
-    /**
-     * Retourne le type de l'évènement.
-     *
-     * @return le type de l'évènement.
-     */
-    public int getEventType() {
-        return eventType;
-    }
 }

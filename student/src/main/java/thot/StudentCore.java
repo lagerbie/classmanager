@@ -319,14 +319,14 @@ public class StudentCore implements Runnable {
         StringBuilder err = new StringBuilder(1024);
         if (internetBlocked) {
             command = "sudo iptables -A OUTPUT -p tcp -o wlan0 --dport 80 -j DROP";
-            Utilities.executeCommand("iptables", command, out, err);
+            Utilities.executeCommand("iptables", out, err, command);
             command = "sudo iptables -A OUTPUT -p tcp -o eth0 --dport 80 -j DROP";
-            Utilities.executeCommand("iptables", command, out, err);
+            Utilities.executeCommand("iptables", out, err, command);
         } else {
             command = "sudo iptables -D OUTPUT -p tcp -o wlan0 --dport 80 -j DROP";
-            Utilities.executeCommand("iptables", command, out, err);
+            Utilities.executeCommand("iptables", out, err, command);
             command = "sudo iptables -D OUTPUT -p tcp -o eth0 --dport 80 -j DROP";
-            Utilities.executeCommand("iptables", command, out, err);
+            Utilities.executeCommand("iptables", out, err, command);
         }
     }
 
@@ -661,7 +661,7 @@ public class StudentCore implements Runnable {
                 if (binCommand != null) {
                     StringBuilder out = new StringBuilder(1024);
                     StringBuilder err = new StringBuilder(1024);
-                    Utilities.startProcess(binCommand, binCommand, out, err);
+                    Utilities.startProcess(binCommand, out, err, binCommand);
                 }
                 break;
             case RESET_LOGIN:
@@ -699,7 +699,7 @@ public class StudentCore implements Runnable {
                     StringBuilder out = new StringBuilder(1024);
                     StringBuilder err = new StringBuilder(1024);
                     String shutdownCommand = "sudo shutdown -P now";
-                    Utilities.startProcess("shutdown", shutdownCommand, out, err);
+                    Utilities.startProcess("shutdown", out, err, shutdownCommand);
                 }
 
                 new Thread(() -> {

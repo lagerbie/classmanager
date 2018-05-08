@@ -213,12 +213,9 @@ public class ScreenWindow extends ProgressThread implements Runnable {
             System.exit(-1);
         }
 
-        focusFonction = new Runnable() {
-            @Override
-            public void run() {
-                Utilities.waitInMillisecond(2000);
-                performClick(1000, 500);
-            }
+        focusFonction = () -> {
+            Utilities.waitInMillisecond(2000);
+            performClick(1000, 500);
         };
 
         KeyAdapter keyAdapter = new KeyAdapter() {
@@ -574,17 +571,15 @@ public class ScreenWindow extends ProgressThread implements Runnable {
 
         if (remoteScreenHeight != remoteImage.getHeight()) {
             remoteImage.flush();
-            remoteImage = new BufferedImage((int) remoteScreenWidth,
-                    (int) remoteScreenHeight, BufferedImage.TYPE_INT_RGB);
+            remoteImage = new BufferedImage((int) remoteScreenWidth, (int) remoteScreenHeight,
+                    BufferedImage.TYPE_INT_RGB);
         }
 
         int scaleWidth = (int) (remoteScreenWidth * ratio);
         int scaleHeight = (int) (remoteScreenHeight * ratio);
-        if (scaleHeight != scaleImage.getHeight()
-                || scaleWidth != scaleImage.getWidth()) {
+        if (scaleHeight != scaleImage.getHeight() || scaleWidth != scaleImage.getWidth()) {
             scaleImage.flush();
-            scaleImage = new BufferedImage(scaleWidth, scaleHeight,
-                    BufferedImage.TYPE_INT_RGB);
+            scaleImage = new BufferedImage(scaleWidth, scaleHeight, BufferedImage.TYPE_INT_RGB);
         }
 
         window.repaint();
@@ -611,8 +606,7 @@ public class ScreenWindow extends ProgressThread implements Runnable {
         InetSocketAddress socketAddress = new InetSocketAddress(addressIP, receptionPort);
         socketReception = new Socket();
 
-        LOGGER.debug("ScreenWindow.connectReception at ip: "
-                + addressIP + " port: " + receptionPort + " ...");
+        LOGGER.debug("ScreenWindow.connectReception at ip: " + addressIP + " port: " + receptionPort + " ...");
         try {
             socketReception.setTcpNoDelay(true);
             socketReception.connect(socketAddress, timeout);
@@ -646,11 +640,7 @@ public class ScreenWindow extends ProgressThread implements Runnable {
      * @return si la socket est connectée.
      */
     private boolean isReceptionConnected() {
-        if (socketReception == null || !socketReception.isConnected()) {
-            return false;
-        } else {
-            return true;
-        }
+        return socketReception != null && socketReception.isConnected();
     }
 
     /**
@@ -1121,21 +1111,18 @@ public class ScreenWindow extends ProgressThread implements Runnable {
         }
 
         Graphics2D graphics2D = remoteImage.createGraphics();
-//        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-//                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         for (int i = 0; i <= indexMax; i++) {
             if (remoteTemp[i] != null) {
                 int dyPos = remoteLineHeight * i;
-                graphics2D.drawImage(remoteTemp[i],
-                        0, dyPos, remoteWidth, remoteLineHeight, null);
+                graphics2D.drawImage(remoteTemp[i], 0, dyPos, remoteWidth, remoteLineHeight, null);
             }
         }
         graphics2D.dispose();
 
         AffineTransform transform = AffineTransform.getScaleInstance(ratio, ratio);
-        AffineTransformOp transformOp = new AffineTransformOp(transform,
-                AffineTransformOp.TYPE_BILINEAR);
+        AffineTransformOp transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
         transformOp.filter(remoteImage, scaleImage);
 
         if (name != null) {

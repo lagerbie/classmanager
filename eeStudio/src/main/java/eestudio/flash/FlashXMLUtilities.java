@@ -78,6 +78,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      * @return la liste de commandes contenue dans le xml ou une liste vide.
      */
     public static List<FlashCommand> parseCommand(String xml) {
+        LOGGER.debug("Parsing de la commande flash {}", xml);
         List<FlashCommand> commands = null;
 
         // lecture du contenu d'un fichier XML avec DOM
@@ -103,11 +104,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getXML(FlashCommand command) {
-        StringBuilder element = new StringBuilder(1024);
-        element.append(createElementStart(element_command));
-        element.append(getXMLDescription(command));
-        element.append(createElementEnd(element_command));
-        return xml_header + element.toString();
+        return xml_header + createElement(element_command, getXMLDescription(command));
     }
 
     /**
@@ -117,7 +114,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      *
      * @return une description de la commande.
      */
-    public static String getXMLDescription(FlashCommand command) {
+    private static String getXMLDescription(FlashCommand command) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_action));
         element.append(command.getAction());

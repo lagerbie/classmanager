@@ -483,7 +483,7 @@ public class VLCconverter implements Converter {
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
 
-        Utilities.executeCommand("reg query", command, result, error);
+        Utilities.executeCommand("reg query", result, error, command);
 
         String[] splitResult = result.toString().split("REG_SZ");
 
@@ -492,7 +492,7 @@ public class VLCconverter implements Converter {
             result = new StringBuilder(1024);
             error = new StringBuilder(1024);
 
-            Utilities.executeCommand("reg query", command, result, error);
+            Utilities.executeCommand("reg query", result, error, command);
             splitResult = result.toString().split("REG_SZ");
         }
 

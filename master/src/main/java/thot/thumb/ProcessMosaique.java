@@ -233,9 +233,7 @@ public class ProcessMosaique extends ProgressThread {
         }
         LOGGER.info("execute mosaique: " + command);
 
-        Process process = Utilities.startProcess("thumb", command, output, error);
-
-        return process;
+        return Utilities.startProcess("thumb", output, error, command);
     }
 
     /**
@@ -246,7 +244,6 @@ public class ProcessMosaique extends ProgressThread {
      * @param numero le numéro du client
      */
     private void sendToThumb(String action, int parameter, int numero) {
-//        ProcessCommand command = new ProcessCommand(action, parameter);
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.getCommandAction(action));
         command.putParameter(CommandParamater.PARAMETER, parameter);
         InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", mosaiqueToThumbPortBase + numero);
@@ -286,7 +283,6 @@ public class ProcessMosaique extends ProgressThread {
      * @param xml la requête.
      */
     private void execute(String xml) {
-//        ProcessCommand command = ProcessCommand.createCommand(xml);
         List<Command> commands = CommandXMLUtilities.parseCommand(xml);
         for (Command command : commands) {
             if (command.getAction() == CommandAction.CLOSE) {

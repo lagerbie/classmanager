@@ -22,10 +22,7 @@ package thot.vlc.internal;
 import com.sun.jna.PointerType;
 
 /**
- * This structure is opaque.
- * It represents a libvlc media instance.
- *
- * typedef struct libvlc_media_t libvlc_media_t;
+ * This structure is opaque. It represents a libvlc media instance.
  *
  * @author Fabrice Alleau
  * @version 0.9.0 (VLC 0.9.x à 2.1.x et compatible JET)

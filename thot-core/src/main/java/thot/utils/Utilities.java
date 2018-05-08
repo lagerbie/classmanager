@@ -97,7 +97,7 @@ public class Utilities {
     /**
      * Nom du charset pour le format des fenêtres DOS.
      */
-    public static final String DOS_CHARSET = "IBM850";
+    private static final String DOS_CHARSET = "IBM850";
     /**
      * Nom du charset pour le format par défaut de Windows.
      */
@@ -116,7 +116,7 @@ public class Utilities {
             try {
                 parseValue = Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                LOGGER.warn("parseStringAsInt: " + e.getMessage());
+                LOGGER.error("Impossible de parser '{}' as Int", e, value);
             }
         }
         return parseValue;
@@ -135,7 +135,7 @@ public class Utilities {
             try {
                 parseValue = Long.parseLong(value);
             } catch (NumberFormatException e) {
-                LOGGER.warn("parseStringAsLong: " + e.getMessage());
+                LOGGER.error("Impossible de parser '{}' as Long", e, value);
             }
         }
         return parseValue;
@@ -155,7 +155,7 @@ public class Utilities {
                 parseValue = Float.parseFloat(value);
             }
         } catch (NumberFormatException e) {
-            LOGGER.warn("parseStringAsDouble: " + e.getMessage());
+            LOGGER.error("Impossible de parser '{}' as Float", e, value);
         }
         return parseValue;
     }
@@ -173,7 +173,7 @@ public class Utilities {
             try {
                 parseValue = Double.parseDouble(value);
             } catch (NumberFormatException e) {
-                LOGGER.warn("parseStringAsDouble: " + e.getMessage());
+                LOGGER.error("Impossible de parser '{}' as Double", e, value);
             }
         }
         return parseValue;
@@ -192,7 +192,7 @@ public class Utilities {
             try {
                 parseValue = Boolean.parseBoolean(value);
             } catch (NumberFormatException e) {
-                LOGGER.warn("parseStringAsBoolean: " + e.getMessage());
+                LOGGER.error("Impossible de parser '{}' as Boolean", e, value);
             }
         }
         return parseValue;
@@ -244,12 +244,12 @@ public class Utilities {
 
     /**
      * Indique si le fichier porte une des extensions de fichiers audio.
+     * <p>
+     * Liste d'extensions non exhautive.
      *
      * @param file le fichier.
      *
      * @return si le fichier est du type audio.
-     *
-     * @warning liste d'extensions non exhautive.
      */
     public static boolean isAudioFile(File file) {
         return fileHasExtension(file, Constants.audioExtension);
@@ -257,12 +257,12 @@ public class Utilities {
 
     /**
      * Indique si le fichier porte une des extensions de fichiers texte supportées.
+     * <p>
+     * Liste d'extensions non exhautive.
      *
      * @param file le fichier.
      *
      * @return si le fichier est du type texte.
-     *
-     * @warning liste d'extensions non exhautive pour le texte brut.
      */
     public static boolean isTextFile(File file) {
         return fileHasExtension(file, Constants.textExtension);
@@ -377,9 +377,11 @@ public class Utilities {
      */
     public static File searchFile(File directory, String extension) {
         File[] files = directory.listFiles();
-        for (File file : files) {
-            if (file.getName().toLowerCase().endsWith(extension)) {
-                return file;
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().toLowerCase().endsWith(extension)) {
+                    return file;
+                }
             }
         }
         return null;
@@ -814,9 +816,11 @@ public class Utilities {
         destDirectory.mkdirs();
 
         File[] files = srcDirectory.listFiles();
-        for (File source : files) {
-            File destFile = new File(destDirectory, source.getName());
-            fileCopy(source, destFile);
+        if (files != null) {
+            for (File source : files) {
+                File destFile = new File(destDirectory, source.getName());
+                fileCopy(source, destFile);
+            }
         }
     }
 
@@ -827,13 +831,15 @@ public class Utilities {
      */
     public static void deteleFiles(File directory) {
         File[] files = directory.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                deteleFiles(file);
-            }
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deteleFiles(file);
+                }
 
-            if (!file.delete()) {
-                file.deleteOnExit();
+                if (!file.delete()) {
+                    file.deleteOnExit();
+                }
             }
         }
     }
@@ -881,11 +887,11 @@ public class Utilities {
         }
 
         InetSocketAddress sockaddr = new InetSocketAddress(addressIP, port);
-        Socket socket = new Socket();
+
         DataOutputStream outputStream;
         boolean send = false;
-        try {
-            LOGGER.info("sendXML " + xml + " à " + addressIP + ":" + port);
+        try (Socket socket = new Socket();) {
+            LOGGER.info("sendXML {} à {}:{}", xml, addressIP, port);
             socket.connect(sockaddr, Constants.TIME_MAX_FOR_ORDER);
 
             outputStream = new DataOutputStream(socket.getOutputStream());
@@ -894,14 +900,7 @@ public class Utilities {
             outputStream.flush();
             send = true;
         } catch (IOException e) {
-            LOGGER.warn("erreur sendXML " + xml + " à " + addressIP + ":" + port + "; message: " + e);
-        } finally {
-            //Fermeture
-            try {
-                socket.close();
-            } catch (IOException e) {
-                LOGGER.error("", e);
-            }
+            LOGGER.error("erreur sendXML {} à {}:{}", e, xml, addressIP, port);
         }
         return send;
     }
@@ -916,56 +915,7 @@ public class Utilities {
      *
      * @return la valeur de sortie du processus résultat de la commande.
      */
-    public static int executeCommand(String name, String command, StringBuilder output, StringBuilder error) {
-        int end = -1;
-        Runtime runtime = Runtime.getRuntime();
-        Process process = null;
-
-        String charset = UTF8_CHARSET;
-        if (WINDOWS_PLATFORM) {
-            if (command.contains("cmd")) {
-                charset = DOS_CHARSET;
-            } else {
-                charset = WINDOWS_CHARSET;
-            }
-        }
-
-        try {
-            process = runtime.exec(command);
-            Thread outputThread = createReadThread(name + " (out)", process.getInputStream(), output, charset);
-            Thread errorThread = createReadThread(name + " (err)", process.getErrorStream(), error, charset);
-            outputThread.start();
-            errorThread.start();
-
-            try {
-                end = process.waitFor();
-                while (outputThread.isAlive()) {
-                    waitInMillisecond(10);
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error("", e);
-            }
-        } catch (IOException e) {
-            LOGGER.error("", e);
-        }
-
-        if (process != null) {
-            process.destroy();
-        }
-        return end;
-    }
-
-    /**
-     * Execute une commande native.
-     *
-     * @param name nom pour le process.
-     * @param command la commande.
-     * @param output un builder initialisé pour afficher la sortie standard.
-     * @param error un builder initialisé pour afficher la sortie des erreur.
-     *
-     * @return la valeur de sortie du processus résultat de la commande.
-     */
-    public static int executeCommand(String name, String[] command, StringBuilder output, StringBuilder error) {
+    public static int executeCommand(String name, StringBuilder output, StringBuilder error, String... command) {
         int end = -1;
         Runtime runtime = Runtime.getRuntime();
         Process process = null;
@@ -980,7 +930,11 @@ public class Utilities {
         }
 
         try {
-            process = runtime.exec(command);
+            if (command.length == 1) {
+                process = runtime.exec(command[0]);
+            } else {
+                process = runtime.exec(command);
+            }
             Thread outputThread = createReadThread(name + " (out)", process.getInputStream(), output, charset);
             Thread errorThread = createReadThread(name + " (err)", process.getErrorStream(), error, charset);
             outputThread.start();
@@ -1014,8 +968,8 @@ public class Utilities {
      *
      * @return le processus démarré ou <code>null</code>.
      */
-    public static Process startProcess(String name, String command, StringBuilder output, StringBuilder error) {
-        return startProcess(name, command, output, error, null);
+    public static Process startProcess(String name, StringBuilder output, StringBuilder error, String... command) {
+        return startProcess(name, output, error, null, command);
     }
 
     /**
@@ -1029,45 +983,8 @@ public class Utilities {
      *
      * @return le processus démarré ou <code>null</code>.
      */
-    public static Process startProcess(String name, String command, StringBuilder output, StringBuilder error,
-            File workingDirectory) {
-        Runtime runtime = Runtime.getRuntime();
-        Process process;
-
-        String charset = UTF8_CHARSET;
-        if (WINDOWS_PLATFORM) {
-            if (command.contains("cmd")) {
-                charset = DOS_CHARSET;
-            } else {
-                charset = WINDOWS_CHARSET;
-            }
-        }
-
-        try {
-            process = runtime.exec(command, null, workingDirectory);
-            Thread outputThread = createReadThread(name + " (out)", process.getInputStream(), output, charset);
-            Thread errorThread = createReadThread(name + " (err)", process.getErrorStream(), error, charset);
-            outputThread.start();
-            errorThread.start();
-        } catch (IOException e) {
-            LOGGER.error("", e);
-            return null;
-        }
-
-        return process;
-    }
-
-    /**
-     * Démarre une commande native.
-     *
-     * @param name nom pour le process.
-     * @param command la commande.
-     * @param output un builder initialisé pour afficher la sortie standard.
-     * @param error un builder initialisé pour afficher la sortie des erreur.
-     *
-     * @return le processus démarré ou <code>null</code>.
-     */
-    public static Process startProcess(String name, String[] command, StringBuilder output, StringBuilder error) {
+    public static Process startProcess(String name, StringBuilder output, StringBuilder error,
+            File workingDirectory, String... command) {
         Runtime runtime = Runtime.getRuntime();
         Process process;
 
@@ -1081,7 +998,12 @@ public class Utilities {
         }
 
         try {
-            process = runtime.exec(command);
+            if (command.length == 1) {
+                process = runtime.exec(command[0], null, workingDirectory);
+            } else {
+                process = runtime.exec(command, null, workingDirectory);
+            }
+
             Thread outputThread = createReadThread(name + " (out)", process.getInputStream(), output, charset);
             Thread errorThread = createReadThread(name + " (err)", process.getErrorStream(), error, charset);
             outputThread.start();
@@ -1188,7 +1110,7 @@ public class Utilities {
         StringBuilder input = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
 
-        executeCommand("which", command, input, error);
+        executeCommand("which", input, error, command);
         if (!input.toString().isEmpty()) {
             file = new File(input.toString().trim());
         }
@@ -1211,7 +1133,7 @@ public class Utilities {
         StringBuilder input = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
 
-        executeCommand("whereis", command, input, error);
+        executeCommand("whereis", input, error, command);
         String[] split = input.toString().split(":");
         if (split.length > 1) {
             has = split[1].trim().contains(name);
@@ -1241,7 +1163,7 @@ public class Utilities {
         String[] command = new String[]{"/bin/sh", "-c", "pkill -f " + application};
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
-        startProcess("pkill", command, out, err);
+        startProcess("pkill", out, err, command);
     }
 
     /**
@@ -1269,7 +1191,7 @@ public class Utilities {
 
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
-        executeCommand("reg query", command, result, error);
+        executeCommand("reg query", result, error, command);
 
         String[] splitResult = result.toString().split("REG_SZ");
         if (splitResult.length > 1) {
@@ -1308,14 +1230,14 @@ public class Utilities {
         StringBuilder err = new StringBuilder(1024);
 
         //Récupère le chemin de "Program Files" pour un Windows 64bits
-        executeCommand("programFiles", "cmd /c echo %ProgramW6432%", out, err);
+        executeCommand("programFiles", out, err, "cmd /c echo %ProgramW6432%");
         String progamPath = out.toString().trim();
 
         //Si Windows 32bits
         if (progamPath.startsWith("%")) {
             out = new StringBuilder(1024);
             err = new StringBuilder(1024);
-            executeCommand("programFiles", "cmd /c echo %ProgramFiles%", out, err);
+            executeCommand("programFiles", out, err, "cmd /c echo %ProgramFiles%");
             progamPath = out.toString().trim();
 
             file = new File(progamPath, path);
@@ -1328,7 +1250,7 @@ public class Utilities {
             if (!file.exists()) {
                 out = new StringBuilder(1024);
                 err = new StringBuilder(1024);
-                executeCommand("programFiles", "cmd /c echo %ProgramFiles(x86)%", out, err);
+                executeCommand("programFiles", out, err, "cmd /c echo %ProgramFiles(x86)%");
                 progamPath = out.toString().trim();
 
                 file = new File(progamPath, path);
@@ -1352,14 +1274,14 @@ public class Utilities {
         StringBuilder err = new StringBuilder(1024);
 
         //Récupère le chemin de "Program Files" pour un Windows 64bits
-        executeCommand("programFiles", "cmd /c echo %ProgramW6432%", out, err);
+        executeCommand("programFiles", out, err, "cmd /c echo %ProgramW6432%");
         String progamPath = out.toString().trim();
 
         if (progamPath.startsWith("%")) {
             //cas Windows 32bits
             out = new StringBuilder(1024);
             err = new StringBuilder(1024);
-            executeCommand("programFiles", "cmd /c echo %ProgramFiles%", out, err);
+            executeCommand("programFiles", out, err, "cmd /c echo %ProgramFiles%");
             progamPath = out.toString().trim();
             //si dans répertoire le Program Files
             if (absolutePath.startsWith(progamPath)) {
@@ -1369,7 +1291,7 @@ public class Utilities {
             //test si c'est dans le répertoire Program Files 32bits
             out = new StringBuilder(1024);
             err = new StringBuilder(1024);
-            executeCommand("programFiles", "cmd /c echo %ProgramFiles(x86)%", out, err);
+            executeCommand("programFiles", out, err, "cmd /c echo %ProgramFiles(x86)%");
             String progamPath32bits = out.toString().trim();
 
             //cas Windows 64bits
@@ -1483,7 +1405,7 @@ public class Utilities {
 
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
-        startProcess("virtualKeyboard", command, result, error);
+        startProcess("virtualKeyboard", result, error, command);
     }
 
     /**

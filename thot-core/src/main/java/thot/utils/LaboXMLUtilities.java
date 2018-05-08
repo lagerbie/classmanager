@@ -202,7 +202,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      * <?xml version="1.0" encoding="UTF-8" ?>
      * <tags>
      *     <title>
-     *         <![CDATA[Titre]]>          ou <![CDATA[common]]>
+     *         <![CDATA[Titre]]>
      *     </title>
      *     <artist>
      *         <![CDATA[Artiste]]>
@@ -244,6 +244,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      * @return la liste d'index contenue dans le fichier ou une liste vide.
      */
     public static Indexes loadIndexes(File file) {
+        LOGGER.info("Parsing du fichier d'index {}", file.getAbsolutePath());
         Indexes indexes = null;
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(file);
@@ -268,6 +269,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      * @return le projet contenu dans le fichier ou un projet vide.
      */
     public static ProjectFiles loadProject(File file) {
+        LOGGER.info("Parsing du fichier de projet {}", file.getAbsolutePath());
         ProjectFiles project = null;
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(file);
@@ -292,6 +294,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      * @return les tags contenus dans le fichier ou des tags vides.
      */
     public static TagList loadTags(File file) {
+        LOGGER.info("Parsing du fichier de tags {}", file.getAbsolutePath());
         TagList tags = null;
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(file);
@@ -316,6 +319,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      * @return l'index contenu dans dans le xml ou <code>null</code>.
      */
     public static Index parseIndex(String xml) {
+        LOGGER.info("Parsing du xml pour un index {}", xml);
         Index index = null;
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(xml);
@@ -426,7 +430,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      *
      * @return une description du projet.
      */
-    public static String getXMLDescription(ProjectFiles project) {
+    private static String getXMLDescription(ProjectFiles project) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_project));
 
@@ -467,7 +471,7 @@ public class LaboXMLUtilities extends XMLUtilities {
      *
      * @return une description des tags.
      */
-    public static String getXMLDescription(TagList tags) {
+    private static String getXMLDescription(TagList tags) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_tags));
 
@@ -675,15 +679,19 @@ public class LaboXMLUtilities extends XMLUtilities {
                     continue;
                 }
                 String name = child.getNodeName();
-                if (name.equals(element_title)) {
-                    tags.putTag(TagList.TITLE, child.getFirstChild().getNodeValue());
-                }
-                if (name.equals(element_artist)) {
-                    tags.putTag(TagList.ARTIST, child.getFirstChild().getNodeValue());
-                } else if (name.equals(element_album)) {
-                    tags.putTag(TagList.ALBUM, child.getFirstChild().getNodeValue());
-                } else if (name.equals(element_comments)) {
-                    tags.putTag(TagList.COMMENT, child.getFirstChild().getNodeValue());
+                switch (name) {
+                    case element_title:
+                        tags.putTag(TagList.TITLE, child.getFirstChild().getNodeValue());
+                        break;
+                    case element_artist:
+                        tags.putTag(TagList.ARTIST, child.getFirstChild().getNodeValue());
+                        break;
+                    case element_album:
+                        tags.putTag(TagList.ALBUM, child.getFirstChild().getNodeValue());
+                        break;
+                    case element_comments:
+                        tags.putTag(TagList.COMMENT, child.getFirstChild().getNodeValue());
+                        break;
                 }
             }
         }
@@ -718,80 +726,68 @@ public class LaboXMLUtilities extends XMLUtilities {
 //        parseDOM(xml);
 //    }
 //
-//    protected static void parseDOM(String xml) {
+//    private static void parseDOM(String xml) {
 //        try {
 //            // création d'une fabrique de documents
 //            DocumentBuilderFactory fabrique = DocumentBuilderFactory.newInstance();
 //            // création d'un constructeur de documents
 //            DocumentBuilder constructeur = fabrique.newDocumentBuilder();
-//            Document document = constructeur.parse(
-//                new ByteArrayInputStream(xml.getBytes()));
+//            Document document = constructeur.parse(new ByteArrayInputStream(xml.getBytes()));
 //            removeEmptyTextNode(document);
-//            println("document:");
+//            LOGGER.info("document:");
 //            printNodeInfo(document.getDocumentElement());
 //            Indexes indexes = parseNodeAsIndexes(document.getDocumentElement());
-//            if(indexes != null) {
+//            if (indexes != null) {
 //                printIndexesInfo(indexes);
-//                println("xml:" + getXMLDescription(indexes));
+//                LOGGER.info("xml: {}", getXMLDescription(indexes));
 //            }
-//        } catch(ParserConfigurationException e) {
-//            println(e);
-//        } catch(SAXException e) {
-//            println(e);
-//        } catch(IOException e) {
-//            println(e);
+//        } catch (ParserConfigurationException | SAXException | IOException e) {
+//            LOGGER.error("erreur", e);
 //        }
 //    }
 //
-//    protected static void printIndexesInfo(Indexes indexes) {
-//        println("indexes:" + indexes);
-//        println("mode:" + indexes.getMode());
-//        println("count:" + indexes.getIndexesCount());
-//        println("media length:" + indexes.getMediaLength());
-//        println("length:" + indexes.getLength());
+//    private static void printIndexesInfo(Indexes indexes) {
+//        LOGGER.info("indexes: {}", indexes);
+//        LOGGER.info("mode: {}", indexes.getMode());
+//        LOGGER.info("count: {}", indexes.getIndexesCount());
+//        LOGGER.info("media length: {}", indexes.getMediaLength());
+//        LOGGER.info("length: {}", indexes.getLength());
 //
-//        for(Iterator<Index> it = indexes.iterator(); it.hasNext();) {
+//        for (Iterator<Index> it = indexes.iterator(); it.hasNext(); ) {
 //            Index index = it.next();
-//            println("index:" + index);
-//            println("type:" + index.getType());
-//            println("initi:" + index.getInitialTime());
-//            println("final:" + index.getFinalTime());
-//            println("subtitle:" + index.getSubtitle());
-//            println("read:" + index.getRead());
+//            LOGGER.info("index: {}", index);
+//            LOGGER.info("type: {}", index.getType());
+//            LOGGER.info("initi: {}", index.getInitialTime());
+//            LOGGER.info("final: {}", index.getFinalTime());
+//            LOGGER.info("subtitle: {}", index.getSubtitle());
+//            LOGGER.info("read: {}", index.getRead());
 //        }
 //    }
 //
-//    protected static void printNodeInfo(Node node) {
-//        println("node:" + node);
-//        println("node type:" + node.getNodeType());
-//        println("node name:" + node.getNodeName());
-//        println("node value:" + node.getNodeValue());
-//        println("node has attributes:" + node.hasAttributes());
-//        println("node has children:" + node.hasChildNodes());
-//        if(node.hasAttributes()) {
+//    private static void printNodeInfo(Node node) {
+//        LOGGER.info("node: {}", node);
+//        LOGGER.info("node type: {}", node.getNodeType());
+//        LOGGER.info("node name: {}", node.getNodeName());
+//        LOGGER.info("node value: {}", node.getNodeValue());
+//        LOGGER.info("node has attributes: {}", node.hasAttributes());
+//        LOGGER.info("node has children: {}", node.hasChildNodes());
+//        if (node.hasAttributes()) {
 //            NamedNodeMap attributes = node.getAttributes();
-//            for(int i=0; i<attributes.getLength(); i++){
+//            for (int i = 0; i < attributes.getLength(); i++) {
 //                Node attribute = attributes.item(i);
-//                println("attribute " + i);
+//                LOGGER.info("attribute {}", i);
 //                printNodeInfo(attribute);
 //            }
 //        }
-//        if(node.hasChildNodes() && node.getNodeType()!=Node.ATTRIBUTE_NODE) {
+//        if (node.hasChildNodes() && node.getNodeType() != Node.ATTRIBUTE_NODE) {
 //            NodeList list = node.getChildNodes();
-//            for(int i=0; i<list.getLength(); i++) {
+//            for (int i = 0; i < list.getLength(); i++) {
 //                Node child = list.item(i);
-//                println("child " + i);
+//                LOGGER.info("child {}", i);
 //                printNodeInfo(child);
 //            }
 //        }
-//        println("");
+//        LOGGER.info("");
 //    }
-//
-//    protected static void println(String message) {
-//        System.out.println(message);
-//    }
-//
-//    protected static void println(Throwable throwable) {
-//        throwable.printStackTrace();
-//    }
+
 }

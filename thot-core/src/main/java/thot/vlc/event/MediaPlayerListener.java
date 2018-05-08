@@ -33,6 +33,7 @@ public interface MediaPlayerListener extends EventListener {
      * Evènement de fin de lecture du média.
      *
      * @param event l'évènement.
+     *
      * @since version 0.9.0
      */
     void endReached(MediaPlayerEvent event);
@@ -41,6 +42,7 @@ public interface MediaPlayerListener extends EventListener {
      * Evènement d'une erreur.
      *
      * @param event l'évènement.
+     *
      * @since version 0.9.0
      */
     void encounteredError(MediaPlayerEvent event);

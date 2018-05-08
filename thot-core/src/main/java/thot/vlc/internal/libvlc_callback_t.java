@@ -25,8 +25,6 @@ import com.sun.jna.Pointer;
 /**
  * Callback function notification.
  *
- * typedef void ( *libvlc_callback_t )( const struct libvlc_event_t *, void * );
- *
  * @author Fabrice Alleau
  * @version 0.9.0 (VLC 0.9.x à 2.1.x et compatible JET)
  */
@@ -37,7 +35,8 @@ public interface libvlc_callback_t extends Callback {
      *
      * @param p_event the event triggering the callback
      * @param userData
+     *
      * @since version 0.9.0
      */
-    public void callback(libvlc_event_t p_event, Pointer userData);
+    void callback(libvlc_event_t p_event, Pointer userData);
 }

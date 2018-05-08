@@ -81,7 +81,7 @@ public class XMLUtilities {
         }
 
         if (list == null) {
-            list = new ArrayList<>(0);
+            list = new ArrayList<>();
         }
 
         return list;
@@ -94,7 +94,7 @@ public class XMLUtilities {
      *
      * @return la liste de String.
      */
-    private static List<String> parseNodeAsList(Node node) {
+    protected static List<String> parseNodeAsList(Node node) {
         List<String> list = new ArrayList<>(8);
         NodeList childList = node.getChildNodes();
 
@@ -110,7 +110,9 @@ public class XMLUtilities {
     }
 
     /**
-     * Crée un balise de début. Forme '<name>'.
+     * Crée un balise de début.
+     * <p>
+     * Forme '<name>'.
      *
      * @param name le nom de la balise.
      *
@@ -121,7 +123,9 @@ public class XMLUtilities {
     }
 
     /**
-     * Crée un balise de début avec une liste d'attributs. Forme '<name attribut="value" attribut="value">'.
+     * Crée un balise de début avec une liste d'attributs.
+     * <p>
+     * Forme '<name attribut="value" attribut="value">'.
      *
      * @param name le nom de la balise.
      * @param attributes la liste d'attributs déjà en forme pour le xml.
@@ -140,22 +144,22 @@ public class XMLUtilities {
     }
 
     /**
-     * Crée un balise de fin. Forme '</name>'.
+     * Crée un balise de fin.
+     * <p>
+     * Forme '</name>'.
      *
      * @param name le nom de la balise.
      *
      * @return la basile de fin du xml.
      */
     protected static String createElementEnd(String name) {
-        StringBuilder element = new StringBuilder(32);
-        element.append("</");
-        element.append(name);
-        element.append(">");
-        return element.toString();
+        return "</" + name + ">";
     }
 
     /**
-     * Crée une balise complete avec une section CDATA. Forme '<name><![CDATA[value]]></name>'.
+     * Crée une balise complete sans une section CDATA.
+     * <p>
+     * Forme '<name>value</name>'.
      *
      * @param name le nom de la balise.
      * @param value la valeur de la section CDATA.
@@ -163,15 +167,13 @@ public class XMLUtilities {
      * @return la balise complete.
      */
     public static String createElement(String name, String value) {
-        StringBuilder element = new StringBuilder(256);
-        element.append(createElementStart(name));
-        element.append(value);
-        element.append(createElementEnd(name));
-        return element.toString();
+        return createElementStart(name) + value + createElementEnd(name);
     }
 
     /**
-     * Crée une balise complete avec une section CDATA. Forme '<name><![CDATA[value]]></name>'.
+     * Crée une balise complete avec une section CDATA.
+     * <p>
+     * Forme '<name><![CDATA[value]]></name>'.
      *
      * @param name le nom de la balise.
      * @param value la valeur de la section CDATA.
@@ -179,30 +181,26 @@ public class XMLUtilities {
      * @return la balise complete.
      */
     protected static String createCDATAElement(String name, String value) {
-        StringBuilder element = new StringBuilder(256);
-        element.append(createElementStart(name));
-        element.append(createCDATA(value));
-        element.append(createElementEnd(name));
-        return element.toString();
+        return createElement(name, createCDATA(value));
     }
 
     /**
-     * Crée une section CDATA. Forme '<![CDATA[value]]>'.
+     * Crée une section CDATA.
+     * <p>
+     * Forme '<![CDATA[value]]>'.
      *
      * @param value la valeur de la section CDATA.
      *
      * @return la section CDATA.
      */
     protected static String createCDATA(String value) {
-        StringBuilder cdata = new StringBuilder(256);
-        cdata.append(cdata_start);
-        cdata.append(value);
-        cdata.append(cdata_end);
-        return cdata.toString();
+        return cdata_start + value + cdata_end;
     }
 
     /**
-     * Crée le descriptif de l'attribut de balise avec nom et valeur. Descriptif de la forme 'name="value"'.
+     * Crée le descriptif de l'attribut de balise avec nom et valeur.
+     * <p>
+     * Descriptif de la forme ' name="value"'.
      *
      * @param name le nom de l'attribut.
      * @param value la valeur de l'attribut.
@@ -210,13 +208,7 @@ public class XMLUtilities {
      * @return le descriptif de l'attribut.
      */
     protected static String createAttribute(String name, String value) {
-        StringBuilder attribute = new StringBuilder(64);
-        attribute.append(" ");
-        attribute.append(name);
-        attribute.append("=\"");
-        attribute.append(value);
-        attribute.append("\"");
-        return attribute.toString();
+        return " " + name + "=\"" + value + "\"";
     }
 
     /**
@@ -227,6 +219,7 @@ public class XMLUtilities {
      * @return le document xml.
      */
     protected static Document getDocument(File file) {
+        LOGGER.info("Parsing du fichier {}", file.getAbsolutePath());
         Document document = null;
 
         // création d'une fabrique de documents
@@ -242,7 +235,7 @@ public class XMLUtilities {
                 removeEmptyTextNode(document);
             }
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Impossible de parser le fichier {}", e, file.getAbsolutePath());
         }
 
         return document;
@@ -256,6 +249,7 @@ public class XMLUtilities {
      * @return le document xml.
      */
     protected static Document getDocument(String xml) {
+        LOGGER.debug("Parsing du xml {}", xml);
         Document document = null;
 
         // création d'une fabrique de documents
@@ -265,12 +259,12 @@ public class XMLUtilities {
             // création d'un constructeur de documents
             DocumentBuilder constructeur = fabrique.newDocumentBuilder();
 
-            document = constructeur.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+            document = constructeur.parse(new ByteArrayInputStream(xml.getBytes(Utilities.UTF8_CHARSET)));
             if (document != null) {
                 removeEmptyTextNode(document);
             }
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Impossible de parser le xml {}", e, xml);
         }
 
         return document;

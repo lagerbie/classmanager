@@ -22,10 +22,7 @@ package thot.vlc.internal;
 import com.sun.jna.PointerType;
 
 /**
- * Event manager that belongs to a libvlc object, and from whom events can be
- * received.
- *
- * typedef struct libvlc_event_manager_t libvlc_event_manager_t;
+ * Event manager that belongs to a libvlc object, and from whom events can be received.
  *
  * @author Fabrice Alleau
  * @version 0.9.0 (VLC 0.9.x à 2.1.x et compatible JET)

@@ -41,7 +41,7 @@ public class Battery {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(Battery.class);
 
-    public static final int UNDEFINED_LEVEL = -1;
+    private static final int UNDEFINED_LEVEL = -1;
 
     /**
      * Retourne le niveau de la batterie.
@@ -166,7 +166,7 @@ public class Battery {
         int level = UNDEFINED_LEVEL;
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
-        Utilities.executeCommand("pmset", "pmset -g ps", result, error);
+        Utilities.executeCommand("pmset", result, error, "pmset -g ps");
 
         if (result.toString().contains("charged")) {
             return 100;

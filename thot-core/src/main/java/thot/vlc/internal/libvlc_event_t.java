@@ -28,15 +28,6 @@ import com.sun.jna.Structure;
 /**
  * A LibVLC event.
  *
- * typedef struct libvlc_event_t
- * {
- * int   type; // Event type (see ref libvlc_event_e)
- * void *p_obj; // Object emitting the event
- * union
- * {
- * } u; // Type-dependent event description
- * } libvlc_event_t;
- *
  * @author Fabrice Alleau
  * @version 0.9.0 (VLC 0.9.x à 2.1.x et compatible JET)
  */
@@ -57,7 +48,7 @@ public class libvlc_event_t extends Structure {
 
     @Override
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"type", "p_obj", "event_type_specific"});
+        return Arrays.asList("type", "p_obj", "event_type_specific");
     }
 
     public int getType() {
