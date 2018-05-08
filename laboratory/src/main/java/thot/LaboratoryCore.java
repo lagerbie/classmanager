@@ -35,10 +35,10 @@ import thot.supervision.CommandAction;
 import thot.supervision.CommandParamater;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.Constants;
-import thot.utils.Converter;
 import thot.utils.Server;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
+import thot.video.Converter;
 
 /*
  * resources: soundError

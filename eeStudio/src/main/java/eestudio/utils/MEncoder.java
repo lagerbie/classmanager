@@ -12,6 +12,7 @@ import javax.swing.event.EventListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.labo.TagList;
+import thot.utils.ProgressListener;
 import thot.utils.Utilities;
 
 /**
@@ -170,8 +171,8 @@ public class MEncoder implements Converter {
      * @param listener l'écoute à ajouter.
      */
     @Override
-    public void addListener(ProgessListener listener) {
-        listeners.add(ProgessListener.class, listener);
+    public void addListener(ProgressListener listener) {
+        listeners.add(ProgressListener.class, listener);
     }
 
     /**
@@ -180,8 +181,8 @@ public class MEncoder implements Converter {
      * @param listener l'écoute à enlever.
      */
     @Override
-    public void removeListener(ProgessListener listener) {
-        listeners.remove(ProgessListener.class, listener);
+    public void removeListener(ProgressListener listener) {
+        listeners.remove(ProgressListener.class, listener);
     }
 
     /**
@@ -190,7 +191,7 @@ public class MEncoder implements Converter {
      * @param determinated indique si le processus peut afficher un poucentage de progression.
      */
     private void fireProcessBegin(boolean determinated) {
-        for (ProgessListener listener : listeners.getListeners(ProgessListener.class)) {
+        for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
             listener.processBegin(this, determinated);
         }
     }
@@ -202,7 +203,7 @@ public class MEncoder implements Converter {
      */
     private void fireProcessEnded(int exit) {
         if (processingEnd) {
-            for (ProgessListener listener : listeners.getListeners(ProgessListener.class)) {
+            for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
                 listener.processEnded(this, exit);
             }
         }
@@ -214,7 +215,7 @@ public class MEncoder implements Converter {
      * @param percent le nouveau pourcentage de progression.
      */
     private void firePercentChanged(int percent) {
-        for (ProgessListener listener : listeners.getListeners(ProgessListener.class)) {
+        for (ProgressListener listener : listeners.getListeners(ProgressListener.class)) {
             listener.percentChanged(this, percent);
         }
     }

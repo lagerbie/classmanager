@@ -45,14 +45,6 @@ public interface ProgressPercentListener extends ProgressListener {
      * Notification du changement du pourcentage de progression.
      *
      * @param source la source de l'évènement.
-     * @param percent le pourcentage de progression.
-     */
-    void percentChanged(Object source, int percent);
-
-    /**
-     * Notification du changement du pourcentage de progression.
-     *
-     * @param source la source de l'évènement.
      * @param total la nouvelle valeur de progression totale en pourcentage.
      * @param subTotal la nouvelle valeur de progression intermédiaire en pourcentage.
      */

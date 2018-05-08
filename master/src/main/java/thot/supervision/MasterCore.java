@@ -273,6 +273,11 @@ public class MasterCore implements Runnable {
             public void processEnded(Object source, int exit) {
                 processEndReached(source, exit);
             }
+
+            @Override
+            public void percentChanged(Object source, int percent) {
+
+            }
         };
 
         screenWindow.addListener(listener);

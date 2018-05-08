@@ -1,4 +1,4 @@
-package thot.utils;
+package thot.video.vlc;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,6 +14,9 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.utils.ProgressPercentListener;
+import thot.utils.Utilities;
+import thot.video.Converter;
 
 /**
  * Outils autour de VLC.

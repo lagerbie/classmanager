@@ -1,6 +1,8 @@
-package thot.utils;
+package thot.video;
 
 import java.io.File;
+
+import thot.utils.ProgressPercentListener;
 
 /**
  * Interface poue la conversion de fichiers.

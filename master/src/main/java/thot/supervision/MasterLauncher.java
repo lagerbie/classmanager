@@ -12,10 +12,10 @@ import thot.supervision.com.StudentServer;
 import thot.supervision.gui.MainFrame;
 import thot.supervision.voip.Voip;
 import thot.utils.Constants;
-import thot.utils.Converter;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
-import thot.utils.VLCconverter;
+import thot.video.Converter;
+import thot.video.vlc.VLCconverter;
 
 /**
  * Lancement de la supervision professeur.

@@ -3,6 +3,7 @@ package eestudio.utils;
 import java.io.File;
 
 import thot.labo.TagList;
+import thot.utils.ProgressListener;
 
 /**
  * Interface poue la conversion de fichiers.
@@ -47,7 +48,7 @@ public interface Converter {
      *
      * @since version 0.99
      */
-    void addListener(ProgessListener listener);
+    void addListener(ProgressListener listener);
 
     /**
      * Enlève une écoute de type ProgessListener.
@@ -56,7 +57,7 @@ public interface Converter {
      *
      * @since version 0.99
      */
-    void removeListener(ProgessListener listener);
+    void removeListener(ProgressListener listener);
 
     /**
      * Modifie le nombre de canaux audio.

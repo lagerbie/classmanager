@@ -11,10 +11,10 @@ import thot.gui.LaboratoryFrame;
 import thot.gui.Resources;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.Constants;
-import thot.utils.Converter;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
-import thot.utils.VLCconverter;
+import thot.video.Converter;
+import thot.video.vlc.VLCconverter;
 
 /*
  * resources:

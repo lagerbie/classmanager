@@ -3,21 +3,8 @@ package eestudio;
 import java.awt.*;
 import java.io.File;
 
-import eestudio.utils.ProgessListener;
+import thot.utils.ProgressListener;
 
-/*
- * v0.95: ajout de extends ProgessListener (extends EventListener)
- * v0.95: ajout de void insertVoiceTimeChanged(long time);
- * v0.95: ajout de void audioWaveFileChanged(File, File);
- * v0.95: ajout de void videoFileChanged(File file);
- * v0.95: supp de void currentIndexChanged(Index index);
- * v0.95: supp de void waitProcessing(boolean wait);
- * v0.95: modif de indexesChanged() en indexesChanged(String)
- *
- * v0.96: modif de textLoaded(String) en textLoaded(String, boolean)
- *
- * v0.99: supp de void audioVolumeChanged(int volume);
- */
 
 /**
  * Listener pour écouter les changement d'état du coeur de l'application.
@@ -26,7 +13,7 @@ import eestudio.utils.ProgessListener;
  * @version 0.99
  * @since version 0.94
  */
-public interface Listener extends ProgessListener {
+public interface Listener extends ProgressListener {
 
     /**
      * Appelé quand l'état du modue audio a changé.

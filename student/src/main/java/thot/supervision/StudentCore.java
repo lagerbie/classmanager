@@ -191,6 +191,11 @@ public class StudentCore implements Runnable {
 
                 captureScreen.stop();
             }
+
+            @Override
+            public void percentChanged(Object source, int percent) {
+
+            }
         };
 
         screenWindow.addListener(listener);

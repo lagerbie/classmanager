@@ -24,10 +24,10 @@ import thot.supervision.Student;
 import thot.supervision.StudentClass;
 import thot.supervision.gui.GuiConstants;
 import thot.utils.Constants;
-import thot.utils.Converter;
 import thot.utils.Server;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
+import thot.video.Converter;
 
 /**
  * Noyau pour le contôle des laboratoire élèves.
