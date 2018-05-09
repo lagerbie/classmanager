@@ -19,6 +19,7 @@ import javax.swing.text.MaskFormatter;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.labo.index.Index;
@@ -670,13 +671,18 @@ public class IndexDialog extends JDialog {
 
         playButton.addActionListener(e -> {
             if (!playButton.isSelected()) {
-                if (saveIndex(begin, end)) {
-                    long beginTime = core.getCurrentTime();
-                    if (beginTime < begin || beginTime >= end) {
-                        beginTime = begin;
-                    }
+                try {
+                    if (saveIndex(begin, end)) {
+                        long beginTime = core.getCurrentTime();
+                        if (beginTime < begin || beginTime >= end) {
+                            beginTime = begin;
+                        }
 
-                    core.playOnRange(beginTime, end);
+                        core.playOnRange(beginTime, end);
+                    }
+                } catch (ThotException ex) {
+                    LOGGER.error("Erreur dans le traitement", ex);
+                    GuiUtilities.showMessage("Erreur dans le traitement " + ex);
                 }
             } else {
                 core.audioPause();
@@ -944,7 +950,7 @@ public class IndexDialog extends JDialog {
      *
      * @return si la sauvegarde a été effectuée.
      */
-    private boolean saveIndex(long begin, long end, IndexType type, String subtitle, float speed) {
+    private boolean saveIndex(long begin, long end, IndexType type, String subtitle, float speed) throws ThotException {
         if (end < begin) {
             GuiUtilities.showMessageDialog(this, resources.getString("beginEndError"));
             return false;
@@ -973,7 +979,7 @@ public class IndexDialog extends JDialog {
      * @param begin le temps de début.
      * @param end le temps de fin.
      */
-    private boolean saveIndex(long begin, long end) {
+    private boolean saveIndex(long begin, long end) throws ThotException {
         IndexType type = indexTypesRevert.get((String) typeList.getSelectedItem());
         String subtitle = subtitleField.getText();
         if (subtitle != null && subtitle.isEmpty()) {
@@ -990,42 +996,47 @@ public class IndexDialog extends JDialog {
      */
     private void action(final Object source) {
         Thread thread = new Thread(() -> {
-            if (source == validButton) {
-                saveIndex(begin, end);
-            } else if (source == cancelButton) {
-                saveIndex(initialBeginTime, initialEndTime, initialType, initialSubtitle, initialSpeed);
-            } else if (source == previousButton) {
-                if (isChanged()) {
-                    int option = showCancelableMessage(resources.getString("modifIndex"));
-                    if (option == GuiUtilities.YES_OPTION) {
-                        saveIndex(begin, end);
-                    } else if (option != GuiUtilities.NO_OPTION) {
-                        return;
+            try {
+                if (source == validButton) {
+                    saveIndex(begin, end);
+                } else if (source == cancelButton) {
+                    saveIndex(initialBeginTime, initialEndTime, initialType, initialSubtitle, initialSpeed);
+                } else if (source == previousButton) {
+                    if (isChanged()) {
+                        int option = showCancelableMessage(resources.getString("modifIndex"));
+                        if (option == GuiUtilities.YES_OPTION) {
+                            saveIndex(begin, end);
+                        } else if (option != GuiUtilities.NO_OPTION) {
+                            return;
+                        }
                     }
-                }
-                initValues(core.previousIndex(currentIndex));
-            } else if (source == nextButton) {
-                if (isChanged()) {
-                    int option = showCancelableMessage(resources.getString("modifIndex"));
-                    if (option == GuiUtilities.YES_OPTION) {
-                        saveIndex(begin, end);
-                    } else if (option != GuiUtilities.NO_OPTION) {
-                        return;
+                    initValues(core.previousIndex(currentIndex));
+                } else if (source == nextButton) {
+                    if (isChanged()) {
+                        int option = showCancelableMessage(resources.getString("modifIndex"));
+                        if (option == GuiUtilities.YES_OPTION) {
+                            saveIndex(begin, end);
+                        } else if (option != GuiUtilities.NO_OPTION) {
+                            return;
+                        }
                     }
-                }
-                initValues(core.nextIndex(currentIndex));
-            } else if (source instanceof IndexDialog) {
-                fieldUpdateDialog();
-                if (isChanged()) {
-                    int option = showCancelableMessage(resources.getString("modifIndex"));
-                    if (option == GuiUtilities.YES_OPTION) {
-                        saveIndex(begin, end);
-                    } else if (option != GuiUtilities.NO_OPTION) {
-                        return;
+                    initValues(core.nextIndex(currentIndex));
+                } else if (source instanceof IndexDialog) {
+                    fieldUpdateDialog();
+                    if (isChanged()) {
+                        int option = showCancelableMessage(resources.getString("modifIndex"));
+                        if (option == GuiUtilities.YES_OPTION) {
+                            saveIndex(begin, end);
+                        } else if (option != GuiUtilities.NO_OPTION) {
+                            return;
+                        }
                     }
+                    setVisible(false);
+                    dispose();
                 }
-                setVisible(false);
-                dispose();
+            } catch (ThotException e) {
+                LOGGER.error("Erreur dans le traitement", e);
+                GuiUtilities.showMessage("Erreur dans le traitement " + e);
             }
         });
         thread.start();

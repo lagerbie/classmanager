@@ -32,6 +32,7 @@ import thot.audio.AudioRecorder;
 import thot.audio.DirectAudioPlayer;
 import thot.audio.DirectAudioRecorder;
 import thot.audio.TimeProcessingListener;
+import thot.exception.ThotException;
 import thot.labo.ProjectFiles;
 import thot.labo.ProjectTarget;
 import thot.labo.TagList;
@@ -170,10 +171,8 @@ public class Core {
      * Initialisation avec le répertoire de travail.
      *
      * @param converter l'utilitaire pour les conversions.
-     *
-     * @throws Exception
      */
-    public Core(Converter converter) throws Exception {
+    public Core(Converter converter) throws ThotException {
         listeners = new EventListenerList();
 
         tempPath = new File(System.getProperty("java.io.tmpdir"), "edu4");
@@ -189,10 +188,8 @@ public class Core {
 
     /**
      * Initialise les valeurs par défaut.
-     *
-     * @throws Exception
      */
-    private void initValues() throws Exception {
+    private void initValues() throws ThotException {
         //gestion du projet
         projectFiles = new ProjectFiles();
         //gestion des index
@@ -243,7 +240,7 @@ public class Core {
     /**
      * Efface tous les index
      */
-    public void eraseIndexes() {
+    public void eraseIndexes() throws ThotException {
         if (mediaIndexes.getIndexesCount() > 0) {
             if (projectFiles.getAudioFile() != null || projectFiles.getVideoFile() != null) {
                 eraseInsertionDataIndexes();
@@ -259,7 +256,7 @@ public class Core {
     /**
      * Efface tous les données des index insérés.
      */
-    private void eraseInsertionDataIndexes() {
+    private void eraseInsertionDataIndexes() throws ThotException {
         Iterator<Index> it = mediaIndexes.iterator();
         while (it.hasNext()) {
             Index index = it.next();
@@ -598,7 +595,7 @@ public class Core {
      *
      * @param time le temps.
      */
-    public void removeIndexAtTime(long time) {
+    public void removeIndexAtTime(long time) throws ThotException {
         Index index = mediaIndexes.removeIndexAtTime(time);
         updateData(null, index, true);
         fireIndexesChanged(mediaIndexes);
@@ -609,7 +606,7 @@ public class Core {
      *
      * @param id l'identifiant de l'index.
      */
-    private void removeIndex(long id) {
+    private void removeIndex(long id) throws ThotException {
         Index index = mediaIndexes.getIndexWithId(id);
         mediaIndexes.removeIndex(index);
         updateData(null, index, false);
@@ -620,7 +617,7 @@ public class Core {
      *
      * @param ids la liste d'identifiants de l'index.
      */
-    public void removeIndex(List<Long> ids) {
+    public void removeIndex(List<Long> ids) throws ThotException {
         for (long id : ids) {
             removeIndex(id);
         }
@@ -648,7 +645,8 @@ public class Core {
      *
      * @return le nouvel index.
      */
-    public Index setMediaIndex(long id, long begin, long end, IndexType type, String subtitle, float speed) {
+    public Index setMediaIndex(long id, long begin, long end, IndexType type, String subtitle, float speed)
+            throws ThotException {
         Index oldIndex = mediaIndexes.getIndexWithId(id);
         if (oldIndex == null) {
             return null;
@@ -704,7 +702,8 @@ public class Core {
      *
      * @return la réussite.
      */
-    private boolean addMediaIndex(long begin, long end, IndexType type, String subtitle, String fileName) {
+    private boolean addMediaIndex(long begin, long end, IndexType type, String subtitle, String fileName)
+            throws ThotException {
         Index index = new Index(type);
         if (fileName != null) {
             index = new IndexFile(fileName);
@@ -729,7 +728,7 @@ public class Core {
      *
      * @return la réussite.
      */
-    public boolean addMediaIndexAt(long time, long length, IndexType type, String subtitle) {
+    public boolean addMediaIndexAt(long time, long length, IndexType type, String subtitle) throws ThotException {
         if (recordTimeMax == 0) {
             setRecordTimeMax(length);
         }
@@ -750,8 +749,7 @@ public class Core {
      *
      * @return la réussite.
      */
-    private int addFileIndex(long time, File file) {
-        long begin = time;
+    private int addFileIndex(long time, File file) throws ThotException {
         long intialDuration = recordTimeMax;
         long duration = 0;
         int write;
@@ -760,12 +758,12 @@ public class Core {
         if (hasAudioSrteam(file)) {
             write = loadAudio(file, tempBuffer);
             if (write > 0) {
-                write = insertData(begin, tempBuffer);
+                write = insertData(time, tempBuffer);
                 if (write > 0) {
                     duration = (long) (tempBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
                             * 1000);
 
-                    addMediaIndex(begin, begin + duration, IndexType.FILE, null, file.getAbsolutePath());
+                    addMediaIndex(time, time + duration, IndexType.FILE, null, file.getAbsolutePath());
                 }
             }
         } else {
@@ -775,12 +773,12 @@ public class Core {
             int nbSample = (int) (duration / 1000.0f * audioFormat.getSampleRate());
             int nbBytes = nbSample * audioFormat.getFrameSize();
             byte data[] = new byte[nbBytes];
-            write = insertData(begin, data);
+            write = insertData(time, data);
             if (write > 0) {
                 duration = (long) (tempBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
                         * 1000);
 
-                addMediaIndex(begin, begin + duration, IndexType.FILE, null, file.getAbsolutePath());
+                addMediaIndex(time, time + duration, IndexType.FILE, null, file.getAbsolutePath());
             }
         }
 
@@ -793,9 +791,9 @@ public class Core {
             //todo test si déjà vidéo
             File videoFile = new File(tempPath, "videoInsert.flv");
             converter(videoFile, file, false);
-            insertVideo(begin, videoFile);
+            insertVideo(time, videoFile);
         } else if (projectFiles.getVideoFile() != null && duration > 0) {
-            insertBlankVideo(begin, duration);
+            insertBlankVideo(time, duration);
         }
 
         return write;
@@ -816,7 +814,11 @@ public class Core {
         }
 
         Thread thread = new Thread(() -> {
-            int success = addVoiceIndex(begin);
+            try {
+                int success = addVoiceIndex(begin);
+            } catch (ThotException e) {
+                LOGGER.error("Erreur lors de l'enrigistrement de la voix", e);
+            }
         });
         thread.start();
     }
@@ -828,7 +830,7 @@ public class Core {
      *
      * @return la réussite.
      */
-    private int addVoiceIndex(long time) {
+    private int addVoiceIndex(long time) throws ThotException {
         tempBuffer.clear();
         recorder.setAudioBuffer(tempBuffer);
         //Modification de l'état des boutons du module audio
@@ -862,7 +864,7 @@ public class Core {
      * @param oldIndex l'ancien index.
      * @param update option pour avertir la modification des données.
      */
-    private void updateData(Index newIndex, Index oldIndex, boolean update) {
+    private void updateData(Index newIndex, Index oldIndex, boolean update) throws ThotException {
         if (newIndex == null && oldIndex == null) {
             return;
         }
@@ -1172,7 +1174,7 @@ public class Core {
      *
      * @return la réussite du chargement.
      */
-    public boolean loadProject(ProjectFiles project) {
+    public boolean loadProject(ProjectFiles project) throws ThotException {
         boolean success = true;
         long length = -1;
 
@@ -1319,7 +1321,7 @@ public class Core {
      *
      * @return {@code true} si le chargement s'est bien passé.
      */
-    public boolean insertFile(File file, long time) {
+    public boolean insertFile(File file, long time) throws ThotException {
         long begin = time;
         if (begin < 0) {
             begin = currentTime;
@@ -1353,7 +1355,7 @@ public class Core {
      *
      * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadFile(File file) {
+    private boolean loadFile(File file) throws ThotException {
         boolean success = false;
 
         if (hasAudioSrteam(file) && hasVideoSrteam(file)) {
@@ -1428,8 +1430,8 @@ public class Core {
         } catch (IOException e) {
             LOGGER.error("", e);
             fireImageChanged(null);
-            return false;
-        }//end try
+            success = false;
+        }
 
         return success;
     }
@@ -1466,11 +1468,11 @@ public class Core {
             styled = load;
         } else {
             //pour le charset en UTF-8
-            text = Utilities.getTextInFile(file, "UTF-8");
+            text = Utilities.getTextInFile(file, Utilities.UTF8_CHARSET);
 
             //pour le charset par défaut de windows
             if (text == null || text.isEmpty()) {
-                text = Utilities.getTextInFile(file, "windows-1252");
+                text = Utilities.getTextInFile(file, Utilities.WINDOWS_CHARSET);
             }//end if
 
             if (text != null) {
@@ -1499,7 +1501,7 @@ public class Core {
         } catch (Exception e) {
             LOGGER.error("", e);
             return false;
-        }//end try
+        }
 
         return true;
     }
@@ -1511,12 +1513,12 @@ public class Core {
      *
      * @return {@code true} si le chargement s'est bien passé.
      */
-    private int loadAudio(File file, ByteBuffer byteBuffer) {
+    private int loadAudio(File file, ByteBuffer byteBuffer) throws ThotException {
         //Java ne décode que le .wav
         if (!Constants.WAV_extension.equalsIgnoreCase(Utilities.getExtensionFile(file))) {
             converter(audioFileTemp, file, false);
             return loadAudio(audioFileTemp, byteBuffer);
-        }//end if
+        }
 
         AudioInputStream audioInputStream;
         //Récupération du flux audio 
@@ -1537,7 +1539,7 @@ public class Core {
                 }
                 converter(audioFileTemp, file, false);
                 return loadAudio(audioFileTemp, byteBuffer);
-            }//end if
+            }
 
             //on quitte si le fichier est plus grand que la mémoire réservée
             if (audioInputStream.available() > byteBuffer.capacity()) {
@@ -1548,10 +1550,7 @@ public class Core {
                 }
                 return -byteBuffer.capacity();
             }
-        } catch (IOException e) {
-            LOGGER.error("", e);
-            return -1;
-        } catch (UnsupportedAudioFileException e) {
+        } catch (IOException | UnsupportedAudioFileException e) {
             LOGGER.error("", e);
             return -1;
         }
@@ -1568,15 +1567,11 @@ public class Core {
                     byteBuffer.put(buffer, 0, cnt);
                 }
             }//end while
-        } catch (IOException e) {
-            LOGGER.error("", e);
-        } catch (BufferOverflowException e) {
+        } catch (IOException | BufferOverflowException e) {
             LOGGER.error("", e);
         } finally {
             try {
-                if (audioInputStream != null) {
-                    audioInputStream.close();
-                }
+                audioInputStream.close();
             } catch (IOException e) {
                 LOGGER.error("", e);
             }
@@ -1593,7 +1588,7 @@ public class Core {
      *
      * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadVideo(File file) {
+    private boolean loadVideo(File file) throws ThotException {
         if (!file.exists()) {
             return false;
         }
@@ -1621,7 +1616,7 @@ public class Core {
      *
      * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    public boolean saveProject(File file, ProjectFiles project) {
+    public boolean saveProject(File file, ProjectFiles project) throws ThotException {
         ProjectTarget soft = project.getSoft();
         if (soft == null) {
             soft = ProjectTarget.COMMON_SOFT;
@@ -1849,7 +1844,7 @@ public class Core {
      *
      * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveAudio(File file) {
+    private boolean saveAudio(File file) throws ThotException {
         boolean success;
 
         //Si le format n'est pas du .wav, on convertie le fichier wav temporaire.
@@ -1979,7 +1974,7 @@ public class Core {
     /**
      * Efface la bande audio.
      */
-    public void eraseAudio() {
+    public void eraseAudio() throws ThotException {
         int NbByte = audioBuffer.limit();
         audioBuffer.rewind();
 
@@ -2011,14 +2006,12 @@ public class Core {
      * @param srcFile le fichier source.
      * @param destFile le fichier destination.
      */
-    private int converter(File destFile, File srcFile, boolean withTags) {
-        int result;
+    private void converter(File destFile, File srcFile, boolean withTags) throws ThotException {
         if (withTags) {
-            result = converter.convert(destFile, srcFile, tags);
+            converter.convert(destFile, srcFile, tags);
         } else {
-            result = converter.convert(destFile, srcFile, null);
+            converter.convert(destFile, srcFile, null);
         }
-        return result;
     }
 
     /**
@@ -2030,16 +2023,15 @@ public class Core {
      * @param subtitleFile le fichier source de la psite de sous-titres.
      * @param soft le logiciel cible.
      */
-    private int converter(File destFile, File audioFile, File videoFile, File subtitleFile, ProjectTarget soft) {
-        int result;
+    private void converter(File destFile, File audioFile, File videoFile, File subtitleFile, ProjectTarget soft)
+            throws ThotException {
         if (soft == ProjectTarget.EASYLAB) {
             converter.setVideoSize(320, 240);
-            result = converter.convert(destFile, audioFile, videoFile, subtitleFile, tags);
+            converter.convert(destFile, audioFile, videoFile, subtitleFile, tags);
         } else {
             converter.setVideoSize(640, 480);
-            result = converter.convert(destFile, audioFile, videoFile, null, tags);
+            converter.convert(destFile, audioFile, videoFile, null, tags);
         }
-        return result;
     }
 
     /**
@@ -2049,8 +2041,8 @@ public class Core {
      * @param audioFile le fichier destination pour la psite vidéo.
      * @param videoFile le fichier destination pour la psite vidéo.
      */
-    private int extract(File srcFile, File audioFile, File videoFile) {
-        return converter.extractToWAVandFLV(srcFile, audioFile, videoFile);
+    private void extract(File srcFile, File audioFile, File videoFile) throws ThotException {
+        converter.extractToWAVandFLV(srcFile, audioFile, videoFile);
     }
 
     /**
@@ -2060,7 +2052,7 @@ public class Core {
      *
      * @return la durée du fichier.
      */
-    public long getFileDuration(File file) {
+    public long getFileDuration(File file) throws ThotException {
         return converter.getDuration(file);
     }
 
@@ -2071,7 +2063,7 @@ public class Core {
      *
      * @return si le fichier contient une piste audio.
      */
-    public boolean hasAudioSrteam(File file) {
+    public boolean hasAudioSrteam(File file) throws ThotException {
         return converter.hasAudioSrteam(file);
     }
 
@@ -2082,7 +2074,7 @@ public class Core {
      *
      * @return si le fichier contient une piste vidéo.
      */
-    public boolean hasVideoSrteam(File file) {
+    public boolean hasVideoSrteam(File file) throws ThotException {
         return converter.hasVideoSrteam(file);
     }
 
@@ -2153,7 +2145,7 @@ public class Core {
      *
      * @return la durée du beep inséré.
      */
-    private long insertBeep(long begin) {
+    private long insertBeep(long begin) throws ThotException {
         File file = Utilities.getResource(beepPath, tempPath);
         long lenght = 0;
         int load = loadAudio(file, tempBuffer);
@@ -2270,7 +2262,7 @@ public class Core {
      * @param oldRate l'ancienne vitesse de l'index.
      * @param newRate la nouvelle vitesse de l'index.
      */
-    private void setIndexAudioRate(Index index, float oldRate, float newRate) {
+    private void setIndexAudioRate(Index index, float oldRate, float newRate) throws ThotException {
         if (oldRate == newRate) {
             return;
         }
@@ -2339,7 +2331,7 @@ public class Core {
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param duration la durée de la vidéo blanche à insérer.
      */
-    private void insertBlankVideo(long begin, long duration) {
+    private void insertBlankVideo(long begin, long duration) throws ThotException {
         File imgDirectory = new File(tempPath, "_img_");
         imgDirectory.mkdirs();
         File imageFile = Utilities.getResource(videoImagePath, tempPath);
@@ -2354,7 +2346,7 @@ public class Core {
      * @param begin le temps de départ de la partie à dupliquer.
      * @param end le temps de fin de la partie à dupliquer.
      */
-    private void insertDuplicatedVideo(long begin, long end) {
+    private void insertDuplicatedVideo(long begin, long end) throws ThotException {
         fireVideoFileChanged(null);
         converter.insertDuplicatedVideo(videoFileTemp, begin, end);
         fireVideoFileChanged(videoFileTemp);
@@ -2366,7 +2358,7 @@ public class Core {
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param file le fichier vidéo à insérer.
      */
-    private void insertVideo(long begin, File file) {
+    private void insertVideo(long begin, File file) throws ThotException {
         fireVideoFileChanged(null);
         converter.insertVideo(videoFileTemp, file, begin);
         fireVideoFileChanged(videoFileTemp);
@@ -2378,7 +2370,7 @@ public class Core {
      * @param destFile le fichier de destination de la vidéo.
      * @param duration la durée de la vidéo blanche.
      */
-    private void createBlankVideo(File destFile, long duration) {
+    private void createBlankVideo(File destFile, long duration) throws ThotException {
         File imgDirectory = new File(tempPath, "_img_");
         imgDirectory.mkdirs();
         File imageFile = Utilities.getResource(videoImagePath, tempPath);
@@ -2391,7 +2383,7 @@ public class Core {
      * @param begin le temps de départ de la partie à supprimer.
      * @param end le temps de fin de la partie à supprimer.
      */
-    private void removeVideo(long begin, long end) {
+    private void removeVideo(long begin, long end) throws ThotException {
         fireVideoFileChanged(null);
         converter.removeVideo(videoFileTemp, begin, end);
         fireVideoFileChanged(videoFileTemp);
@@ -2405,7 +2397,7 @@ public class Core {
      * @param newBegin le nouveau temps de départ de la partie à déplacer.
      * @param duration la nouvelle durée de la partie sélectionnée.
      */
-    private void moveVideoAndResize(long begin, long end, long newBegin, long duration) {
+    private void moveVideoAndResize(long begin, long end, long newBegin, long duration) throws ThotException {
         File imgDirectory = new File(tempPath, "_img_");
         imgDirectory.mkdirs();
         File imageFile = Utilities.getResource(videoImagePath, tempPath);
@@ -2421,7 +2413,7 @@ public class Core {
      * @param oldRate l'ancienne vitesse de l'index.
      * @param newRate la nouvelle vitesse de l'index.
      */
-    private void setIndexVideoRate(Index index, float oldRate, float newRate) {
+    private void setIndexVideoRate(Index index, float oldRate, float newRate) throws ThotException {
         File normalFile = new File(tempPath, index.getId() + Constants.FLV_extension);
         fireVideoFileChanged(null);
         converter.setVideoRate(videoFileTemp, index.getInitialTime(), index.getFinalTime(), oldRate, newRate,

@@ -7,6 +7,7 @@ import java.io.File;
 
 import javax.swing.*;
 
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
@@ -151,7 +152,16 @@ public class ExportDialog extends JDialog {
                     processingBar
                             .processBegin(true, resources.getString("saveTitle"), resources.getString("saveMessage"),
                                     (file == null) ? null : file.getAbsolutePath());
-                    boolean success = manager.saveProject(file, project);
+                    try {
+                        boolean success = manager.saveProject(file, project);
+                        if (!success) {
+                            GuiUtilities.showMessage("Une erreur est survenue dans la sauvegarde du projet");
+                        }
+                    } catch (ThotException e) {
+                        e.printStackTrace();
+                        GuiUtilities
+                                .showMessage("Une erreur est survenue dans la sauvegarde du projet " + e.getMessage());
+                    }
                     close();
                 }, this.getClass().getName());
                 thread.start();

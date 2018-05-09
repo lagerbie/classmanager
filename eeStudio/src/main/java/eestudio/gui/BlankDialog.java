@@ -26,6 +26,7 @@ import javax.swing.text.StyledEditorKit;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.labo.index.Index;
@@ -876,7 +877,13 @@ public class BlankDialog extends JDialog {
                         core.getRemainingTime() / 1000, core.getDurationMax() / 1000);
                 return;
             }
-            core.addMediaIndexAt(begin, length, type, subtitle);
+            try {
+                core.addMediaIndexAt(begin, length, type, subtitle);
+            } catch (ThotException e) {
+                LOGGER.error("Erreur dans le traitement", e);
+                GuiUtilities.showMessage("Erreur dans le traitement " + e);
+                return;
+            }
         }
 
         core.removeNullIndex();
@@ -951,23 +958,23 @@ public class BlankDialog extends JDialog {
         /**
          * Champs de sélection des index
          */
-        protected JCheckBox checkBox;
+        JCheckBox checkBox;
         /**
          * Champs formatés pour les temps de départ des index
          */
-        protected JFormattedTextField beginField;
+        JFormattedTextField beginField;
         /**
          * Champ non modifiable pour la durée de l'index
          */
-        protected JFormattedTextField lengthField;
+        JFormattedTextField lengthField;
         /**
          * Liste déroulante pour le type de l'index
          */
-        protected JComboBox typeList;
+        JComboBox typeList;
         /**
          * Zone de texte pour le soustitre de l'index
          */
-        protected JTextField subtitleField;
+        JTextField subtitleField;
 
         private IndexFields() {
             MaskFormatter beginFormatter = null;

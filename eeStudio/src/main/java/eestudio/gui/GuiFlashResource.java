@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
@@ -392,7 +393,7 @@ public class GuiFlashResource {
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
      */
-    public void flashIndexSubtitle(long begin, long end) {
+    public void flashIndexSubtitle(long begin, long end) throws ThotException {
         long length = end - begin;
         core.addMediaIndexAt(begin, length, IndexType.PLAY, null);
         core.sortIndexes();
@@ -405,7 +406,7 @@ public class GuiFlashResource {
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
      */
-    public void flashIndexBlank(long begin, long end) {
+    public void flashIndexBlank(long begin, long end) throws ThotException {
         long lengthMax = end;
         if (lengthMax < 0) {
             GuiUtilities.showMessageDialog(getMainWindow(), resources.getString("onIndex"));
@@ -443,7 +444,7 @@ public class GuiFlashResource {
      *
      * @param begin le temps de début de l'index.
      */
-    public void flashIndexFile(long begin) {
+    public void flashIndexFile(long begin) throws ThotException {
         fileChooser.setAcceptAllFileFilterUsed(true);
         fileChooser.addChoosableFileFilter(resources.getString("videoFilter"), Constants.videoExtension);
         fileChooser.addChoosableFileFilter(resources.getString("audioFilter"), Constants.audioExtension);
@@ -500,7 +501,7 @@ public class GuiFlashResource {
      * @param begin le temps de début de l'index.
      * @param end le temps de fin de l'index.
      */
-    public void flashIndexAfter(long begin, long end) {
+    public void flashIndexAfter(long begin, long end) throws ThotException {
         double length = (end - begin) / 1000.0;
 
         Object input = GuiUtilities.showInputDialog(getMainWindow(), resources.getString("indexLengthInput"), null,
@@ -523,7 +524,7 @@ public class GuiFlashResource {
      * @param end le temps de fin de l'index.
      * @param subtitle le sous-titre de l'indes.
      */
-    public void flashIndexRepeat(long begin, long end, String subtitle) {
+    public void flashIndexRepeat(long begin, long end, String subtitle) throws ThotException {
         long length = end - begin;
         long timeMax = core.getRemainingTime();
         if (length > timeMax) {
@@ -556,7 +557,7 @@ public class GuiFlashResource {
      *
      * @param time le temps de l'index à supprimer.
      */
-    public void flashIndexDelete(long time) {
+    public void flashIndexDelete(long time) throws ThotException {
         int choix = GuiUtilities.showOptionDialog(getMainWindow(), resources.getString("deleteIndex"), null, null);
 
         closeMainWindow();
@@ -582,14 +583,13 @@ public class GuiFlashResource {
     private void flashTextLoad() {
         fileChooser.setFileFilter(resources.getString("textFilter"), Constants.textExtension);
 
-        //affiche la boite de dialogue et récupère le nom du fichier
-        //si l'action à été validée
+        //affiche la boite de dialogue et récupère le nom du fichier si l'action à été validée
         File file = fileChooser.getSelectedFile(textEditor, FileChooser.LOAD);
         if (file != null) {
             processBegin(false, "conversionTitle", "conversionMessage", file.getAbsolutePath());
             boolean success = core.loadText(file);
             processEnded();
-        }//end if
+        }
     }
 
 //    protected void flashTextSave() {

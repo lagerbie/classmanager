@@ -5,6 +5,7 @@ import java.io.File;
 
 import javax.swing.*;
 
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
@@ -212,7 +213,15 @@ public class ImportDialog extends JDialog {
                 (file == null) ? null : file.getAbsolutePath());
 
         Thread thread = new Thread(() -> {
-            boolean success = manager.loadProject(project);
+            try {
+                boolean success = manager.loadProject(project);
+                if (!success) {
+                    GuiUtilities.showMessage("Une erreur est survenue dans le chargement du projet");
+                }
+            } catch (ThotException e) {
+                e.printStackTrace();
+                GuiUtilities.showMessage("Une erreur est survenue dans le chargement du projet " + e.getMessage());
+            }
             close();
         }, this.getClass().getName());
         thread.start();
@@ -251,8 +260,7 @@ public class ImportDialog extends JDialog {
             path = new File(tempPath, name);
             boolean hasFile = Utilities.extractArchive(file, path);
             if (!hasFile) {
-                GuiUtilities.showMessageDialog(getOwner(),
-                        String.format(resources.getString("loadError"), file));
+                GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("loadError"), file));
             }
 
             projectFile = Utilities.searchFile(path, name, Constants.projectInternExtension);
@@ -274,10 +282,15 @@ public class ImportDialog extends JDialog {
             } else if (Utilities.isIndexFile(file)) {
                 newProject.setIndexesFile(file.getAbsolutePath());
             } else {
-                if (!manager.hasAudioSrteam(file) && !manager.hasVideoSrteam(file)) {
-                    GuiUtilities.showMessageDialog(getOwner(),
-                            String.format(resources.getString("fileFormatNotSupported"), file));
-                    return;
+                try {
+                    if (!manager.hasAudioSrteam(file) && !manager.hasVideoSrteam(file)) {
+                        GuiUtilities.showMessageDialog(getOwner(),
+                                String.format(resources.getString("fileFormatNotSupported"), file));
+                        return;
+                    }
+                } catch (ThotException e) {
+                    GuiUtilities.showMessage("Une erreur est survenue lors de l'analyse du fichier " + e.getMessage());
+                    e.printStackTrace();
                 }
                 newProject.setVideoFile(file.getAbsolutePath());
             }

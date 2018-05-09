@@ -11,6 +11,8 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.labo.TagList;
 import thot.utils.ProgressListener;
 import thot.utils.Utilities;
@@ -239,7 +241,7 @@ public class MEncoder implements Converter {
      * @return la durée du fichier en ms.
      */
     @Override
-    public long getDuration(File file) {
+    public long getDuration(File file) throws ThotException {
         duration = -1;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
@@ -262,13 +264,13 @@ public class MEncoder implements Converter {
      *
      * @return la liste des pistes.
      */
-    private List<String> getTracksInfo(File file) {
+    private List<String> getTracksInfo(File file) throws ThotException {
         if (player == null || !player.exists()) {
-            return new ArrayList<>(0);
+            throw new ThotException(ThotCodeException.MPLAYER_NOT_FOUND, "L'exécutable {} est introuvable", player);
         }
 
         if (file == null || !file.exists()) {
-            return new ArrayList<>(0);
+            throw new ThotException(ThotCodeException.FILE_NOT_FOUND, "Le fichier {} est introuvable", file);
         }
 
         StringBuilder command = new StringBuilder(1024);
@@ -285,16 +287,11 @@ public class MEncoder implements Converter {
         int exit = executeCommand(command.toString(), null, input, error);
 //        fireProcessEnded(exit);
 
-//        if(input.length() > 0)
-//            Edu4Logger.info("mplayer standard Message:\n" + input.toString());
-//        if(error.length() > 0)
-//            Edu4Logger.info("mplayer error Message:\n" + error.toString());
-
-        List<String> list = new ArrayList<String>(4);
+        List<String> list = new ArrayList<>(4);
         String[] lines = input.toString().split("\n");
         for (String line : lines) {
-            if (line.contains(DURATION_PROPERTY) || line.contains(SELECTED_AUDIO_CODEC) || line.contains(AUDIO_PROPERTY) || line
-                    .contains(SELECTED_VIDEO_CODEC) || line.contains(VIDEO_PROPERTY)) {
+            if (line.contains(DURATION_PROPERTY) || line.contains(SELECTED_AUDIO_CODEC) || line.contains(AUDIO_PROPERTY)
+                    || line.contains(SELECTED_VIDEO_CODEC) || line.contains(VIDEO_PROPERTY)) {
                 list.add(line.trim());
             }
         }
@@ -310,7 +307,7 @@ public class MEncoder implements Converter {
      * @return si le fichier possède un flux audio.
      */
     @Override
-    public boolean hasAudioSrteam(File file) {
+    public boolean hasAudioSrteam(File file) throws ThotException {
         boolean audio = false;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
@@ -330,7 +327,7 @@ public class MEncoder implements Converter {
      * @return si le fichier possède un flux vidéo.
      */
     @Override
-    public boolean hasVideoSrteam(File file) {
+    public boolean hasVideoSrteam(File file) throws ThotException {
         boolean video = false;
         List<String> list = getTracksInfo(file);
         for (String line : list) {
@@ -350,12 +347,10 @@ public class MEncoder implements Converter {
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
      * @param tags les tags au format mp3.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File srcFile, TagList tags) {
-        return convert(destFile, srcFile, tags, 44100, 1);
+    public void convert(File destFile, File srcFile, TagList tags) throws ThotException {
+        convert(destFile, srcFile, tags, 44100, 1);
     }
 
     /**
@@ -367,27 +362,25 @@ public class MEncoder implements Converter {
      * @param destFile le fichier de destination.
      * @param audioRate la fréquence en Hz.
      * @param channels le nombre de canaux audio.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
+    public void convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) throws ThotException {
         setAudioBitrate(128000);
         setAudioChannels(channels);
         setAudioRate(audioRate);
 
         String type = Utilities.getExtensionFile(destFile);
         if (type.endsWith(".wav")) {
-            return convertToWAV(destFile, srcFile);
+            convertToWAV(destFile, srcFile);
         } else if (type.endsWith(".mp3")) {
-            return convertToMP3(destFile, srcFile, tags);
+            convertToMP3(destFile, srcFile, tags);
         } else if (type.endsWith(".mp4")) {
-            return convertToMP4(destFile, srcFile, null, null, tags);
+            convertToMP4(destFile, srcFile, null, null, tags);
         } else if (type.endsWith(".flv")) {
             setVideoSize(640, 480);
-            return convertToFLV(destFile, srcFile);
+            convertToFLV(destFile, srcFile);
         } else {
-            return convertToMP4(destFile, srcFile, null, null, null);
+            convertToMP4(destFile, srcFile, null, null, null);
         }
     }
 
@@ -400,27 +393,26 @@ public class MEncoder implements Converter {
      * @param videoFile le fichier pour la piste vidéo.
      * @param audioFile le fichier pour la piste audio.
      * @param subtitleFile le fichier pour les soustitres.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
+    public void convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags)
+            throws ThotException {
         setAudioBitrate(128000);
         setAudioChannels(1);
         setAudioRate(44100);
 
         String type = Utilities.getExtensionFile(destFile);
         if (type.endsWith(".wav")) {
-            return convertToWAV(destFile, audioFile);
+            convertToWAV(destFile, audioFile);
         } else if (type.endsWith(".mp3")) {
-            return convertToMP3(destFile, audioFile, tags);
+            convertToMP3(destFile, audioFile, tags);
         } else if (type.endsWith(".mp4")) {
-            return convertToMP4(destFile, audioFile, videoFile, subtitleFile, tags);
+            convertToMP4(destFile, audioFile, videoFile, subtitleFile, tags);
         } else if (type.endsWith(".flv")) {
             setVideoSize(640, 480);
-            return convertToFLV(destFile, videoFile);
+            convertToFLV(destFile, videoFile);
         } else {
-            return convertToMP4(destFile, audioFile, videoFile, subtitleFile, tags);
+            convertToMP4(destFile, audioFile, videoFile, subtitleFile, tags);
         }
     }
 
@@ -430,11 +422,9 @@ public class MEncoder implements Converter {
      * @param srcFile le fichier source contenant les deux pistes.
      * @param audioFile le fichier de destination pour la piste audio.
      * @param videoFile le fichier de destination pour la piste vidéo.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int extractToWAVandFLV(File srcFile, File audioFile, File videoFile) {
+    public void extractToWAVandFLV(File srcFile, File audioFile, File videoFile) throws ThotException {
         setAudioBitrate(128000);
         setAudioChannels(1);
         setAudioRate(44100);
@@ -443,33 +433,23 @@ public class MEncoder implements Converter {
         audioFile.delete();
         videoFile.delete();
 
-        StringBuilder audioArgs = new StringBuilder(1024);
-        audioArgs.append(getProtectedName(srcFile.getAbsolutePath()));
-        audioArgs.append(" -nolirc -noautosub");
-        audioArgs.append(" -nocorrect-pts -benchmark -vo null -vc null -novideo");
-        audioArgs.append(" -ao pcm:waveheader:fast:file=%");//codec audio
-        audioArgs.append(audioFile.getAbsolutePath().length());
-        audioArgs.append("%");//codec audio
-        audioArgs.append(audioFile.getAbsolutePath());
-        audioArgs.append(" -af format=s16le,lavcresample=");//audio rate
-        audioArgs.append(audioRate);
-        audioArgs.append(",channels=");//canaux audio
-        audioArgs.append(audioChannels);
+        String audioArgs = getProtectedName(srcFile.getAbsolutePath())
+                + " -nolirc -noautosub"
+                + " -nocorrect-pts -benchmark -vo null -vc null -novideo"
+                + " -ao pcm:waveheader:fast:file=%" + audioFile.getAbsolutePath().length()
+                + "%" + audioFile.getAbsolutePath()
+                + " -af format=s16le,lavcresample=" + audioRate + ",channels=" + audioChannels;
 
-        StringBuilder videoArgs = new StringBuilder(1024);
-        videoArgs.append(getProtectedName(srcFile.getAbsolutePath()));
-        videoArgs.append(" -noautosub");
-        videoArgs.append(" -nosound");//codec audio
-        videoArgs.append(" -of lavf -lavfopts format=flv");
-        videoArgs.append(" -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6");//codec vidéo
-        videoArgs.append(" -ofps 24");
-        videoArgs.append(" -vf scale=");
-        videoArgs.append(videoSize);
-        videoArgs.append(",harddup,fixpts");
-        videoArgs.append(" -o ");
-        videoArgs.append(getProtectedName(videoFile.getAbsolutePath()));
+        String videoArgs = getProtectedName(srcFile.getAbsolutePath())
+                + " -noautosub"
+                + " -nosound"//codec audio
+                + " -of lavf -lavfopts format=flv"
+                + " -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6"//codec vidéo
+                + " -ofps 24"
+                + " -vf scale=" + videoSize + ",harddup,fixpts"
+                + " -o " + getProtectedName(videoFile.getAbsolutePath());
 
-        return extract(audioArgs.toString(), videoArgs.toString());
+        extract(audioArgs, videoArgs);
     }
 
     /**
@@ -481,14 +461,11 @@ public class MEncoder implements Converter {
      * @param duration la durée de la vidéo blanche à insérer.
      */
     @Override
-    public int insertBlankVideo(File file, File imageFile, long begin, long duration) {
+    public void insertBlankVideo(File file, File imageFile, long begin, long duration) throws ThotException {
         File videoFile = new File(tempPath, "videoIMG.flv");
         setProcessingEnd(false);
-        int result = createBlankVideo(videoFile, imageFile, duration);
-        if (result == 0) {
-            result = insertVideo(file, videoFile, begin);
-        }
-        return result;
+        createBlankVideo(videoFile, imageFile, duration);
+        insertVideo(file, videoFile, begin);
     }
 
     /**
@@ -499,14 +476,11 @@ public class MEncoder implements Converter {
      * @param end le temps de fin de la partie à dupliquer.
      */
     @Override
-    public int insertDuplicatedVideo(File file, long begin, long end) {
+    public void insertDuplicatedVideo(File file, long begin, long end) throws ThotException {
         File videoFile = new File(tempPath, "videoInsert.flv");
         setProcessingEnd(false);
-        int result = extractVideoFile(videoFile, file, begin, end);
-        if (result == 0) {
-            result = insertVideo(file, videoFile, end);
-        }
-        return result;
+        extractVideoFile(videoFile, file, begin, end);
+        insertVideo(file, videoFile, end);
     }
 
     /**
@@ -517,19 +491,14 @@ public class MEncoder implements Converter {
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      */
     @Override
-    public int insertVideo(File file, File insertFile, long begin) {
+    public void insertVideo(File file, File insertFile, long begin) throws ThotException {
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
         File videoAfter = new File(tempPath, "videoAfter.flv");
-        int result = extractVideoFile(videoBefore, file, 0, begin);
-        if (result == 0) {
-            result = extractVideoFile(videoAfter, file, begin, videoDuration);
-        }
-        if (result == 0) {
-            result = joinVideoFile(file, videoBefore, insertFile, videoAfter);
-        }
+        extractVideoFile(videoBefore, file, 0, begin);
+        extractVideoFile(videoAfter, file, begin, videoDuration);
+        joinVideoFile(file, videoBefore, insertFile, videoAfter);
         setProcessingEnd(true);
-        return result;
     }
 
     /**
@@ -540,11 +509,10 @@ public class MEncoder implements Converter {
      * @param duration la durée de la vidéo blanche.
      */
     @Override
-    public int createBlankVideo(File destFile, File imageFile, long duration) {
+    public void createBlankVideo(File destFile, File imageFile, long duration) throws ThotException {
         File imgDirectory = new File(tempPath, "_img_");
         imgDirectory.mkdirs();
-        int result = createVideoFile(destFile, duration, imgDirectory, imageFile);
-        return result;
+        createVideoFile(destFile, duration, imgDirectory, imageFile);
     }
 
     /**
@@ -555,20 +523,15 @@ public class MEncoder implements Converter {
      * @param end le temps de fin de la partie à supprimer.
      */
     @Override
-    public int removeVideo(File file, long begin, long end) {
+    public void removeVideo(File file, long begin, long end) throws ThotException {
         setProcessingEnd(false);
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
         File videoAfter = new File(tempPath, "videoAfter.flv");
-        int result = extractVideoFile(videoBefore, file, 0, begin);
-        if (result == 0) {
-            result = extractVideoFile(videoAfter, file, end, videoDuration);
-        }
-        if (result == 0) {
-            result = joinVideoFile(file, videoBefore, videoAfter);
-        }
+        extractVideoFile(videoBefore, file, 0, begin);
+        extractVideoFile(videoAfter, file, end, videoDuration);
+        joinVideoFile(file, videoBefore, videoAfter);
         setProcessingEnd(true);
-        return result;
     }
 
     /**
@@ -582,43 +545,29 @@ public class MEncoder implements Converter {
      * @param duration la nouvelle durée de la partie sélectionnée.
      */
     @Override
-    public int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration) {
+    public void moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration)
+            throws ThotException {
         setProcessingEnd(false);
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
         File videoAfter = new File(tempPath, "videoAfter.flv");
         File removeVideo = new File(tempPath, "videoRemove.flv");
 
-        int result = extractVideoFile(videoBefore, file, 0, begin);
-        if (result == 0) {
-            result = extractVideoFile(videoAfter, file, end, videoDuration);
-        }
+        extractVideoFile(videoBefore, file, 0, begin);
+        extractVideoFile(videoAfter, file, end, videoDuration);
 
         if (duration > (end - begin)) {
             File removeTemp = new File(tempPath, "videoRemoveTemp.flv");
             File blankFile = new File(tempPath, "videoIMG.flv");
-            if (result == 0) {
-                result = extractVideoFile(removeTemp, file, begin, end);
-            }
-            if (result == 0) {
-                result = createBlankVideo(blankFile, imageFile, duration - end + begin);
-            }
-            if (result == 0) {
-                result = joinVideoFile(removeVideo, removeTemp, blankFile);
-            }
+            extractVideoFile(removeTemp, file, begin, end);
+            createBlankVideo(blankFile, imageFile, duration - end + begin);
+            joinVideoFile(removeVideo, removeTemp, blankFile);
         } else {
-            if (result == 0) {
-                result = extractVideoFile(removeVideo, file, begin, begin + duration);
-            }
+            extractVideoFile(removeVideo, file, begin, begin + duration);
         }
-        if (result == 0) {
-            result = joinVideoFile(file, videoBefore, videoAfter);
-        }
+        joinVideoFile(file, videoBefore, videoAfter);
 
-        if (result == 0) {
-            result = insertVideo(file, removeVideo, newBegin);
-        }
-        return result;
+        insertVideo(file, removeVideo, newBegin);
     }
 
     /**
@@ -632,37 +581,28 @@ public class MEncoder implements Converter {
      * @param normalFile la vidéo correspondante au temps à un vitesse normale.
      */
     @Override
-    public int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile) {
+    public void setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile)
+            throws ThotException {
         setProcessingEnd(false);
         long videoDuration = getDuration(file);
         File videoBefore = new File(tempPath, "videoBefore.flv");
         File videoAfter = new File(tempPath, "videoAfter.flv");
         File insertVideo = new File(tempPath, "videoInsert.flv");
 
-        int result = extractVideoFile(videoBefore, file, 0, begin);
-        if (result == 0) {
-            result = extractVideoFile(videoAfter, file, end, videoDuration);
-        }
+        extractVideoFile(videoBefore, file, 0, begin);
+        extractVideoFile(videoAfter, file, end, videoDuration);
 
         if (oldRate == 1) {
-            if (result == 0) {
-                result = extractVideoFile(normalFile, file, begin, end);
-            }
+            extractVideoFile(normalFile, file, begin, end);
         }
-
         if (newRate == 1) {
             insertVideo = normalFile;
         } else {
-            if (result == 0) {
-                result = convertToFLV(insertVideo, normalFile, newRate);
-            }
+            convertToFLV(insertVideo, normalFile, newRate);
         }
 
-        if (result == 0) {
-            result = joinVideoFile(file, videoBefore, insertVideo, videoAfter);
-        }
+        joinVideoFile(file, videoBefore, insertVideo, videoAfter);
         setProcessingEnd(true);
-        return result;
     }
 
     /**
@@ -670,10 +610,8 @@ public class MEncoder implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de conversion.
      */
-    private int convertToMP3(File destFile, File srcFile, TagList tags) {
+    private void convertToMP3(File destFile, File srcFile, TagList tags) throws ThotException {
         StringBuilder args = new StringBuilder(1024);
         args.append(getProtectedName(srcFile.getAbsolutePath()));
 //        int dim = (int) Math.floor(Math.sqrt(srcFile.length()/getDuration(srcFile)*80/3));
@@ -696,7 +634,7 @@ public class MEncoder implements Converter {
 
         args.append(" -o ");
         args.append(getProtectedName(destFile.getAbsolutePath()));
-        int result = convert(encoder, args.toString(), null, null);
+        convert(encoder, args.toString(), null, null);
 
         if (tags != null) {
             try {
@@ -705,7 +643,6 @@ public class MEncoder implements Converter {
                 LOGGER.error("", e);
             }
         }
-        return result;
     }
 
     /**
@@ -713,25 +650,17 @@ public class MEncoder implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de conversion.
      */
-    private int convertToWAV(File destFile, File srcFile) {
+    private void convertToWAV(File destFile, File srcFile) throws ThotException {
         destFile.delete();
-        StringBuilder args = new StringBuilder(1024);
-        args.append(getProtectedName(srcFile.getAbsolutePath()));
-        args.append(" -nolirc -noautosub");
-        args.append(" -nocorrect-pts -benchmark -vo null -vc null -novideo");
-        args.append(" -ao pcm:waveheader:fast:file=%");//codec audio
-        args.append(destFile.getAbsolutePath().length());
-        args.append("%");//codec audio
-        args.append(destFile.getAbsolutePath());
-        args.append(" -af format=s16le,lavcresample=");//audio rate
-        args.append(audioRate);
-        args.append(",channels=");//canaux audio
-        args.append(audioChannels);
 
-        return convert(player, args.toString(), null, null);
+        String args = getProtectedName(srcFile.getAbsolutePath())
+                + " -nolirc -noautosub"
+                + " -nocorrect-pts -benchmark -vo null -vc null -novideo"
+                + " -ao pcm:waveheader:fast:file=%" + destFile.getAbsolutePath().length()
+                + "%" + destFile.getAbsolutePath()
+                + " -af format=s16le,lavcresample=" + audioRate + ",channels=" + audioChannels;
+        convert(player, args, null, null);
     }
 
     /**
@@ -741,10 +670,9 @@ public class MEncoder implements Converter {
      * @param videoFile le fichier video à convertir.
      * @param audioFile le fichier audio à convertir.
      * @param subtitleFile le fichier pour les soustitres.
-     *
-     * @return les messages de conversion.
      */
-    private int convertToMP4(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
+    private void convertToMP4(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags)
+            throws ThotException {
         StringBuilder args = new StringBuilder(1024);
 
         args.append(getProtectedName(videoFile.getAbsolutePath()));
@@ -816,7 +744,7 @@ public class MEncoder implements Converter {
         args.append(" -o ");
         args.append(getProtectedName(destFile.getAbsolutePath()));
 
-        return convert(encoder, args.toString(), null, null);
+        convert(encoder, args.toString(), null, null);
     }
 
     /**
@@ -824,24 +752,17 @@ public class MEncoder implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de conversion.
      */
-    private int convertToFLV(File destFile, File srcFile) {
-        StringBuilder args = new StringBuilder(1024);
-        args.append(getProtectedName(srcFile.getAbsolutePath()));
-        args.append(" -noautosub");
-        args.append(" -nosound");//codec audio
-        args.append(" -of lavf -lavfopts format=flv");
-        args.append(" -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6");//codec vidéo
-        args.append(" -ofps 24");
-        args.append(" -vf scale=");
-        args.append(videoSize);
-        args.append(",harddup,fixpts");
-        args.append(" -o ");
-        args.append(getProtectedName(destFile.getAbsolutePath()));
-
-        return convert(encoder, args.toString(), null, null);
+    private void convertToFLV(File destFile, File srcFile) throws ThotException {
+        String args = getProtectedName(srcFile.getAbsolutePath())
+                + " -noautosub"
+                + " -nosound"//codec audio
+                + " -of lavf -lavfopts format=flv"
+                + " -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6"//codec vidéo
+                + " -ofps 24"
+                + " -vf scale=" + videoSize + ",harddup,fixpts"
+                + " -o " + getProtectedName(destFile.getAbsolutePath());
+        convert(encoder, args, null, null);
     }
 
     /**
@@ -849,26 +770,18 @@ public class MEncoder implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de conversion.
      */
-    private int convertToFLV(File destFile, File srcFile, float rate) {
-        StringBuilder args = new StringBuilder(1024);
-        args.append(getProtectedName(srcFile.getAbsolutePath()));
-        args.append(" -noautosub");
-        args.append(" -nosound");//codec audio
-        args.append(" -of lavf -lavfopts format=flv");
-        args.append(" -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6");//codec vidéo
-        args.append(" -ofps 24");
-        args.append(" -speed ");
-        args.append(rate);
-        args.append(" -vf scale=");
-        args.append(videoSize);
-        args.append(",harddup,fixpts");
-        args.append(" -o ");
-        args.append(getProtectedName(destFile.getAbsolutePath()));
-
-        return convert(encoder, args.toString(), null, null);
+    private void convertToFLV(File destFile, File srcFile, float rate) throws ThotException {
+        String args = getProtectedName(srcFile.getAbsolutePath())
+                + " -noautosub"
+                + " -nosound"//codec audio
+                + " -of lavf -lavfopts format=flv"
+                + " -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6"//codec vidéo
+                + " -ofps 24"
+                + " -speed " + rate
+                + " -vf scale=" + videoSize + ",harddup,fixpts"
+                + " -o " + getProtectedName(destFile.getAbsolutePath());
+        convert(encoder, args, null, null);
     }
 
 //    /**
@@ -910,10 +823,10 @@ public class MEncoder implements Converter {
      *
      * @return la présence du codec mp3lame sur l'encodeur.
      */
-    private boolean hasCodec_mp3lame() {
+    private boolean hasCodec_mp3lame() throws ThotException {
         String args = " -oac help";
         StringBuilder audioCodecs = new StringBuilder(1024);
-        int result = convert(encoder, args, null, audioCodecs);
+        convert(encoder, args, null, audioCodecs);
         return audioCodecs.toString().contains(CODEC_MP3_LAME);
     }
 
@@ -923,13 +836,10 @@ public class MEncoder implements Converter {
      * @param binary l'exécutable de conversion.
      * @param args les arguments de la conversion.
      * @param workingDirectory le répertoire de travail (utile pour les images).
-     *
-     * @return les messages de conversion.
      */
-    private int convert(File binary, String args, File workingDirectory, StringBuilder out) {
+    private void convert(File binary, String args, File workingDirectory, StringBuilder out) throws ThotException {
         if (binary == null || !binary.exists()) {
-            LOGGER.error("Converter binary not found: " + binary);
-            return FILE_NOT_FIND;
+            throw new ThotException(ThotCodeException.BINARY_NOT_FOUND, "L'exécutable {} est introuvable", binary);
         }
 
         StringBuilder command = new StringBuilder(1024);
@@ -957,10 +867,13 @@ public class MEncoder implements Converter {
             LOGGER.info("converter error Message:\n" + error.toString());
         }
 
-        if (output.length() > 0) {
-            return SUCCESS;
-        } else {
-            return CONVERSION_ERROR;
+        if (error.length() > 0) {
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : {}", command, error);
+        }
+        if (exit != 0) {
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : code de sortie {}", command, exit);
         }
     }
 
@@ -969,17 +882,13 @@ public class MEncoder implements Converter {
      *
      * @param audioArgs les arguments de la convertion de la piste audio.
      * @param videoArgs les arguments de la convertion de la piste vidéo.
-     *
-     * @return les messages de conversion.
      */
-    private int extract(String audioArgs, String videoArgs) {
+    private void extract(String audioArgs, String videoArgs) throws ThotException {
         if (player == null || !player.exists()) {
-            LOGGER.error("Converter binary not found: " + player);
-            return FILE_NOT_FIND;
+            throw new ThotException(ThotCodeException.MPLAYER_NOT_FOUND, "L'exécutable {} est introuvable", player);
         }
         if (encoder == null || !encoder.exists()) {
-            LOGGER.error("Converter binary not found: " + encoder);
-            return FILE_NOT_FIND;
+            throw new ThotException(ThotCodeException.MPENCODER_NOT_FOUND, "L'exécutable {} est introuvable", encoder);
         }
 
         StringBuilder command = new StringBuilder(1024);
@@ -1002,8 +911,14 @@ public class MEncoder implements Converter {
         if (error.length() > 0) {
             LOGGER.info("extract audio error Message:\n" + error.toString());
         }
+
+        if (error.length() > 0) {
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : {}", command, error);
+        }
         if (exit != 0) {
-            return CONVERSION_ERROR;
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : code de sortie {}", command, exit);
         }
 
         command = new StringBuilder(1024);
@@ -1027,10 +942,13 @@ public class MEncoder implements Converter {
             LOGGER.info("extract video Message:\n" + error.toString());
         }
 
-        if (output.length() > 0) {
-            return SUCCESS;
-        } else {
-            return CONVERSION_ERROR;
+        if (error.length() > 0) {
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : {}", command, error);
+        }
+        if (exit != 0) {
+            throw new ThotException(ThotCodeException.CONVESRION_ERROR,
+                    "Erreur lors de l'exécution de la commande {} : code de sortie {}", command, exit);
         }
     }
 
@@ -1042,49 +960,38 @@ public class MEncoder implements Converter {
      * @param duration la durée de la vidéo.
      * @param workingDirectory le répertoire contenant les images.
      * @param imageFile
-     *
-     * @return les messages de conversion.
      */
-    private int createVideoFile(File destFile, long duration, File workingDirectory, File imageFile) {
-
+    private void createVideoFile(File destFile, long duration, File workingDirectory, File imageFile)
+            throws ThotException {
         String extension = Utilities.getExtensionFile(imageFile);
         for (int i = 0; i < 10; i++) {
-            Utilities.fileCopy(imageFile, new File(workingDirectory,
-                    "img" + i + extension));
+            Utilities.fileCopy(imageFile, new File(workingDirectory, "img" + i + extension));
         }
 
         double nb = 0;
         String names[] = workingDirectory.list();
         if (names == null) {
-            LOGGER.error("error: no file");
-            return FILE_NOT_FIND;
+            throw new ThotException(ThotCodeException.EMPTY_DIRECTORY, "Le répertoire {} est vide",
+                    workingDirectory.getAbsolutePath());
         }
         for (String name : names) {
-            if (name.toLowerCase().endsWith(".png")
-                    || name.toLowerCase().endsWith(".jpg")) {
+            if (name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg")) {
                 nb++;
             }
         }
         if (nb == 0) {
-            LOGGER.error("error: no image file");
-            return FILE_NOT_FIND;
+            throw new ThotException(ThotCodeException.EMPTY_DIRECTORY, "Le répertoire {} ne contient pas d'image",
+                    workingDirectory.getAbsolutePath());
         }
 
-        StringBuilder args = new StringBuilder(1024);
-        args.append("mf://*");
-        args.append(extension);
-        args.append(" -mf fps=");
-        args.append(String.format("%1$.12f", (1000 * nb / duration)));
-        args.append(" -of lavf -lavfopts format=flv");
-        args.append(" -oac copy -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6");//codec vidéo
-        args.append(" -ofps 24");
-        args.append(" -vf scale=");
-        args.append(videoSize);
-        args.append(",harddup");
-        args.append(" -o ");
-        args.append(getProtectedName(destFile.getAbsolutePath()));
-
-        return convert(encoder, args.toString(), workingDirectory, null);
+        String args = "mf://*" + extension
+                + " -mf fps=" + String.format("%1$.12f", (1000 * nb / duration))
+                + " -of lavf -lavfopts format=flv"
+                + " -oac copy -ovc lavc -lavcopts vcodec=flv:vbitrate=1000:keyint=6"//codec vidéo
+                + " -ofps 24"
+                + " -vf scale=" + videoSize + ",harddup"
+                + " -o " + getProtectedName(destFile.getAbsolutePath());
+        convert(encoder, args, workingDirectory, null);
     }
 
     /**
@@ -1092,10 +999,8 @@ public class MEncoder implements Converter {
      *
      * @param destFile le fichier de destination.
      * @param srcFiles les différents fichiers sources.
-     *
-     * @return les messages de conversion.
      */
-    private int joinVideoFile(File destFile, File... srcFiles) {
+    private void joinVideoFile(File destFile, File... srcFiles) throws ThotException {
         StringBuilder args = new StringBuilder(1024);
         for (File file : srcFiles) {
             if (file != null && file.exists()) {
@@ -1109,7 +1014,7 @@ public class MEncoder implements Converter {
         args.append(" -o ");
         args.append(getProtectedName(destFile.getAbsolutePath()));
 
-        return convert(encoder, args.toString(), null, null);
+        convert(encoder, args.toString(), null, null);
     }
 
     /**
@@ -1119,20 +1024,15 @@ public class MEncoder implements Converter {
      * @param srcFile le fichier vidéo source.
      * @param begin le temps de départ de la partie à extraire (en ms).
      * @param end le temps de fin de la partie à extraire (en ms).
-     *
-     * @return les messages de conversion.
      */
-    private int extractVideoFile(File destFile, File srcFile, long begin, long end) {
-        StringBuilder args = new StringBuilder(1024);
-        args.append(getProtectedName(srcFile.getAbsolutePath()));
-        args.append(" -of lavf -lavfopts format=flv");
-        args.append(" -nosound -ovc copy");
-        args.append(String.format(" -ss %1$d.%2$d", (begin / 1000), (begin % 1000)));
-        args.append(String.format(" -endpos %1$d.%2$d", ((end - begin) / 1000), ((end - begin) % 1000)));
-        args.append(" -o ");
-        args.append(getProtectedName(destFile.getAbsolutePath()));
-
-        return convert(encoder, args.toString(), null, null);
+    private void extractVideoFile(File destFile, File srcFile, long begin, long end) throws ThotException {
+        String args = getProtectedName(srcFile.getAbsolutePath())
+                + " -of lavf -lavfopts format=flv"
+                + " -nosound -ovc copy"
+                + String.format(" -ss %1$d.%2$d", (begin / 1000), (begin % 1000))
+                + String.format(" -endpos %1$d.%2$d", ((end - begin) / 1000), ((end - begin) % 1000))
+                + " -o " + getProtectedName(destFile.getAbsolutePath());
+        convert(encoder, args, null, null);
     }
 
     /**
@@ -1145,8 +1045,7 @@ public class MEncoder implements Converter {
      *
      * @return la valeur de sortie du processus résultat de la commande.
      */
-    private int executeCommand(String command, File workingDirectory,
-            StringBuilder output, StringBuilder error) {
+    private int executeCommand(String command, File workingDirectory, StringBuilder output, StringBuilder error) {
         if (Utilities.LINUX_PLATFORM) {
             return executeCommand(new String[]{"/bin/sh", "-c", command}, workingDirectory, output, error);
         }

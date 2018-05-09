@@ -26,6 +26,7 @@ import javax.swing.text.StyledEditorKit;
 import eestudio.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.labo.index.Index;
@@ -246,9 +247,7 @@ public class IndexesDialog extends JDialog {
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
 
         FontMetrics metrics = getFontMetrics(messageLabel.getFont());
-//        timeWidth = Math.max(metrics.stringWidth(lengthLabel.getText()),
-//                Math.max(metrics.stringWidth(beginLabel.getText()),
-//                metrics.stringWidth(endLabel.getText())));
+//        timeWidth = Math.max(metrics.stringWidth(lengthLabel.getText()), Math.max(metrics.stringWidth(beginLabel.getText()), metrics.stringWidth(endLabel.getText())));
 
         int max = 0;
         for (String typeInLanguage : indexTypesRevert.keySet()) {
@@ -694,8 +693,7 @@ public class IndexesDialog extends JDialog {
         long insertTime = 0;
         int size = indexesFields.size();
         for (IndexFields indexFields : indexesFields) {
-            //si les champs de début et de fin sont égaux, on passe au
-            //suivant (index éliminé lors de la validation)
+            //si les champs de début et de fin sont égaux, on passe au suivant (index éliminé lors de la validation)
             if (indexFields.beginField.getText().equals(indexFields.endField.getText())) {
                 continue;
             }
@@ -745,8 +743,7 @@ public class IndexesDialog extends JDialog {
             return;
         }
 
-        for (int i = 0; i < size; i++) {
-            IndexFields indexFields = indexesFields.get(i);
+        for (IndexFields indexFields : indexesFields) {
             long begin = getValue(indexFields.beginField);
             long end = getValue(indexFields.endField);
             IndexType type = indexTypesRevert.get((String) indexFields.typeList.getSelectedItem());
@@ -769,7 +766,13 @@ public class IndexesDialog extends JDialog {
             }
 
             if (isChanged(indexFields)) {
-                core.setMediaIndex(indexFields.id, begin, end, type, subtitle, -1);
+                try {
+                    core.setMediaIndex(indexFields.id, begin, end, type, subtitle, -1);
+                } catch (ThotException e) {
+                    LOGGER.error("Erreur dans le traitement", e);
+                    GuiUtilities.showMessage("Erreur dans le traitement " + e);
+                    return;
+                }
             }
         }
 
@@ -1062,7 +1065,13 @@ public class IndexesDialog extends JDialog {
             }
         }
 
-        core.removeIndex(removeIndexIds);
+        try {
+            core.removeIndex(removeIndexIds);
+        } catch (ThotException e) {
+            LOGGER.error("Erreur dans le traitement", e);
+            GuiUtilities.showMessage("Erreur dans le traitement " + e);
+            return;
+        }
         removeIndexIds.clear();
 
         indexesFields.clear();
@@ -1135,31 +1144,31 @@ public class IndexesDialog extends JDialog {
         /**
          * id de l'index
          */
-        protected long id;
+        long id;
         /**
          * Champs de sélection des index
          */
-        protected JCheckBox checkBox;
+        JCheckBox checkBox;
         /**
          * Champs formatés pour les temps de départ des index
          */
-        protected JFormattedTextField beginField;
+        JFormattedTextField beginField;
         /**
          * Champ formaté pour le temps de fin de l'index
          */
-        protected JFormattedTextField endField;
+        JFormattedTextField endField;
         /**
          * Champ non modifiable pour la durée de l'index
          */
-        protected JTextField lengthField;
+        JTextField lengthField;
         /**
          * Liste déroulante pour le type de l'index
          */
-        protected JComboBox typeList;
+        JComboBox typeList;
         /**
          * Zone de texte pour le soustitre de l'index
          */
-        protected JTextField subtitleField;
+        JTextField subtitleField;
 
         private IndexFields(long id) {
             this.id = id;

@@ -2,6 +2,7 @@ package thot.video;
 
 import java.io.File;
 
+import thot.exception.ThotException;
 import thot.labo.TagList;
 import thot.utils.ProgressListener;
 
@@ -12,18 +13,6 @@ import thot.utils.ProgressListener;
  * @version 1.8.4
  */
 public interface Converter {
-    /**
-     * Conversion réussi avec success
-     */
-    int SUCCESS = 0;
-    /**
-     * Erreur lors de la conversion due à des fichiers manquants
-     */
-    int FILE_NOT_FIND = -1;
-    /**
-     * Erreur lors de la conversion
-     */
-    int CONVERSION_ERROR = -2;
 
     /**
      * Arrête le processus.
@@ -59,7 +48,7 @@ public interface Converter {
      *
      * @return la durée du fichier en ms.
      */
-    long getDuration(File file);
+    long getDuration(File file) throws ThotException;
 
     /**
      * Détermine si le fichier possède un flux audio.
@@ -68,7 +57,7 @@ public interface Converter {
      *
      * @return si le fichier possède un flux audio.
      */
-    boolean hasAudioSrteam(File file);
+    boolean hasAudioSrteam(File file) throws ThotException;
 
     /**
      * Détermine si le fichier possède un flux vidéo.
@@ -77,7 +66,7 @@ public interface Converter {
      *
      * @return si le fichier possède un flux vidéo.
      */
-    boolean hasVideoSrteam(File file);
+    boolean hasVideoSrteam(File file) throws ThotException;
 
     /**
      * Conversion de fichiers. La conversion est définie par le type du fichier destination.
@@ -85,10 +74,8 @@ public interface Converter {
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
      * @param tags les tags au format mp3.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int convert(File destFile, File srcFile, TagList tags);
+    void convert(File destFile, File srcFile, TagList tags) throws ThotException;
 
     /**
      * Conversion de fichiers. La conversion est définie par le type du fichier destination.
@@ -98,10 +85,8 @@ public interface Converter {
      * @param tags les tags au format mp3.
      * @param audioRate la fréquence en Hz.
      * @param channels le nombre de canaux audio.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels);
+    void convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) throws ThotException;
 
     /**
      * Conversion de fichiers. La conversion est définie par le type du fichier destination : Types supportés: .wav,
@@ -113,10 +98,8 @@ public interface Converter {
      * @param audioFile le fichier pour la piste audio.
      * @param subtitleFile le fichier pour les sous
      * @param tags les tags au format mp3.titres.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags);
+    void convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) throws ThotException;
 
     /**
      * Extrait les pistes audio et vidéo du fichier source au format WAV (mono à 44kHz) et FLV ("640x480", 25 fps)
@@ -124,10 +107,8 @@ public interface Converter {
      * @param srcFile le fichier source contenant les deux pistes.
      * @param audioFile le fichier de destination pour la piste audio.
      * @param videoFile le fichier de destination pour la piste vidéo.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int extractToWAVandFLV(File srcFile, File audioFile, File videoFile);
+    void extractToWAVandFLV(File srcFile, File audioFile, File videoFile) throws ThotException;
 
     /**
      * Insére une vidéo "blanche" (image fixe) sur une vidéo.
@@ -136,10 +117,8 @@ public interface Converter {
      * @param imageFile l'image fixe à insérer.
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      * @param duration la durée de la vidéo blanche à insérer.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int insertBlankVideo(File file, File imageFile, long begin, long duration);
+    void insertBlankVideo(File file, File imageFile, long begin, long duration) throws ThotException;
 
     /**
      * Duplique la plage donnée de la vidéo et l'insére à la fin de la plage.
@@ -147,10 +126,8 @@ public interface Converter {
      * @param file la vidéo à modifier.
      * @param begin le temps de départ de la partie à dupliquer.
      * @param end le temps de fin de la partie à dupliquer.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int insertDuplicatedVideo(File file, long begin, long end);
+    void insertDuplicatedVideo(File file, long begin, long end) throws ThotException;
 
     /**
      * Insére une vidéo dans une vidéo.
@@ -158,10 +135,8 @@ public interface Converter {
      * @param file la vidéo dans la quelle on insère la vidéo.
      * @param insertFile le fichier vidéo à insérer.
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int insertVideo(File file, File insertFile, long begin);
+    void insertVideo(File file, File insertFile, long begin) throws ThotException;
 
     /**
      * Crée une vidéo "blanche" (image fixe) d'une durée spécifique.
@@ -169,10 +144,8 @@ public interface Converter {
      * @param destFile le fichier de destination de la vidéo.
      * @param imageFile l'image fixe à insérer.
      * @param duration la durée de la vidéo blanche.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int createBlankVideo(File destFile, File imageFile, long duration);
+    void createBlankVideo(File destFile, File imageFile, long duration) throws ThotException;
 
     /**
      * Supprime une partie de la vidéo.
@@ -180,10 +153,8 @@ public interface Converter {
      * @param file la vidéo dans la quelle on supprime une plage de temps.
      * @param begin le temps de départ de la partie à supprimer.
      * @param end le temps de fin de la partie à supprimer.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int removeVideo(File file, long begin, long end);
+    void removeVideo(File file, long begin, long end) throws ThotException;
 
     /**
      * Déplace et redimensionne une partie de la vidéo courante.
@@ -194,10 +165,9 @@ public interface Converter {
      * @param end le temps de fin de la partie à déplacer.
      * @param newBegin le nouveau temps de départ de la partie à déplacer.
      * @param duration la nouvelle durée de la partie sélectionnée.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration);
+    void moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration)
+            throws ThotException;
 
     /**
      * Modifie la vitesse d'une partie de la vidéo.
@@ -208,9 +178,8 @@ public interface Converter {
      * @param oldRate l'ancienne vitesse de la partie à modifier.
      * @param newRate la nouvelle vitesse de la partie à modifier.
      * @param normalFile la vidéo correspondante au temps à un vitesse normale.
-     *
-     * @return 0 si la conversion s'est bien terminée.
      */
-    int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile);
+    void setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile)
+            throws ThotException;
 
 }

@@ -286,7 +286,7 @@ public class LaboratoryCore extends LaboCore {
      * @return {@code true} si le chargement s'est bien passé.
      */
     @Override
-    public boolean audioLoad(File file) {
+    public boolean audioLoad(File file) throws ThotException {
         if (!file.exists()) {
             return false;
         }
@@ -300,8 +300,7 @@ public class LaboratoryCore extends LaboCore {
 
         //Java ne décode que le .wav
         if (!file.getName().toLowerCase().endsWith(".wav")) {
-            executeConverter(file, audioFileTemp,
-                    (int) audioFormat.getSampleRate(), audioFormat.getChannels());
+            executeConverter(file, audioFileTemp, (int) audioFormat.getSampleRate(), audioFormat.getChannels());
             return audioLoad(audioFileTemp);
         }
 
@@ -311,8 +310,7 @@ public class LaboratoryCore extends LaboCore {
 
             //format ne correspond pas a celui utilisé en interne
             if (!fileAudioFormat.matches(audioFormat)) {
-                executeConverter(file, audioFileTemp,
-                        (int) audioFormat.getSampleRate(), audioFormat.getChannels());
+                executeConverter(file, audioFileTemp, (int) audioFormat.getSampleRate(), audioFormat.getChannels());
                 return audioLoad(audioFileTemp);
             }
 
@@ -357,7 +355,7 @@ public class LaboratoryCore extends LaboCore {
      * @return {@code true} si la sauvegarde s'est bien passée.
      */
     @Override
-    public boolean saveAudio(File file) {
+    public boolean saveAudio(File file) throws ThotException {
         if (!Utilities.isAudioFile(file)) {
             return saveAudio(new File(file.getParentFile(), file.getName() + Constants.audioDefaultExtension));
         }
@@ -455,7 +453,7 @@ public class LaboratoryCore extends LaboCore {
      *
      * @return {@code true} si la commande s'est bien effectuée, sinon retourne {@code false}.
      */
-    private boolean executeCommand(Command command) {
+    private boolean executeCommand(Command command) throws ThotException {
         boolean isExecute = true;
         ProjectFiles project;
 
@@ -681,45 +679,51 @@ public class LaboratoryCore extends LaboCore {
                 }
                 fileOutputStream.close();
             }
+            try {
+                if (command.getAction() == CommandAction.FILE_GET) {
+                    File file = new File(userHome, defaultFileName);
+                    ProjectFiles projectFiles = new ProjectFiles();
+                    projectFiles.setVideoFile(defaultFileName);
+                    projectFiles.setAudioFile(defaultFileName);
+                    projectFiles.setTextFile(defaultFileName);
+                    saveProject(file, projectFiles);
+                    //envoi du fichier si il existe, sinon on retourne l'échec
+                    if (file.exists()) {
+                        outputStream.writeUTF(CommandAction.FILE_SEND.getAction());
+                        outputStream.flush();
+                        //envoi du nom de fichier
+                        outputStream.writeUTF(file.getName());
+                        outputStream.flush();
 
-            if (command.getAction() == CommandAction.FILE_GET) {
-                File file = new File(userHome, defaultFileName);
-                ProjectFiles projectFiles = new ProjectFiles();
-                projectFiles.setVideoFile(defaultFileName);
-                projectFiles.setAudioFile(defaultFileName);
-                projectFiles.setTextFile(defaultFileName);
-                saveProject(file, projectFiles);
-                //envoi du fichier si il existe, sinon on retourne l'échec
-                if (file.exists()) {
-                    outputStream.writeUTF(CommandAction.FILE_SEND.getAction());
-                    outputStream.flush();
-                    //envoi du nom de fichier
-                    outputStream.writeUTF(file.getName());
-                    outputStream.flush();
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        //envoi la taille du fichier
+                        outputStream.writeInt(fileInputStream.available());
+                        outputStream.flush();
 
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    //envoi la taille du fichier
-                    outputStream.writeInt(fileInputStream.available());
-                    outputStream.flush();
+                        byte tempBuffer[] = new byte[BUFFER_SIZE];
+                        //envoi du fichier: obligatoirement par des write
+                        //byte (car se n'est pas un fichier texte)
+                        int cnt = fileInputStream.read(tempBuffer);
+                        while (cnt != -1) {
+                            outputStream.write(tempBuffer, 0, cnt);
+                            cnt = fileInputStream.read(tempBuffer);
+                        }
+                        outputStream.flush();
+                        //fermeture du fichier
+                        fileInputStream.close();
 
-                    byte tempBuffer[] = new byte[BUFFER_SIZE];
-                    //envoi du fichier: obligatoirement par des write
-                    //byte (car se n'est pas un fichier texte)
-                    int cnt = fileInputStream.read(tempBuffer);
-                    while (cnt != -1) {
-                        outputStream.write(tempBuffer, 0, cnt);
-                        cnt = fileInputStream.read(tempBuffer);
+                        //attente de la fin du téléchargement
+                        isOK = inputStream.readBoolean();
                     }
-                    outputStream.flush();
-                    //fermeture du fichier
-                    fileInputStream.close();
+                } else {
+                    //exécution de la commande
 
-                    //attente de la fin du téléchargement
-                    isOK = inputStream.readBoolean();
+                    isOK = executeCommand(command);
+
                 }
-            } else {
-                //exécution de la commande
-                isOK = executeCommand(command);
+            } catch (ThotException e) {
+                LOGGER.error("une erreur est survenue lors de l'exécution de la commande {}", e, command);
+                isOK = false;
             }
 
             outputStream.writeUTF(CommandAction.END.getAction());

@@ -14,6 +14,8 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.labo.TagList;
 import thot.utils.ProgressListener;
 import thot.utils.Utilities;
@@ -32,6 +34,11 @@ public class VLCconverter implements Converter {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(VLCconverter.class);
 
+    /**
+     * Message d'erreur por les fonctinalités non disponibles.
+     */
+    private static final String NOT_YET_IMPLEMENTED = "Fonctionalité pas encore disponible pour VLC";
+
     private static final String RESAMPLING_ERROR = "Failed to find conversion filter for resampling";
     /**
      * Caractères représentant l'entrée de la durée du media dans le processus.
@@ -49,6 +56,7 @@ public class VLCconverter implements Converter {
      * Codec pour la conversion en mp3.
      */
     private static final String LIB_MP3_LAME = "libmp3lame.so.0";
+
     /**
      * Référence sur l'exécutable de conversion.
      */
@@ -160,16 +168,16 @@ public class VLCconverter implements Converter {
     }
 
     @Override
-    public boolean hasAudioSrteam(File file) {
+    public boolean hasAudioSrteam(File file) throws ThotException {
         return hasTrack(file, AUDIO_PROPERTY);
     }
 
     @Override
-    public boolean hasVideoSrteam(File file) {
+    public boolean hasVideoSrteam(File file) throws ThotException {
         return hasTrack(file, VIDEO_PROPERTY);
     }
 
-    private boolean hasTrack(File file, String track) {
+    private boolean hasTrack(File file, String track) throws ThotException {
         boolean hasTrack = false;
         List<String> list = getTracksInfo(file);
         for (String stream : list) {
@@ -189,7 +197,7 @@ public class VLCconverter implements Converter {
      *
      * @return la liste des pistes.
      */
-    private List<String> getTracksInfo(File file) {
+    private List<String> getTracksInfo(File file) throws ThotException {
         List<String> list = new ArrayList<>(2);
         File tempFile = new File(System.getProperty("java.io.tmpdir"), file.getName() + ".wav");
         String vlcArgs = "--sout=#duplicate{dst=std{access=file,mux=wav,dst="
@@ -215,12 +223,10 @@ public class VLCconverter implements Converter {
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
      * @param tags les tags au format mp3.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File srcFile, TagList tags) {
-        return convert(destFile, srcFile, tags, 44100, 2);
+    public void convert(File destFile, File srcFile, TagList tags) throws ThotException {
+        convert(destFile, srcFile, tags, 44100, 2);
     }
 
     /**
@@ -232,26 +238,20 @@ public class VLCconverter implements Converter {
      * @param destFile le fichier de destination.
      * @param audioRate la fréquence en Hz.
      * @param channels le nombre de canaux audio.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) {
+    public void convert(File destFile, File srcFile, TagList tags, int audioRate, int channels) throws ThotException {
         setAudioChannels(channels);
         setAudioRate(audioRate);
 
-        String resut;
-
         String type = Utilities.getExtensionFile(destFile);
         if (type.endsWith(".wav")) {
-            resut = convertToWAV(destFile, srcFile);
+            convertToWAV(destFile, srcFile);
         } else if (type.endsWith(".mp3")) {
-            resut = convertToMP3(destFile, srcFile);
+            convertToMP3(destFile, srcFile);
         } else {
-            resut = convertToMP4(destFile, srcFile);
+            convertToMP4(destFile, srcFile);
         }
-
-        return resut.contains("error") ? CONVERSION_ERROR : SUCCESS;
     }
 
     /**
@@ -263,12 +263,11 @@ public class VLCconverter implements Converter {
      * @param videoFile le fichier pour la piste vidéo.
      * @param audioFile le fichier pour la piste audio.
      * @param subtitleFile le fichier pour les soustitres.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags) {
-        return CONVERSION_ERROR;
+    public void convert(File destFile, File audioFile, File videoFile, File subtitleFile, TagList tags)
+            throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -277,12 +276,10 @@ public class VLCconverter implements Converter {
      * @param srcFile le fichier source contenant les deux pistes.
      * @param audioFile le fichier de destination pour la piste audio.
      * @param videoFile le fichier de destination pour la piste vidéo.
-     *
-     * @return les messages de conversion.
      */
     @Override
-    public int extractToWAVandFLV(File srcFile, File audioFile, File videoFile) {
-        return CONVERSION_ERROR;
+    public void extractToWAVandFLV(File srcFile, File audioFile, File videoFile) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -294,8 +291,8 @@ public class VLCconverter implements Converter {
      * @param duration la durée de la vidéo blanche à insérer.
      */
     @Override
-    public int insertBlankVideo(File file, File imageFile, long begin, long duration) {
-        return CONVERSION_ERROR;
+    public void insertBlankVideo(File file, File imageFile, long begin, long duration) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -306,8 +303,8 @@ public class VLCconverter implements Converter {
      * @param end le temps de fin de la partie à dupliquer.
      */
     @Override
-    public int insertDuplicatedVideo(File file, long begin, long end) {
-        return CONVERSION_ERROR;
+    public void insertDuplicatedVideo(File file, long begin, long end) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -318,8 +315,8 @@ public class VLCconverter implements Converter {
      * @param begin le temps de départ de l'insertion dans la vidéo initiale.
      */
     @Override
-    public int insertVideo(File file, File insertFile, long begin) {
-        return CONVERSION_ERROR;
+    public void insertVideo(File file, File insertFile, long begin) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -330,8 +327,8 @@ public class VLCconverter implements Converter {
      * @param duration la durée de la vidéo blanche.
      */
     @Override
-    public int createBlankVideo(File destFile, File imageFile, long duration) {
-        return CONVERSION_ERROR;
+    public void createBlankVideo(File destFile, File imageFile, long duration) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -342,8 +339,8 @@ public class VLCconverter implements Converter {
      * @param end le temps de fin de la partie à supprimer.
      */
     @Override
-    public int removeVideo(File file, long begin, long end) {
-        return CONVERSION_ERROR;
+    public void removeVideo(File file, long begin, long end) throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -357,8 +354,9 @@ public class VLCconverter implements Converter {
      * @param duration la nouvelle durée de la partie sélectionnée.
      */
     @Override
-    public int moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration) {
-        return CONVERSION_ERROR;
+    public void moveVideoAndResize(File file, File imageFile, long begin, long end, long newBegin, long duration)
+            throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -372,8 +370,9 @@ public class VLCconverter implements Converter {
      * @param normalFile la vidéo correspondante au temps à un vitesse normale.
      */
     @Override
-    public int setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile) {
-        return CONVERSION_ERROR;
+    public void setVideoRate(File file, long begin, long end, float oldRate, float newRate, File normalFile)
+            throws ThotException {
+        throw new ThotException(ThotCodeException.NOT_YET_IMPLEMENTED, NOT_YET_IMPLEMENTED);
     }
 
     /**
@@ -381,10 +380,8 @@ public class VLCconverter implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de vlc.
      */
-    private String convertToMP3(File destFile, File srcFile) {
+    private void convertToMP3(File destFile, File srcFile) throws ThotException {
         String audioCodec = "mp3";
         if (Utilities.LINUX_PLATFORM && !hasCodec_mp3lame()) {
             audioCodec = "mpga";
@@ -394,7 +391,7 @@ public class VLCconverter implements Converter {
                 + audioChannels + ",samplerate=" + audioRate + "}" + ":duplicate{dst=std{access=file,mux=dummy,dst="
                 + getProtectedName(destFile.getAbsolutePath()) + "}}";
 
-        return convert(srcFile, vlcArgs);
+        convert(srcFile, vlcArgs);
     }
 
     /**
@@ -405,7 +402,7 @@ public class VLCconverter implements Converter {
      *
      * @return les messages de vlc.
      */
-    private String convertToWAV(File destFile, File srcFile) {
+    private String convertToWAV(File destFile, File srcFile) throws ThotException {
         String vlcArgs = "--sout=#transcode{vcodec=none,acodec=s16l,ab=" + audioBitrate + ",channels=" + audioChannels
                 + ",samplerate=" + audioRate + "}" + ":duplicate{dst=std{access=file,mux=wav,dst=" + getProtectedName(
                 destFile.getAbsolutePath()) + "}}";
@@ -438,7 +435,7 @@ public class VLCconverter implements Converter {
      *
      * @return les messages de vlc.
      */
-    private String convertToWAVinSameSamplerate(File destFile, File srcFile) {
+    private String convertToWAVinSameSamplerate(File destFile, File srcFile) throws ThotException {
         String vlcArgs = "--sout=#transcode{vcodec=none,acodec=s16l,ab="
                 + audioBitrate + ",channels=" + audioChannels + "}"
                 + ":duplicate{dst=std{access=file,mux=wav,dst="
@@ -451,10 +448,8 @@ public class VLCconverter implements Converter {
      *
      * @param srcFile le fichier à convertir.
      * @param destFile le fichier de destination.
-     *
-     * @return les messages de vlc.
      */
-    private String convertToMP4(File destFile, File srcFile) {
+    private void convertToMP4(File destFile, File srcFile) throws ThotException {
         String audioCodec = "mp3";
         if (Utilities.LINUX_PLATFORM && !hasCodec_mp3lame()) {
             audioCodec = "mpga";
@@ -466,7 +461,7 @@ public class VLCconverter implements Converter {
                 + ":duplicate{dst=std{access=file,mux=ps,dst="
                 + getProtectedName(destFile.getAbsolutePath()) + "}}";
 
-        return convert(srcFile, vlcArgs);
+        convert(srcFile, vlcArgs);
     }
 
     /**
@@ -477,9 +472,9 @@ public class VLCconverter implements Converter {
      *
      * @return les messages de vlc.
      */
-    private String convert(File srcFile, String vlcArgs) {
+    private String convert(File srcFile, String vlcArgs) throws ThotException {
         if (encoder == null || !encoder.exists()) {
-            return "error: vlc not found";
+            throw new ThotException(ThotCodeException.VLC_NOT_FOUND, "L'exécutable {} est introuvable", encoder);
         }
 
         StringBuilder command = new StringBuilder(64);

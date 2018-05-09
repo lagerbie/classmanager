@@ -26,6 +26,7 @@ import thot.audio.AudioPlayer;
 import thot.audio.AudioProcessing;
 import thot.audio.AudioRecorder;
 import thot.audio.TimeProcessingListener;
+import thot.exception.ThotException;
 import thot.labo.index.Index;
 import thot.labo.index.IndexProcessing;
 import thot.labo.index.IndexType;
@@ -488,7 +489,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @param text le texte chargé.
      */
-    public void fireTextLoaded(String text) {
+    private void fireTextLoaded(String text) {
         for (LaboListener listener : listeners.getListeners(LaboListener.class)) {
             listener.textLoaded(text);
         }
@@ -579,7 +580,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @return l'index d'enregistrement si il existe.
      */
-    public Index getRecordIndex(double position) {
+    protected Index getRecordIndex(double position) {
         return recordIndexes.getIndexAtTime((long) (position * recordTimeMax));
     }
 
@@ -609,7 +610,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @return l'index contenant la position.
      */
-    public Index getMediaIndex(double position) {
+    private Index getMediaIndex(double position) {
         return mediaIndexes.getIndexAtTime((long) (position * recordTimeMax));
     }
 
@@ -868,7 +869,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Efface tous les index d'enregistrement.
      */
-    public void eraseAllRecordIndex() {
+    protected void eraseAllRecordIndex() {
         recordIndexes.removeAll();
     }
 
@@ -925,7 +926,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @return la réussite du chargement.
      */
     @Override
-    public boolean loadProject(ProjectFiles project) {
+    public boolean loadProject(ProjectFiles project) throws ThotException {
         boolean success = true;
 
         //Effacement des éléments précédement chargés
@@ -934,27 +935,16 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         textErase();
 
         if (project.getVideoFile() != null) {
-            File videoFile = new File(project.getVideoFile());
-            boolean loaded = loadMedia(videoFile);
-            success &= loaded;
+            success = loadMedia(new File(project.getVideoFile()));
         }
-
         if (project.getAudioFile() != null) {
-            File audioFile = new File(project.getAudioFile());
-            boolean loaded = audioLoad(audioFile);
-            success &= loaded;
+            success &= audioLoad(new File(project.getAudioFile()));
         }
-
         if (project.getTextFile() != null) {
-            File textFile = new File(project.getTextFile());
-            boolean loaded = loadText(textFile);
-            success &= loaded;
+            success &= loadText(new File(project.getTextFile()));
         }
-
         if (project.getIndexesFile() != null) {
-            File indexesFile = new File(project.getIndexesFile());
-            boolean loaded = loadIndexes(indexesFile);
-            success &= loaded;
+            success &= loadIndexes(new File(project.getIndexesFile()));
         }
 
         return success;
@@ -985,8 +975,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         setRecordTimeMaxByIndexes();
         fireIndexesChanged();
 
-        File subtitleFile = new File(file.getParentFile(),
-                file.getName() + Constants.SRT_extension);
+        File subtitleFile = new File(file.getParentFile(), file.getName() + Constants.SRT_extension);
         if (Utilities.saveSRTSubtitleFile(mediaIndexes, subtitleFile)) {
             loadSubtitleFile(subtitleFile);
         }
@@ -1027,7 +1016,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         } catch (IOException e) {
             LOGGER.error("Impossible de charger l'image {}", e, file.getAbsolutePath());
             fireImageChanged(null);
-            return false;
+            success = false;
         }
 
         return success;
@@ -1105,7 +1094,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadMedia(File file) {
+    private boolean loadMedia(File file) throws ThotException {
         if (!file.exists()) {
             return false;
         }
@@ -1245,7 +1234,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @return {@code true} si la sauvegarde s'est bien passée.
      */
     @Override
-    public boolean saveProject(File file, ProjectFiles project) {
+    public boolean saveProject(File file, ProjectFiles project) throws ThotException {
         //le nom sans extension du fichier principal pour le nom du répertoire
         String name = Utilities.getNameWithoutExtension(file);
 
@@ -1495,8 +1484,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
             fireIndexesChanged();
         }
 
-        if (!mediaPlayer.isPlaying()
-                && (mediaType == Constants.VIDEO_FILE || mediaType == Constants.AUDIO_FILE)) {
+        if (!mediaPlayer.isPlaying() && (mediaType == Constants.VIDEO_FILE || mediaType == Constants.AUDIO_FILE)) {
             mediaPlayerPlay();
         }
 
@@ -1516,11 +1504,11 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         }
     }
 
-    protected boolean audioLoad(File file) {
+    protected boolean audioLoad(File file) throws ThotException {
         return false;
     }
 
-    protected boolean saveAudio(File file) {
+    protected boolean saveAudio(File file) throws ThotException {
         return false;
     }
 
@@ -1530,7 +1518,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @param srcFile le fichier source.
      * @param destFile le fichier destination.
      */
-    public void executeConverter(File srcFile, File destFile) {
+    protected void executeConverter(File srcFile, File destFile) throws ThotException {
         converter.convert(destFile, srcFile, null);
     }
 
@@ -1542,7 +1530,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @param audioRate la fréquence en Hz.
      * @param channels le nombre de canaux audio.
      */
-    public void executeConverter(File srcFile, File destFile, int audioRate, int channels) {
+    protected void executeConverter(File srcFile, File destFile, int audioRate, int channels) throws ThotException {
         converter.convert(destFile, srcFile, null, audioRate, channels);
     }
 
@@ -1554,7 +1542,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @return si le fichier contient une piste audio.
      */
     @Override
-    public boolean hasAudioSrteam(File file) {
+    public boolean hasAudioSrteam(File file) throws ThotException {
         return converter.hasAudioSrteam(file);
     }
 
@@ -1566,7 +1554,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      * @return si le fichier contient une piste vidéo.
      */
     @Override
-    public boolean hasVideoSrteam(File file) {
+    public boolean hasVideoSrteam(File file) throws ThotException {
         return converter.hasVideoSrteam(file);
     }
 
@@ -1582,7 +1570,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @param time le nouveau temps.
      */
-    public void fireProcessTimeChanged(long time) {
+    private void fireProcessTimeChanged(long time) {
         setTime(time);
     }
 
@@ -1593,17 +1581,14 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      */
     public void fireProcessEnded(final boolean running) {
         //Traitement dans un thread séparée pour éviter un blocage
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //si on est sur un index
-                if (onIndex) {
-                    userStop = false;
-                    audioPause();
-                } else if (running) {
-                    audioPause();
-                    fireProcessTimeChanged(0);
-                }
+        new Thread(() -> {
+            //si on est sur un index
+            if (onIndex) {
+                userStop = false;
+                audioPause();
+            } else if (running) {
+                audioPause();
+                fireProcessTimeChanged(0);
             }
         }, this.getClass().getName()).start();
     }

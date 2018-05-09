@@ -11,6 +11,7 @@ import java.io.File;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
@@ -437,7 +438,13 @@ public class ImportDialog extends JDialog {
                         (file == null) ? null : file.getAbsolutePath());
 
         Thread thread = new Thread(() -> {
-            boolean success = core.loadProject(project);
+            try {
+                boolean success = core.loadProject(project);
+            } catch (ThotException e) {
+                e.printStackTrace();
+                GuiUtilities.showMessage("Erreur dans le traitement " + e);
+                return;
+            }
             close();
         });
         thread.start();
@@ -520,11 +527,17 @@ public class ImportDialog extends JDialog {
 //                    GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("fileFormatNotSupported"), file));
 //                    return;
 //                }
-                if (core.hasAudioSrteam(file)) {
-                    newProject.setAudioFile(file.getAbsolutePath());
-                }
-                if (core.hasVideoSrteam(file)) {
-                    newProject.setVideoFile(file.getAbsolutePath());
+                try {
+                    if (core.hasAudioSrteam(file)) {
+                        newProject.setAudioFile(file.getAbsolutePath());
+                    }
+                    if (core.hasVideoSrteam(file)) {
+                        newProject.setVideoFile(file.getAbsolutePath());
+                    }
+                } catch (ThotException e) {
+                    e.printStackTrace();
+                    GuiUtilities.showMessage("Erreur dans le traitement " + e);
+                    return;
                 }
             }
         }
@@ -577,31 +590,37 @@ public class ImportDialog extends JDialog {
             GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("noFile"), indexesFile));
             indexesFile = null;
             newProject.setIndexesFile(null);
-        }//end indexesFile
+        }
         if (audioFile != null && !audioFile.exists()) {
             GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("noFile"), audioFile));
             audioFile = null;
             newProject.setAudioFile(null);
-        }//end audioFile
+        }
         if (videoFile != null && !videoFile.exists()) {
             GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("noFile"), videoFile));
             videoFile = null;
             newProject.setVideoFile(null);
-        }//end videoFile
+        }
         if (textFile != null && !textFile.exists()) {
             GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("noFile"), textFile));
             textFile = null;
             newProject.setTextFile(null);
-        }//end textFile
+        }
         if (tagFile != null && !tagFile.exists()) {
             GuiUtilities.showMessageDialog(getOwner(), String.format(resources.getString("noFile"), tagFile));
             tagFile = null;
             newProject.setTagFile(null);
-        }//end tagFile
+        }
 
-        if (videoFile != null && audioFile == null && core.hasAudioSrteam(videoFile)) {
-            audioFile = videoFile;
-            newProject.setAudioFile(audioFile.getAbsolutePath());
+        try {
+            if (videoFile != null && audioFile == null && core.hasAudioSrteam(videoFile)) {
+                audioFile = videoFile;
+                newProject.setAudioFile(audioFile.getAbsolutePath());
+            }
+        } catch (ThotException e) {
+            e.printStackTrace();
+            GuiUtilities.showMessage("Erreur dans le traitement " + e);
+            return;
         }
 
         if (newProject.getVideoOriginalFile() != null) {
@@ -624,16 +643,22 @@ public class ImportDialog extends JDialog {
         indexesButton.setEnabled(hasIndex);
         indexesButton.setSelected(hasIndex);
 
-        hasData = (audioFile != null || (videoFile != null && core.hasAudioSrteam(videoFile)));
-        audioButton.setEnabled(hasData);
-        audioButton.setSelected(hasData);
-        if (hasData && audioFile == null) {
-            audioFile = videoFile;
-        }
+        try {
+            hasData = (audioFile != null || (videoFile != null && core.hasAudioSrteam(videoFile)));
+            audioButton.setEnabled(hasData);
+            audioButton.setSelected(hasData);
+            if (hasData && audioFile == null) {
+                audioFile = videoFile;
+            }
 
-        hasVideo = (videoFile != null && core.hasVideoSrteam(videoFile));
-        videoButton.setEnabled(hasVideo);
-        videoButton.setSelected(hasVideo);
+            hasVideo = (videoFile != null && core.hasVideoSrteam(videoFile));
+            videoButton.setEnabled(hasVideo);
+            videoButton.setSelected(hasVideo);
+        } catch (ThotException e) {
+            e.printStackTrace();
+            GuiUtilities.showMessage("Erreur dans le traitement " + e);
+            return;
+        }
 
         hasText = (textFile != null);
         textButton.setEnabled(hasText);

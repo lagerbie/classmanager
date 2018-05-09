@@ -2,6 +2,8 @@ package thot.labo;
 
 import java.io.File;
 
+import thot.exception.ThotException;
+
 /**
  * Interface pour la gestion d'un projet.
  *
@@ -24,7 +26,7 @@ public interface ProjectManager {
      *
      * @return la réussite du chargement.
      */
-    boolean loadProject(ProjectFiles project);
+    boolean loadProject(ProjectFiles project) throws ThotException;
 
     /**
      * Sauvegarde d'un projet.
@@ -34,7 +36,7 @@ public interface ProjectManager {
      *
      * @return la réussite dde la sauvegarde.
      */
-    boolean saveProject(File file, ProjectFiles project);
+    boolean saveProject(File file, ProjectFiles project) throws ThotException;
 
     /**
      * Supprime les éléments du projet qu sont chargés.
@@ -47,8 +49,8 @@ public interface ProjectManager {
 
     long getRecordTimeMax();
 
-    boolean hasAudioSrteam(File file);
+    boolean hasAudioSrteam(File file) throws ThotException;
 
-    boolean hasVideoSrteam(File file);
+    boolean hasVideoSrteam(File file) throws ThotException;
 
 }

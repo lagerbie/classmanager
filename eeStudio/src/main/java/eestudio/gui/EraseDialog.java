@@ -10,6 +10,8 @@ import java.awt.event.MouseListener;
 import javax.swing.*;
 
 import eestudio.Core;
+import thot.exception.ThotException;
+import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
 
@@ -244,11 +246,17 @@ public class EraseDialog extends JDialog {
                 if (videoButton.isSelected()) {
                     core.eraseVideo();
                 }
-                if (audioButton.isSelected()) {
-                    core.eraseAudio();
-                }
-                if (indexesButton.isSelected()) {
-                    core.eraseIndexes();
+                try {
+                    if (audioButton.isSelected()) {
+                        core.eraseAudio();
+                    }
+                    if (indexesButton.isSelected()) {
+                        core.eraseIndexes();
+                    }
+                } catch (ThotException e) {
+                    e.printStackTrace();
+                    GuiUtilities.showMessage("Erreur dans le traitement " + e);
+                    return;
                 }
 
                 close();

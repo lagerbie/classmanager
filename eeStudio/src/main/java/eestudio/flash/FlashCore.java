@@ -12,6 +12,7 @@ import eestudio.Listener;
 import eestudio.gui.GuiFlashResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.labo.index.Index;
 import thot.labo.utils.LaboXMLUtilities;
 import thot.utils.Constants;
@@ -225,7 +226,7 @@ public class FlashCore {
      * @param action le type de la commande.
      * @param parameter le paramètre de la commande.
      */
-    public void executeCommand(String action, String parameter) {
+    public void executeCommand(String action, String parameter) throws ThotException {
         LOGGER.info("command: " + action + " para: " + parameter);
 
         //par défaut = false
@@ -277,8 +278,7 @@ public class FlashCore {
 //            //TODO -v2 selection de bande
 //        }
         else if (action.contentEquals(FlashConstants.indexSpeed) && index != null) {
-            guiResources.flashIndexSubtitle(
-                    index.getInitialTime(), index.getFinalTime());
+            guiResources.flashIndexSubtitle(index.getInitialTime(), index.getFinalTime());
             index = null;
         }
 //        else if(action.contentEquals(FlashConstants.detect) && on) {
