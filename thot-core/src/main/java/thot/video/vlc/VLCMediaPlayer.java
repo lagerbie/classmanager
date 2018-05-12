@@ -12,7 +12,6 @@ import com.sun.jna.Pointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.exception.ThotException;
-import thot.utils.Utilities;
 import thot.video.MediaPlayer;
 import thot.video.MediaPlayerState;
 import thot.video.event.MediaPlayerListener;
@@ -40,7 +39,7 @@ public class VLCMediaPlayer implements MediaPlayer {
     /**
      * Référence à la librairie.
      */
-    private static final LibVLC libvlc;
+    private static final LibVLC LIB_VLC;
 
     /**
      * Premier évènement à attacher.
@@ -78,9 +77,13 @@ public class VLCMediaPlayer implements MediaPlayer {
 
         if (Platform.isWindows()) {
             libraryName = "libvlc";
-            vlcPath = getVLCpathOnWindows();
+            try {
+                vlcPath = VLCUtilities.getVLCpathOnWindows();
+            } catch (ThotException e) {
+                LOGGER.error("Impossible de trouver la librairie de VLC", e);
+            }
         } else if (Platform.isMac()) {
-            vlcPath = getVLCpathOnMac();
+            vlcPath = VLCUtilities.getVLCpathOnMac();
             vlcPath += "/lib";
         }
 
@@ -89,9 +92,9 @@ public class VLCMediaPlayer implements MediaPlayer {
         }
         LOGGER.info("Chargement de la librairie de VLC");
         LibVLC INSTANCE = Native.loadLibrary(libraryName, LibVLC.class);
-        libvlc = (LibVLC) Native.synchronizedLibrary(INSTANCE);
+        LIB_VLC = (LibVLC) Native.synchronizedLibrary(INSTANCE);
 
-        LOGGER.info("Librairie VLC chargée en version {}", libvlc.libvlc_get_version());
+        LOGGER.info("Librairie VLC chargée en version {}", LIB_VLC.libvlc_get_version());
     }
 
     /**
@@ -121,18 +124,18 @@ public class VLCMediaPlayer implements MediaPlayer {
      * @param args les arguments d'initialisation de la librairie vlc.
      */
     private synchronized void createInstance(String... args) {
-        LOGGER.info("Initialisation de VLC {}", libvlc.libvlc_get_version());
+        LOGGER.info("Initialisation de VLC {}", LIB_VLC.libvlc_get_version());
         if (args == null) {
-            libvlc_instance = libvlc.libvlc_new(0, null);
+            libvlc_instance = LIB_VLC.libvlc_new(0, null);
         } else {
-            libvlc_instance = libvlc.libvlc_new(args.length, args);
+            libvlc_instance = LIB_VLC.libvlc_new(args.length, args);
         }
 
         //création du lecteur
-        media_player = libvlc.libvlc_media_player_new(libvlc_instance);
+        media_player = LIB_VLC.libvlc_media_player_new(libvlc_instance);
 
         //création du manager d'évènements
-        eventManager = libvlc.libvlc_media_player_event_manager(media_player);
+        eventManager = LIB_VLC.libvlc_media_player_event_manager(media_player);
     }
 
     /**
@@ -143,9 +146,9 @@ public class VLCMediaPlayer implements MediaPlayer {
     @Override
     public void setMedia(String mrl) {
         //représentation d'un fichier/flux multimédia
-        libvlc_media_t media_instance = libvlc.libvlc_media_new_path(libvlc_instance, mrl);
-        libvlc.libvlc_media_player_set_media(media_player, media_instance);
-        libvlc.libvlc_media_release(media_instance);
+        libvlc_media_t media_instance = LIB_VLC.libvlc_media_new_path(libvlc_instance, mrl);
+        LIB_VLC.libvlc_media_player_set_media(media_player, media_instance);
+        LIB_VLC.libvlc_media_release(media_instance);
     }
 
     /**
@@ -153,7 +156,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public void play() {
-        libvlc.libvlc_media_player_play(media_player);
+        LIB_VLC.libvlc_media_player_play(media_player);
     }
 
     /**
@@ -163,7 +166,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public void pause() {
-        libvlc.libvlc_media_player_pause(media_player);
+        LIB_VLC.libvlc_media_player_pause(media_player);
     }
 
     /**
@@ -173,7 +176,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public void stop() {
-        libvlc.libvlc_media_player_stop(media_player);
+        LIB_VLC.libvlc_media_player_stop(media_player);
     }
 
     /**
@@ -185,9 +188,9 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public long getMediaLength() {
-        libvlc_media_t media = libvlc.libvlc_media_player_get_media(media_player);
-        libvlc.libvlc_media_parse(media);
-        return libvlc.libvlc_media_get_duration(media);
+        libvlc_media_t media = LIB_VLC.libvlc_media_player_get_media(media_player);
+        LIB_VLC.libvlc_media_parse(media);
+        return LIB_VLC.libvlc_media_get_duration(media);
     }
 
     /**
@@ -199,7 +202,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public long getLength() {
-        return libvlc.libvlc_media_player_get_length(media_player);
+        return LIB_VLC.libvlc_media_player_get_length(media_player);
     }
 
     /**
@@ -211,7 +214,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public long getTime() {
-        return libvlc.libvlc_media_player_get_time(media_player);
+        return LIB_VLC.libvlc_media_player_get_time(media_player);
     }
 
     /**
@@ -221,7 +224,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public synchronized void setTime(long time) {
-        libvlc.libvlc_media_player_set_time(media_player, time);
+        LIB_VLC.libvlc_media_player_set_time(media_player, time);
     }
 
     /**
@@ -231,7 +234,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public float getPosition() {
-        return libvlc.libvlc_media_player_get_position(media_player);
+        return LIB_VLC.libvlc_media_player_get_position(media_player);
     }
 
     /**
@@ -241,7 +244,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public synchronized void setPosition(float position) {
-        libvlc.libvlc_media_player_set_position(media_player, position);
+        LIB_VLC.libvlc_media_player_set_position(media_player, position);
     }
 
     /**
@@ -251,7 +254,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public int getVolume() {
-        return libvlc.libvlc_audio_get_volume(media_player);
+        return LIB_VLC.libvlc_audio_get_volume(media_player);
     }
 
     /**
@@ -261,7 +264,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public synchronized void setVolume(int volume) {
-        libvlc.libvlc_audio_set_volume(media_player, volume);
+        LIB_VLC.libvlc_audio_set_volume(media_player, volume);
     }
 
     /**
@@ -276,7 +279,7 @@ public class VLCMediaPlayer implements MediaPlayer {
         }
 
         int i_fullscreen = fullscreen ? 1 : 0;
-        libvlc.libvlc_set_fullscreen(media_player, i_fullscreen);
+        LIB_VLC.libvlc_set_fullscreen(media_player, i_fullscreen);
     }
 
     /**
@@ -286,7 +289,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public boolean isFullScreen() {
-        return (libvlc.libvlc_get_fullscreen(media_player) == 1);
+        return (LIB_VLC.libvlc_get_fullscreen(media_player) == 1);
     }
 
     /**
@@ -304,13 +307,13 @@ public class VLCMediaPlayer implements MediaPlayer {
 
         if (linux) {
             long drawable = Native.getComponentID(component);
-            libvlc.libvlc_media_player_set_xwindow(media_player, (int) drawable);
+            LIB_VLC.libvlc_media_player_set_xwindow(media_player, (int) drawable);
         } else if (windows) {
             Pointer drawable = Native.getComponentPointer(component);
-            libvlc.libvlc_media_player_set_hwnd(media_player, drawable);
+            LIB_VLC.libvlc_media_player_set_hwnd(media_player, drawable);
         } else if (mac) {
             Pointer drawable = Native.getComponentPointer(component);
-            libvlc.libvlc_media_player_set_nsobject(media_player, drawable);
+            LIB_VLC.libvlc_media_player_set_nsobject(media_player, drawable);
         }
     }
 
@@ -321,7 +324,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public void setVideoSubtitleFile(String fileName) {
-        libvlc.libvlc_video_set_subtitle_file(media_player, fileName);
+        LIB_VLC.libvlc_video_set_subtitle_file(media_player, fileName);
     }
 
     /**
@@ -332,7 +335,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     @Override
     public MediaPlayerState getState() {
-        return libvlc_state_t.getState(libvlc.libvlc_media_player_get_state(media_player));
+        return libvlc_state_t.getState(LIB_VLC.libvlc_media_player_get_state(media_player));
     }
 
     /**
@@ -347,7 +350,7 @@ public class VLCMediaPlayer implements MediaPlayer {
         MediaPlayerCallback callback = new MediaPlayerCallback(this, listener);
 
         for (libvlc_event_e event : EnumSet.range(EVENT_FIRST, EVENT_END)) {
-            libvlc.libvlc_event_attach(eventManager, event.getVlcValue(), callback, null);
+            LIB_VLC.libvlc_event_attach(eventManager, event.getVlcValue(), callback, null);
         }
         callbacks.add(callback);
     }
@@ -376,7 +379,7 @@ public class VLCMediaPlayer implements MediaPlayer {
      */
     private synchronized void removeCallback(MediaPlayerCallback callback) {
         for (libvlc_event_e event : EnumSet.range(EVENT_FIRST, EVENT_END)) {
-            libvlc.libvlc_event_detach(eventManager, event.getVlcValue(), callback, null);
+            LIB_VLC.libvlc_event_detach(eventManager, event.getVlcValue(), callback, null);
         }
     }
 
@@ -390,50 +393,7 @@ public class VLCMediaPlayer implements MediaPlayer {
         }
         callbacks.clear();
 
-        libvlc.libvlc_release(libvlc_instance);
+        LIB_VLC.libvlc_release(libvlc_instance);
     }
 
-    /**
-     * Retourne le chemin du répertoire de VLC sous Windows.
-     *
-     * @return le chemin du répertoire de VLC.
-     */
-    private static String getVLCpathOnWindows() {
-        String path = null;
-        try {
-            String command = "reg query HKLM\\SOFTWARE\\VideoLAN\\VLC /v InstallDir";
-            StringBuilder result = new StringBuilder(1024);
-            StringBuilder error = new StringBuilder(1024);
-
-            Utilities.executeCommand("reg query", result, error, command);
-
-            String[] splitResult = result.toString().split("REG_SZ");
-
-            if (splitResult.length == 1) {
-                command = "reg query HKLM\\SOFTWARE\\Wow6432Node\\VideoLAN\\VLC /v InstallDir";
-                result = new StringBuilder(1024);
-                error = new StringBuilder(1024);
-
-                Utilities.executeCommand("reg query", result, error, command);
-
-                splitResult = result.toString().split("REG_SZ");
-            }
-
-            if (splitResult.length > 1) {
-                path = splitResult[splitResult.length - 1].trim();
-            }
-        } catch (ThotException e) {
-            LOGGER.error("Impossible de trouver la librairie de VLC", e);
-        }
-        return path;
-    }
-
-    /**
-     * Retourne le chemin du répertoire de VLC sous Mac.
-     *
-     * @return le chemin du répertoire de VLC.
-     */
-    private static String getVLCpathOnMac() {
-        return "/Applications/VLC.app/Contents/MacOS";
-    }
 }

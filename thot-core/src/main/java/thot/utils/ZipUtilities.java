@@ -69,7 +69,9 @@ public class ZipUtilities {
      */
     public static void fileToZip(File file, File zipFile, boolean compression) throws IOException {
         int compressionMethod = compression ? ZipOutputStream.DEFLATED : ZipOutputStream.STORED;
+
         zipFile.createNewFile();
+
         FileOutputStream fout = new FileOutputStream(zipFile);
         try (ZipOutputStream zout = new ZipOutputStream(fout)) {
             zout.setMethod(compressionMethod);

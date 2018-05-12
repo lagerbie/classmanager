@@ -1,6 +1,7 @@
 package thot.video.vlc.internal;
 
 import com.sun.jna.Pointer;
+import lombok.Getter;
 import thot.video.event.MediaPlayerEvent;
 import thot.video.event.MediaPlayerListener;
 import thot.video.vlc.VLCMediaPlayer;
@@ -20,6 +21,7 @@ public class MediaPlayerCallback implements libvlc_callback_t {
     /**
      * Référence du listener.
      */
+    @Getter
     private MediaPlayerListener listener;
 
     /**
@@ -31,15 +33,6 @@ public class MediaPlayerCallback implements libvlc_callback_t {
     public MediaPlayerCallback(VLCMediaPlayer mediaPlayer, MediaPlayerListener listener) {
         this.mediaPlayer = mediaPlayer;
         this.listener = listener;
-    }
-
-    /**
-     * Retourne le listener du callback.
-     *
-     * @return le listener du callback.
-     */
-    public MediaPlayerListener getListener() {
-        return listener;
     }
 
     /**

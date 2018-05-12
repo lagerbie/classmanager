@@ -22,10 +22,10 @@ import thot.utils.Utilities;
 import thot.video.Converter;
 
 /**
- * Outils autour de VLC.
+ * Convertisseur utilisant VLC.
  *
  * @author Fabrice Alleau
- * @version 1.8.4 (VLC 1.1.x et 1.0.x)
+ * @version 1.8.4 (VLC 1.1.x à 3.0.x)
  */
 public class VLCconverter implements Converter {
 
@@ -101,12 +101,6 @@ public class VLCconverter implements Converter {
     }
 
     @Override
-    public void cancel() throws ThotException {
-        process.destroy();
-        Utilities.killApplication(encoder.getName());
-    }
-
-    @Override
     public void addListener(ProgressListener listener) {
         listeners.add(ProgressListener.class, listener);
     }
@@ -177,6 +171,14 @@ public class VLCconverter implements Converter {
         return hasTrack(file, VIDEO_PROPERTY);
     }
 
+    /**
+     * Méthode générique pour détecter une piste sur un fichier.
+     *
+     * @param file le fichier.
+     * @param track la piste à rechercher
+     *
+     * @return si la piste à été trouvée.
+     */
     private boolean hasTrack(File file, String track) throws ThotException {
         boolean hasTrack = false;
         List<String> list = getTracksInfo(file);
@@ -213,6 +215,12 @@ public class VLCconverter implements Converter {
         }
 
         return list;
+    }
+
+    @Override
+    public void cancel() throws ThotException {
+        process.destroy();
+        Utilities.killApplication(encoder.getName());
     }
 
     /**
@@ -383,7 +391,7 @@ public class VLCconverter implements Converter {
      */
     private void convertToMP3(File destFile, File srcFile) throws ThotException {
         String audioCodec = "mp3";
-        if (Utilities.LINUX_PLATFORM && !hasCodec_mp3lame()) {
+        if (Utilities.LINUX_PLATFORM && hasNotCodecMP3lame()) {
             audioCodec = "mpga";
         }
 
@@ -451,7 +459,7 @@ public class VLCconverter implements Converter {
      */
     private void convertToMP4(File destFile, File srcFile) throws ThotException {
         String audioCodec = "mp3";
-        if (Utilities.LINUX_PLATFORM && !hasCodec_mp3lame()) {
+        if (Utilities.LINUX_PLATFORM && hasNotCodecMP3lame()) {
             audioCodec = "mpga";
         }
 
@@ -515,77 +523,12 @@ public class VLCconverter implements Converter {
     }
 
     /**
-     * Donne le chemin complet de l'exécutable de VLC.
-     *
-     * @return le chemin de VLC.
-     */
-    public static File getVLC() throws ThotException {
-        File file = null;
-        if (Utilities.WINDOWS_PLATFORM) {
-            file = getVLConWindows();
-        } else if (Utilities.LINUX_PLATFORM) {
-            file = getVLConLinux();
-        } else if (Utilities.MAC_PLATFORM) {
-            file = getVLConMac();
-        }
-        return file;
-    }
-
-    /**
      * Teste la présence du codec mp3lame sur l'encodeur.
      *
      * @return la présence du codec mp3lame sur l'encodeur.
      */
-    private boolean hasCodec_mp3lame() throws ThotException {
-        return Utilities.hasFileOnLinux(LIB_MP3_LAME);
-    }
-
-    /**
-     * Retourne le chemin de l'exécutable de VLC sous Windows.
-     *
-     * @return le chemin de VLC.
-     */
-    private static File getVLConWindows() throws ThotException {
-        String command = "reg query HKLM\\SOFTWARE\\VideoLAN\\VLC /v InstallDir";
-        StringBuilder result = new StringBuilder(1024);
-        StringBuilder error = new StringBuilder(1024);
-
-        Utilities.executeCommand("reg query", result, error, command);
-
-        String[] splitResult = result.toString().split("REG_SZ");
-
-        if (splitResult.length == 1) {
-            command = "reg query HKLM\\SOFTWARE\\Wow6432Node\\VideoLAN\\VLC /v InstallDir";
-            result = new StringBuilder(1024);
-            error = new StringBuilder(1024);
-
-            Utilities.executeCommand("reg query", result, error, command);
-            splitResult = result.toString().split("REG_SZ");
-        }
-
-        if (splitResult.length > 1) {
-            return new File(splitResult[splitResult.length - 1].trim(), "vlc.exe");
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Retourne le chemin de l'exécutable de VLC sous Linux.
-     *
-     * @return le chemin de VLC.
-     */
-    private static File getVLConLinux() throws ThotException {
-        return Utilities.getApplicationPathOnLinux("vlc");
-    }
-
-    /**
-     * Retourne le chemin de l'exécutable de VLC sous Mac.
-     *
-     * @return le chemin de VLC.
-     */
-    private static File getVLConMac() {
-        return new File("/Applications/VLC.app/Contents/MacOS/VLC");
+    private boolean hasNotCodecMP3lame() throws ThotException {
+        return !Utilities.hasFileOnLinux(LIB_MP3_LAME);
     }
 
     /**
@@ -615,12 +558,13 @@ public class VLCconverter implements Converter {
      *
      * @return la valeur de sortie du processus résultat de la commande.
      */
-    private int executeCommand(String command, StringBuilder output, StringBuilder error) {
+    private int executeCommand(String command, StringBuilder output, StringBuilder error) throws ThotException {
         if (Utilities.LINUX_PLATFORM) {
-            return executeCommandDeported(command, output, error);
+            executeCommandDeported(command, output);
+            return 0;
         }
 
-        int end = -1;
+        int end;
         Runtime runtime = Runtime.getRuntime();
 
         try {
@@ -630,17 +574,14 @@ public class VLCconverter implements Converter {
             outputThread.start();
             errorThread.start();
 
-            try {
-                end = process.waitFor();
-                while (outputThread.isAlive()) {
-                    Utilities.waitInMillisecond(10);
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error("", e);
+            end = process.waitFor();
+            while (outputThread.isAlive()) {
+                Utilities.waitInMillisecond(10);
             }
             process.destroy();
-        } catch (IOException e) {
-            LOGGER.error("", e);
+        } catch (IOException | InterruptedException e) {
+            throw new ThotException(ThotCodeException.UNKNOWN, "Erreur lors de l'exécution de la commande {}", e,
+                    command);
         }
 
         return end;
@@ -651,11 +592,8 @@ public class VLCconverter implements Converter {
      *
      * @param command la commande.
      * @param output un builder initialisé pour afficher la sortie standard.
-     * @param error un builder initialisé pour afficher la sortie des erreur.
-     *
-     * @return la valeur de sortie du processus résultat de la commande.
      */
-    private int executeCommandDeported(String command, StringBuilder output, StringBuilder error) {
+    private void executeCommandDeported(String command, StringBuilder output) throws ThotException {
         try (Socket socket = new Socket("127.0.0.1", deportedPort)) {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
@@ -671,9 +609,9 @@ public class VLCconverter implements Converter {
         } catch (EOFException e) {
             //do nothing
         } catch (IOException e) {
-            LOGGER.error("", e);
+            throw new ThotException(ThotCodeException.SERVER, "Erreur lors de l'exécution de la commande {}", e,
+                    command);
         }
-        return 0;
     }
 
     /**
@@ -684,7 +622,7 @@ public class VLCconverter implements Converter {
      *
      * @return la thread de gestion du flux.
      */
-    private Thread createReadThread(final InputStream inputStream, final StringBuilder output, String name) {
+    private Thread createReadThread(InputStream inputStream, StringBuilder output, String name) {
         return new Thread(name) {
             @Override
             public void run() {
@@ -697,7 +635,7 @@ public class VLCconverter implements Converter {
                         cnt = inputStream.read(data);
                     }
                 } catch (IOException e) {
-                    LOGGER.error("", e);
+                    LOGGER.error("Erreur dans la lecture du flux {}", e, name);
                 }
             }
         };
@@ -709,7 +647,7 @@ public class VLCconverter implements Converter {
      * @param data les nouvelles données.
      */
     private void fireNewData(String data) {
-//        System.out.println("data: " + data);
+        LOGGER.trace("new data: {}", data);
     }
 
     //    public static void main(String[] args) {

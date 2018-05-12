@@ -15,11 +15,6 @@ import thot.utils.ProgressListener;
 public interface Converter {
 
     /**
-     * Arrête le processus.
-     */
-    void cancel() throws ThotException;
-
-    /**
      * Ajoute d'une écoute de type ProgessListener.
      *
      * @param listener l'écoute à ajouter.
@@ -67,6 +62,11 @@ public interface Converter {
      * @return si le fichier possède un flux vidéo.
      */
     boolean hasVideoSrteam(File file) throws ThotException;
+
+    /**
+     * Arrête le processus.
+     */
+    void cancel() throws ThotException;
 
     /**
      * Conversion de fichiers. La conversion est définie par le type du fichier destination.

@@ -28,16 +28,22 @@ public enum libvlc_state_t {
      *
      * @param vlcValue la valeur de létat dans VLC.
      *
-     * @return l'état du media player.
+     * @return l'état du media player ou {@code null} si pas d'état correspondant.
      */
     public static MediaPlayerState getState(int vlcValue) {
         return Arrays.stream(libvlc_state_t.values()).filter(state -> state.getVlcValue() == vlcValue)
                 .map(libvlc_state_t::getState).findFirst().orElse(null);
     }
 
+    /**
+     * La valeur de l'état dans VLC.
+     */
     @Getter
     private int vlcValue;
 
+    /**
+     * L'état associé.
+     */
     @Getter
     private MediaPlayerState state;
 

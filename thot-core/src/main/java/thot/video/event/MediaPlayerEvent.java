@@ -11,7 +11,7 @@ import thot.video.MediaPlayer;
  * @version 1.8.4
  */
 public class MediaPlayerEvent extends EventObject {
-    private static final long serialVersionUID = 90000L;
+    private static final long serialVersionUID = 10804L;
 
     /**
      * Initiallisation de l'évenement du lectuer multimédia.

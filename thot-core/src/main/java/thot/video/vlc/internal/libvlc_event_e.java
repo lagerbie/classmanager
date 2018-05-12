@@ -27,12 +27,21 @@ public enum libvlc_event_e {
     libvlc_MediaPlayerSeekableChanged(0x10D),
     libvlc_MediaPlayerPausableChanged(0x10E);
 
-
+    /**
+     * Retourne l'évènement en fonction de sa valeur dans VLC.
+     *
+     * @param vlcValue la valeur de l'évènement dans VLC.
+     *
+     * @return l'évènement ou {@code null} si aucun évènement correspondant.
+     */
     public static libvlc_event_e event(int vlcValue) {
         return Arrays.stream(libvlc_event_e.values()).filter(event -> event.getVlcValue() == vlcValue).findFirst()
                 .orElse(null);
     }
 
+    /**
+     * La valeur de l'évènement dans VLC.
+     */
     @Getter
     private int vlcValue;
 

@@ -6,6 +6,9 @@ import thot.video.event.MediaPlayerListener;
 
 /**
  * Interface générique pour le lecteur multimedia.
+ *
+ * @author Fabrice Alleau
+ * @version 1.8.4
  */
 public interface MediaPlayer {
 

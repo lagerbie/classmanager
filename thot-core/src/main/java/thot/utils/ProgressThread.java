@@ -18,7 +18,7 @@ public abstract class ProgressThread {
     /**
      * Initialisation.
      */
-    public ProgressThread() {
+    protected ProgressThread() {
         listeners = new EventListenerList();
     }
 

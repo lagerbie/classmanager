@@ -14,6 +14,7 @@ import thot.utils.Constants;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
 import thot.video.Converter;
+import thot.video.vlc.VLCUtilities;
 import thot.video.vlc.VLCconverter;
 
 /*
@@ -82,7 +83,7 @@ public class LaboratoryLauncher {
 
         File vlc = null;
         try {
-            vlc = VLCconverter.getVLC();
+            vlc = VLCUtilities.getVLC();
             if (vlc == null || !vlc.exists()) {
                 showMessage(String.format(resources.getString("pathError"), vlc));
                 System.exit(0);
