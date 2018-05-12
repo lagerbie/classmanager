@@ -834,7 +834,7 @@ public class MasterCore implements Runnable {
         command.putParameter(CommandParamater.CLIENT_NUMBER, 1);
         command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
         command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
-        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getAudioPort());
         command.putParameter(CommandParamater.FPS, (int) fps);
         command.putParameter(CommandParamater.QUALITY, quality);
         command.putParameter(CommandParamater.LINES, nbLines);
@@ -847,7 +847,7 @@ public class MasterCore implements Runnable {
             addressIP = pairingStudent.getAddressIP();
             command = new Command(CommandModule.SUPERVISION, CommandAction.SEND_VOICE);
             command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
-            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getAudioPairingPort());
             sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
         }
     }
@@ -871,7 +871,7 @@ public class MasterCore implements Runnable {
         command.putParameter(CommandParamater.CLIENT_NUMBER, 1);
         command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
         command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
-        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+        command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getAudioPort());
         command.putParameter(CommandParamater.FPS, (int) fps);
         command.putParameter(CommandParamater.QUALITY, quality);
         command.putParameter(CommandParamater.LINES, nbLines);
@@ -886,7 +886,7 @@ public class MasterCore implements Runnable {
             chatVoip.connect(addressIP, ThotPort.audioPort);
             command = new Command(CommandModule.SUPERVISION, CommandAction.SEND_VOICE);
             command.putParameter(CommandParamater.IP_ADDRESS, tuteurIP);
-            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPairingPort());
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getAudioPairingPort());
             sendXmlToStudent(CommandXMLUtilities.getXML(command), addressIP);
         }
     }
@@ -1091,7 +1091,7 @@ public class MasterCore implements Runnable {
             command.putParameter(CommandParamater.REMOTE_HANDLING, true);
             command.putParameter(CommandParamater.CLIENT_NUMBER, nbDiffusion);
             command.putParameter(CommandParamater.SCREEN_PORT, ThotPort.screenRemotePortBase);
-            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getPort());
+            command.putParameter(CommandParamater.AUDIO_PORT, chatVoip.getAudioPort());
             command.putParameter(CommandParamater.FPS, (int) fps);
             command.putParameter(CommandParamater.QUALITY, quality);
             command.putParameter(CommandParamater.LINES, nbLines);

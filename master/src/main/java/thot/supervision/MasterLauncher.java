@@ -15,9 +15,7 @@ import thot.supervision.voip.Voip;
 import thot.utils.Constants;
 import thot.utils.ThotPort;
 import thot.utils.Utilities;
-import thot.video.Converter;
 import thot.video.vlc.VLCUtilities;
-import thot.video.vlc.VLCconverter;
 
 /**
  * Lancement de la supervision professeur.
@@ -36,12 +34,6 @@ public class MasterLauncher {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterLauncher.class);
 
-    /**
-     * Noyau de l'application.
-     */
-    private static MasterCore core;
-    private static int nbLicences = 30;
-
     public static void main(String[] args) {
         GuiUtilities.setDefaultFont("Arial");
 
@@ -49,7 +41,6 @@ public class MasterLauncher {
 
         LOGGER.info("version 1.91.00");
 
-        int verbose;
         boolean debug = false;
         int quality = 80;
         int fps = 20;
@@ -207,30 +198,26 @@ public class MasterLauncher {
             GuiUtilities.showMessageDialog(null, message);
         }
 
-        Voip voip;
-        if (microphone) {
-            voip = new Voip(ThotPort.audioPortMaster, ThotPort.audioPairingPortMaster);
-        } else {
-            voip = new Voip(ThotPort.audioPort, ThotPort.audioPairingPort, ThotPort.soundServerPort,
-                    ThotPort.microphoneMasterPort);
-        }
-        if (!voip.isLinesOpen()) {
-            String message = resources.getString("soundError");
-            GuiUtilities.showMessageDialog(null, message);
+        Voip voip = new Voip(ThotPort.audioPort, ThotPort.audioPairingPort);
+        try {
+            if (microphone) {
+                voip.initDirectMode();
+            } else {
+                voip.initIndirectMode(ThotPort.soundServerPort, ThotPort.microphonePort);
+            }
+        } catch (ThotException e) {
+            GuiUtilities.showMessageDialog(null, resources.getString("soundError"));
         }
 
-        core = new MasterCore(nbLicences, resources, thumbPath, voip);
+        MasterCore core = new MasterCore(30, resources, thumbPath, voip);
         core.setParameters(quality, fps, nbLines);
         core.setTimeout(timeout);
         core.setMosaiqueParameters(mosaiqueTimeout, mosaiqueDelay, mosaiqueFps);
         core.setSendStudentTimeout(studentTimeout);
 
-        boolean laboratory = false;
-        if (laboratory) {
-            Converter converter = new VLCconverter(vlc, ThotPort.launcherPort);
+//            Converter converter = new VLCconverter(vlc, ThotPort.launcherPort);
 //            LaboModule classeLabo = new LaboModule(resources, converter, core);
 //            core.setLaboModule(classeLabo);
-        }
 
         File wavFile = new File(path, "appel.wav");
         StudentServer studentServer = new StudentServer(core, ThotPort.studentToMasterPort, wavFile);
@@ -270,61 +257,50 @@ public class MasterLauncher {
     }
 
     private static void printUsage() {
-        StringBuilder stringBuilder = new StringBuilder(1024);
-        stringBuilder.append("Options :\n");
-
-        stringBuilder.append("--multicast :\n");
-        stringBuilder.append("\t adresse multicast pour la découverte\n");
-        stringBuilder.append("\t par défaut \"228.5.6.7\"\n");
-
-        stringBuilder.append("--path :\n");
-        stringBuilder.append("\t répertoire de l'application\n");
-        stringBuilder.append("\t nécessaire pour le fichier appel.wav\n");
-        stringBuilder.append("\t par défaut \".\"\n");
-        stringBuilder.append("\t ie: \"C:\\Program Files\\Siclic\"\n");
-
-        stringBuilder.append("--quality :\n");
-        stringBuilder.append("\t qualité pour les envois d'écran (compris entre 1 et 100)\n");
-        stringBuilder.append("\t par défaut 80 (Haute qualité)\n");
-        stringBuilder.append("--fps :\n");
-        stringBuilder.append("\t nombre de frames par seconde (compris entre 1 et 40)\n");
-        stringBuilder.append("\t par défaut 20\n");
-        stringBuilder.append("--lines :\n");
-        stringBuilder.append("\t nombre de lignes pour l'envoi d'écran (compris entre 1 et 64)\n");
-        stringBuilder.append("\t par défaut 32\n");
-
-        stringBuilder.append("--timeout :\n");
-        stringBuilder.append("\t temps d'attente général pour les envois d'écran (compris entre 0 et 2000ms)\n");
-        stringBuilder.append("\t par défaut 100ms\n");
-        stringBuilder.append("--mosaiqueTimeout :\n");
-        stringBuilder.append("\t temps d'attente pour les envois d'écran en mosaique (compris entre 0 et 2000ms)\n");
-        stringBuilder.append("\t par défaut 100ms\n");
-        stringBuilder.append("--mosaiqueDelay :\n");
-        stringBuilder
-                .append("\t délai entre les envois des ordres pour l'affichage de la mosaique (compris entre 0 et 2000ms)\n");
-        stringBuilder.append("\t par défaut 30ms\n");
-        stringBuilder.append("--studentTimeout :\n");
-        stringBuilder.append("\t temps d'attente pour l'envoi d'écran élève (compris entre 0 et 2000ms)\n");
-        stringBuilder.append("\t par défaut 100ms\n");
-
-        stringBuilder.append("--language :\n");
-        stringBuilder.append("\t code ISO 639-2 de la langue\n");
-//        stringBuilder.append("\t ca pour le Catalan\n");
-        stringBuilder.append("\t de pour l'Allemand\n");
-        stringBuilder.append("\t en pour l'Anglais\n");
-        stringBuilder.append("\t es pour l'Espagnol\n");
-//        stringBuilder.append("\t eu pour le Basque\n");
-        stringBuilder.append("\t fr pour le Français\n");
-        stringBuilder.append("\t it pour l'Italien\n");
-        stringBuilder.append("\t par défaut la langue de l'OS\n");
-
-        stringBuilder.append("--microphone :\n");
-        stringBuilder.append("\t utilisation directe (true) ou indirecte du microphone (false)\n");
-        stringBuilder.append("\t par défaut true sous Windows et false sous Linux\n");
-        stringBuilder.append("--verbose :\n");
-        stringBuilder.append("\t level pour les info (compris entre 0 et 3)\n");
-        stringBuilder.append("\t par défaut 0. 0=error, 1=warning, 2=info, 3=debug\n");
-
-        showMessage(stringBuilder.toString());
+        String usage = "Options :\n"
+                + "--multicast :\n"
+                + "\t adresse multicast pour la découverte\n"
+                + "\t par défaut \"228.5.6.7\"\n"
+                + "--path :\n"
+                + "\t répertoire de l'application\n"
+                + "\t nécessaire pour le fichier appel.wav\n"
+                + "\t par défaut \".\"\n"
+                + "\t ie: \"C:\\Program Files\\Siclic\"\n"
+                + "--quality :\n"
+                + "\t qualité pour les envois d'écran (compris entre 1 et 100)\n"
+                + "\t par défaut 80 (Haute qualité)\n"
+                + "--fps :\n"
+                + "\t nombre de frames par seconde (compris entre 1 et 40)\n"
+                + "\t par défaut 20\n"
+                + "--lines :\n"
+                + "\t nombre de lignes pour l'envoi d'écran (compris entre 1 et 64)\n"
+                + "\t par défaut 32\n"
+                + "--timeout :\n"
+                + "\t temps d'attente général pour les envois d'écran (compris entre 0 et 2000ms)\n"
+                + "\t par défaut 100ms\n"
+                + "--mosaiqueTimeout :\n"
+                + "\t temps d'attente pour les envois d'écran en mosaique (compris entre 0 et 2000ms)\n"
+                + "\t par défaut 100ms\n"
+                + "--mosaiqueDelay :\n"
+                + "\t délai entre les envois des ordres pour l'affichage de la mosaique (compris entre 0 et 2000ms)\n"
+                + "\t par défaut 30ms\n"
+                + "--studentTimeout :\n"
+                + "\t temps d'attente pour l'envoi d'écran élève (compris entre 0 et 2000ms)\n"
+                + "\t par défaut 100ms\n"
+                + "--language :\n"
+                + "\t code ISO 639-2 de la langue\n"
+                + "\t de pour l'Allemand\n"
+                + "\t en pour l'Anglais\n"
+                + "\t es pour l'Espagnol\n"
+                + "\t fr pour le Français\n"
+                + "\t it pour l'Italien\n"
+                + "\t par défaut la langue de l'OS\n"
+                + "--microphone :\n"
+                + "\t utilisation directe (true) ou indirecte du microphone (false)\n"
+                + "\t par défaut true sous Windows et false sous Linux\n"
+                + "--verbose :\n"
+                + "\t level pour les info (compris entre 0 et 3)\n"
+                + "\t par défaut 0. 0=error, 1=warning, 2=info, 3=debug\n";
+        showMessage(usage);
     }
 }

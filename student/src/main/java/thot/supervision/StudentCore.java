@@ -492,7 +492,7 @@ public class StudentCore implements Runnable {
                     captureScreen.setNbLines(command.getParameterAsInt(CommandParamater.LINES));
                 }
 
-                int audioPort = chatVoip.getPort();
+                int audioPort = chatVoip.getAudioPort();
 
                 String list = command.getParameter(CommandParamater.LIST);
 //                List<InetSocketAddress> addresses = new ArrayList<>(nbClient);

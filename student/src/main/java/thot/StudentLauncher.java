@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.supervision.CommandXMLUtilities;
@@ -104,15 +105,14 @@ public class StudentLauncher {
             GuiUtilities.showModelessMessage(resources.getString("networkError"));
         }
 
-        Voip voip;
-        if (microphone) {
-            voip = new Voip(ThotPort.audioPort, ThotPort.audioPairingPort);
-        } else {
-            voip = new Voip(ThotPort.audioPort, ThotPort.audioPairingPort,
-                    ThotPort.soundServerPort, ThotPort.microphonePort);
-        }
-
-        if (!voip.isLinesOpen()) {
+        Voip voip = new Voip(ThotPort.audioPort, ThotPort.audioPairingPort);
+        try {
+            if (microphone) {
+                voip.initDirectMode();
+            } else {
+                voip.initIndirectMode(ThotPort.soundServerPort, ThotPort.microphonePort);
+            }
+        } catch (ThotException e) {
             GuiUtilities.showModelessMessage(resources.getString("soundError"));
         }
 
@@ -144,20 +144,17 @@ public class StudentLauncher {
      * Affiche les options d'usage.
      */
     private static void printUsage() {
-        StringBuilder stringBuilder = new StringBuilder(1024);
-        stringBuilder.append("Options :\n");
-
-        stringBuilder.append("--multicast :\n");
-        stringBuilder.append("\t adresse multicast pour la découverte\n");
-        stringBuilder.append("\t par défaut \"228.5.6.7\"\n");
-        stringBuilder.append("--path :\n");
-        stringBuilder.append("\t chemin d'installation\n");
-        stringBuilder.append("\t par défaut \".\"\n");
-        stringBuilder.append("\t ie: \"C:\\Program Files\\Siclic\\classManager\"\n");
-        stringBuilder.append("--microphone :\n");
-        stringBuilder.append("\t utilisation directe (true) ou indirecte du microphone (false)\n");
-        stringBuilder.append("\t par défaut true sous Windows et false sous Linux\n");
-
-        showMessage(stringBuilder.toString());
+        String usage = "Options :\n"
+                + "--multicast :\n"
+                + "\t adresse multicast pour la découverte\n"
+                + "\t par défaut \"228.5.6.7\"\n"
+                + "--path :\n"
+                + "\t chemin d'installation\n"
+                + "\t par défaut \".\"\n"
+                + "\t ie: \"C:\\Program Files\\Siclic\\classManager\"\n"
+                + "--microphone :\n"
+                + "\t utilisation directe (true) ou indirecte du microphone (false)\n"
+                + "\t par défaut true sous Windows et false sous Linux\n";
+        showMessage(usage);
     }
 }

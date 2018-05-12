@@ -13,8 +13,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.utils.Constants;
 
 /**
@@ -74,6 +77,7 @@ public class SpeekerClient implements Runnable {
     /**
      * Mode de connection à la ligne microphone.
      */
+    @Getter
     private boolean microphone;
     /**
      * Socket pour le mode déporté.
@@ -85,15 +89,23 @@ public class SpeekerClient implements Runnable {
     private DatagramPacket paquet;
 
     /**
-     * Initialisation du client pour envoi des données du microphone. Voie d'accès directe au microphone
+     * Initialisation du client pour envoi des données du microphone.
+     */
+    public SpeekerClient() {
+        sockets = new Socket[lineMax];
+        outputStreams = new OutputStream[lineMax];
+    }
+
+    /**
+     * Initialisation du client pour envoi des données du microphone.
+     * <p>
+     * Voie d'accès directe au microphone
      *
      * @param audioFormat le format de la ligne microphone.
      */
-    public SpeekerClient(AudioFormat audioFormat) {
+    public void init(AudioFormat audioFormat) throws ThotException {
         this.microphone = true;
         openLine(audioFormat);
-        sockets = new Socket[lineMax];
-        outputStreams = new OutputStream[lineMax];
     }
 
     /**
@@ -102,20 +114,9 @@ public class SpeekerClient implements Runnable {
      * @param microphoneServerPort le port du serveur de gestion du microphone.
      * @param microphonePort le port où seront envoyées les données microphone.
      */
-    public SpeekerClient(int microphoneServerPort, int microphonePort) {
+    public void init(int microphoneServerPort, int microphonePort) throws ThotException {
         this.microphone = false;
         connectMicrophoneServer(microphoneServerPort, microphonePort);
-        sockets = new Socket[lineMax];
-        outputStreams = new OutputStream[lineMax];
-    }
-
-    /**
-     * Indique si on est en direct sur le microphone.
-     *
-     * @return si on est en direct sur le microphone.
-     */
-    public boolean isMicrophone() {
-        return microphone;
     }
 
     /**
@@ -175,7 +176,7 @@ public class SpeekerClient implements Runnable {
      *
      * @param audioFormat le format de la ligne microphone.
      */
-    private void openLine(AudioFormat audioFormat) {
+    private void openLine(AudioFormat audioFormat) throws ThotException {
         if (targetDataLine == null) {
             try {
                 targetDataLine = AudioSystem.getTargetDataLine(audioFormat);
@@ -183,8 +184,8 @@ public class SpeekerClient implements Runnable {
                 LOGGER.info("Speeker line opened with: {}", audioFormat.toString());
             } catch (LineUnavailableException | IllegalArgumentException e) {
                 //pas de rendu du son
-                LOGGER.error("Impossible d'ouvrir un flux audio", e);
-                return;
+                throw new ThotException(ThotCodeException.AUDIO, "Impossible d'ouvrir un flux audio pour le format {}",
+                        e, audioFormat);
             }
         }
         targetDataLine.start();
@@ -202,30 +203,6 @@ public class SpeekerClient implements Runnable {
             }
         }
         return false;
-    }
-
-    /**
-     * Indique si la ligne est ouverte. C'est à dire si le système a réservé les ressources et si elle est
-     * opérationnelle.
-     *
-     * @return {@code true} si la ligne est ouverte.
-     */
-    public boolean isLineOpen() {
-        if (targetDataLine == null) {
-            return false;
-        } else {
-            return targetDataLine.isOpen();
-        }
-    }
-
-    /**
-     * Indique si la socket est ouverte, c'est à dire si le système a réservé les ressources et si elle est
-     * opérationnelle.
-     *
-     * @return {@code true} si la ligne est ouverte.
-     */
-    public boolean isSocketOpen() {
-        return socketMicrophone != null;
     }
 
     /**
@@ -284,7 +261,7 @@ public class SpeekerClient implements Runnable {
      * @param microphoneServerPort le port du serveur de gestion du microphone.
      * @param microphonePort le port où seront envoyées les données microphone.
      */
-    private void connectMicrophoneServer(int microphoneServerPort, int microphonePort) {
+    private void connectMicrophoneServer(int microphoneServerPort, int microphonePort) throws ThotException {
         String xml = "<connection><address>127.0.0.1</address>"
                 + "<port>" + String.valueOf(microphonePort) + "</port></connection>";
 
@@ -296,7 +273,8 @@ public class SpeekerClient implements Runnable {
             socketMicrophone = new DatagramSocket(microphonePort);
             paquet = new DatagramPacket(data, BUFFER_SIZE);
         } catch (IOException e) {
-            LOGGER.error("Impossible de se connecter au server du microphone sur les ports {} et {}", e,
+            throw new ThotException(ThotCodeException.SERVER,
+                    "Impossible de se connecter au server du microphone sur les ports {} et {}", e,
                     microphoneServerPort, microphonePort);
         }
     }

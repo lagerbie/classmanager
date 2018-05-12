@@ -12,6 +12,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.utils.Constants;
 
 /**
@@ -77,13 +79,13 @@ public class ListenerServer implements Runnable {
     /**
      * Démarre la réception des données et leur lecture.
      */
-    public void start() {
+    public void start() throws ThotException {
         receive = true;
 
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            LOGGER.error("Impossible d'ouvrir un serveur sur le port {}", e, port);
+            throw new ThotException(ThotCodeException.SERVER, "Impossible d'ouvrir un serveur sur le port {}", e, port);
         }
 
         thread = new Thread(this, this.getClass().getName());
@@ -160,29 +162,18 @@ public class ListenerServer implements Runnable {
      *
      * @param audioFormat le format de la ligne microphone.
      */
-    private void openLine(AudioFormat audioFormat) {
+    private void openLine(AudioFormat audioFormat) throws ThotException {
+        LOGGER.info("Initialisation du flux audio pour le format {}", audioFormat);
         try {
             sourceDataLine = AudioSystem.getSourceDataLine(audioFormat);
             sourceDataLine.open(audioFormat, BUFFER_SIZE);
             sourceDataLine.start();
-            LOGGER.info("Listener line opened with: {}", audioFormat.toString());
+            LOGGER.debug("Listener line opened with: {}", audioFormat);
         } catch (LineUnavailableException | IllegalArgumentException e) {
             //pas de rendu du son
-            LOGGER.error("Impossiblr d'ouvrir un flux audio", e);
+            throw new ThotException(ThotCodeException.AUDIO, "Impossible d'ouvrir un flux audio pour le format {}", e,
+                    audioFormat);
         }
     }
 
-    /**
-     * Indique si la ligne est ouverte, c'est à dire si le système a réservé les ressources et si elle est
-     * opérationnelle.
-     *
-     * @return {@code true} si la ligne est ouverte.
-     */
-    public boolean isLineOpen() {
-        if (sourceDataLine == null) {
-            return false;
-        } else {
-            return sourceDataLine.isOpen();
-        }
-    }
 }

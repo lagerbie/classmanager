@@ -2,6 +2,9 @@ package thot.supervision.voip;
 
 import javax.sound.sampled.AudioFormat;
 
+import lombok.Getter;
+import thot.exception.ThotException;
+
 /**
  * Module de communication avec 2 écoutes actives permanentes.
  *
@@ -9,6 +12,8 @@ import javax.sound.sampled.AudioFormat;
  * @version 1.8.4
  */
 public class Voip {
+
+    public static final AudioFormat DEFAULT_AUDIO_FORMAT = new AudioFormat(11025.0f, 16, 1, true, false);
 
     /**
      * Client pour l'envoi du microphone.
@@ -29,10 +34,12 @@ public class Voip {
     /**
      * Port audio principal.
      */
+    @Getter
     private int audioPort;
     /**
      * Port audio secondaire.
      */
+    @Getter
     private int audioPairingPort;
 
     /**
@@ -45,73 +52,33 @@ public class Voip {
         this.audioPort = port;
         this.audioPairingPort = pairingPort;
 
-        //Le format par défaut (8000 Hz, 16 bits, mono, signed, little-endian).
-//        AudioFormat audioFormat = new AudioFormat(22050.0f, 16, 1, true, false);
-        AudioFormat audioFormat = new AudioFormat(11025.0f, 16, 1, true, false);
+        listenerServer = new ListenerServer(DEFAULT_AUDIO_FORMAT, port);
+        listenerPairingServer = new ListenerServer(DEFAULT_AUDIO_FORMAT, pairingPort);
 
-        listenerServer = new ListenerServer(audioFormat, port);
+        speekerClient = new SpeekerClient();
+    }
+
+    /**
+     * Initialisation du module du communication avec prise directe sur le microphone.
+     */
+    public void initDirectMode() throws ThotException {
         listenerServer.start();
-
-        listenerPairingServer = new ListenerServer(audioFormat, pairingPort);
         listenerPairingServer.start();
 
-        speekerClient = new SpeekerClient(audioFormat);
+        speekerClient.init(DEFAULT_AUDIO_FORMAT);
     }
 
     /**
      * Initialisation du module du communication avec un serveur de gestion du microphone.
      *
-     * @param port port d'écoute pour la réception de flux audio principal.
-     * @param pairingPort port d'écoute pour la réception de flux audio du pairing.
      * @param microphoneServerPort le port du serveur de gestion du microphone.
      * @param microphonePort le port où seront envoyées les données microphone.
      */
-    public Voip(int port, int pairingPort, int microphoneServerPort, int microphonePort) {
-        this.audioPort = port;
-        this.audioPairingPort = pairingPort;
+    public void initIndirectMode(int microphoneServerPort, int microphonePort) throws ThotException {
+        listenerServer.start();
+        listenerPairingServer.start();
 
-        speekerClient = new SpeekerClient(microphoneServerPort, microphonePort);
-    }
-
-    /**
-     * Retourne le port d'écoute pour la réception de flux audio.
-     *
-     * @return le port d'écoute pour la réception de flux audio.
-     */
-    public int getPort() {
-        return audioPort;
-    }
-
-    /**
-     * Retourne le port d'écoute pour la réception de flux audio du pairing.
-     *
-     * @return le port d'écoute pour la réception de flux audio du pairing.
-     */
-    public int getPairingPort() {
-        return audioPairingPort;
-    }
-
-    /**
-     * Indique si les lignes sont ouvertes, c'est à dire si le système a réservé les ressources et si elles sont
-     * opérationnelles.
-     *
-     * @return {@code true} si les lignes sont ouverte.
-     */
-    public boolean isLinesOpen() {
-        if (speekerClient == null
-                || (speekerClient.isMicrophone() && !speekerClient.isLineOpen())
-                || (!speekerClient.isMicrophone() && !speekerClient.isSocketOpen())) {
-            return false;
-        } else {
-            boolean direct = speekerClient.isMicrophone();
-            if (direct && (listenerServer == null || !listenerServer.isLineOpen())) {
-                return false;
-            } else if (direct && (listenerPairingServer == null || !listenerPairingServer.isLineOpen())) {
-                return false;
-            } else {
-                return true;
-            }
-        }
+        speekerClient.init(microphoneServerPort, microphonePort);
     }
 
     /**
