@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.supervision.com.StudentSearch;
@@ -61,7 +62,7 @@ public class MasterLauncher {
 
         File path = new File(Utilities.getApplicationPath(MasterLauncher.class), "../");
         File thumbPath = new File("./bin/thumb.jar");
-        File vlc = VLCconverter.getVLC();
+
         final File userHome = new File(System.getProperty("user.home"), Constants.softNamePath);
         userHome.mkdirs();
 
@@ -175,9 +176,15 @@ public class MasterLauncher {
             System.exit(0);
         }
 
-        if (vlc == null || !vlc.exists()) {
-            showMessage(String.format(resources.getString("converterError"), "vlc", vlc));
-            System.exit(0);
+        File vlc = null;
+        try {
+            vlc = VLCconverter.getVLC();
+            if (vlc == null || !vlc.exists()) {
+                showMessage(String.format(resources.getString("converterError"), "vlc", vlc));
+                System.exit(0);
+            }
+        } catch (ThotException e) {
+            showMessage("Impossible de charger la librairie de VLC", e);
         }
 
         if (!thumbPath.exists()) {
@@ -254,9 +261,11 @@ public class MasterLauncher {
      * Affiche un message à l'écran.
      *
      * @param message le message à afficher.
+     * @param params les objets contenus dans le message.
      */
-    private static void showMessage(String message) {
-        GuiUtilities.showMessage(message);
+    private static void showMessage(String message, Object... params) {
+        LOGGER.error(message, params);
+        GuiUtilities.showMessage(String.format(message.replace("{}", "%s"), params));
     }
 
     private static void printUsage() {

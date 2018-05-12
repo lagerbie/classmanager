@@ -12,6 +12,7 @@ import javax.swing.event.EventListenerList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.Resources;
 import thot.supervision.application.Application;
 import thot.supervision.application.ApplicationUtilities;
@@ -216,7 +217,7 @@ public class MasterCore implements Runnable {
             private static final long serialVersionUID = 15000L;
 
             @Override
-            protected void launchApplication(String path) {
+            protected void launchApplication(String path) throws ThotException {
                 if (path != null) {
                     File file = new File(path);
                     String filePath = Utilities.pathWithoutWindowsProgramFiles(file);
@@ -232,7 +233,7 @@ public class MasterCore implements Runnable {
             }
 
             @Override
-            protected void applyModifications() {
+            protected void applyModifications() throws ThotException {
                 ApplicationUtilities.saveObject(applicationsList, applicationsFile);
 
                 StringBuilder appList = new StringBuilder(1024);
@@ -940,9 +941,13 @@ public class MasterCore implements Runnable {
                 int x = colonne * width;
                 int y = (ligne) * height;
 
-                mosaiqueProcess
-                        .addClient(i, currentStudent.getAddressIP(), currentPort, currentStudent.getName(), x, y, width,
-                                height, nbLines, mosaiqueTimeout);
+                try {
+                    mosaiqueProcess
+                            .addClient(i, currentStudent.getAddressIP(), currentPort, currentStudent.getName(), x, y,
+                                    width, height, nbLines, mosaiqueTimeout);
+                } catch (ThotException e) {
+                    LOGGER.error("Impossible de lancer une mosaique pour l'élève {}", e, currentStudent);
+                }
 
                 Utilities.waitInMillisecond(mosaiqueDelay);
 
@@ -1260,9 +1265,8 @@ public class MasterCore implements Runnable {
      * @param parameter les paramètres de l'action.
      */
     public void executeCommand(String action, String parameter) {
-//        if(command.getType().contentEquals(Command.TYPE_LABO)) {
-//            if(laboModule != null)
-//                laboModule.executeLaboCommand(action, parameter);
+//        if(laboModule != null && command.getType().contentEquals(Command.TYPE_LABO)) {
+//            laboModule.executeLaboCommand(action, parameter);
 //            return;
 //        }
 
@@ -1451,16 +1455,21 @@ public class MasterCore implements Runnable {
                 }
                 break;
             case GuiConstants.jclicReports:
-                String jclicReports;
-                if (Utilities.WINDOWS_PLATFORM) {
-                    jclicReports = Utilities.getJClicReportsCommand();
-                } else {
-                    jclicReports = "jclicreports";
-                }
+                String jclicReports = null;
+                try {
+                    if (Utilities.WINDOWS_PLATFORM) {
+                        jclicReports = Utilities.getJClicReportsCommand();
+                    } else {
+                        jclicReports = "jclicreports";
+                    }
 
-                StringBuilder out = new StringBuilder(1024);
-                StringBuilder err = new StringBuilder(1024);
-                Utilities.startProcess("jclicReports", out, err, jclicReports);
+                    StringBuilder out = new StringBuilder(1024);
+                    StringBuilder err = new StringBuilder(1024);
+
+                    Utilities.startProcess("jclicReports", out, err, jclicReports);
+                } catch (ThotException e) {
+                    LOGGER.error("Impossible de lancer Jclic Reports ({})", e, jclicReports);
+                }
                 break;
             case GuiConstants.jclic:
                 String file = "jclic";
@@ -1500,7 +1509,14 @@ public class MasterCore implements Runnable {
      * @return la réussite de l'envoi.
      */
     private boolean sendXmlToStudent(String xml, String address) {
-        return Utilities.sendXml(xml, address, ThotPort.masterToStudentPort);
+        try {
+            Utilities.sendMessage(xml, address, ThotPort.masterToStudentPort);
+            return true;
+        } catch (ThotException e) {
+            LOGGER.error("Echec de l'envoi de la commande {} à l'élève {}:{}", xml, address,
+                    ThotPort.masterToStudentPort);
+            return false;
+        }
     }
 
     /**

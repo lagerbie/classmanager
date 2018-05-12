@@ -450,11 +450,8 @@ public class LaboratoryCore extends LaboCore {
      * Execute une commande.
      *
      * @param command la commande à exécuter.
-     *
-     * @return {@code true} si la commande s'est bien effectuée, sinon retourne {@code false}.
      */
-    private boolean executeCommand(Command command) throws ThotException {
-        boolean isExecute = true;
+    private void executeCommand(Command command) throws ThotException {
         ProjectFiles project;
 
         switch (command.getAction()) {
@@ -485,7 +482,7 @@ public class LaboratoryCore extends LaboCore {
                 setRecordTimeMax(Utilities.parseStringAsLong(command.getParameter(CommandParamater.PARAMETER)));
                 break;
             case TIME_TO_ZERO:
-                timeToZero();
+                setTimeToZero();
                 break;
             case MEDIA_LOAD:
                 if (getRunningState() != Constants.PAUSE) {
@@ -494,7 +491,7 @@ public class LaboratoryCore extends LaboCore {
                 }
                 File file = new File(userHome, command.getParameter(CommandParamater.PARAMETER));
                 project = Utilities.getProject(file);
-                isExecute = loadProject(project);
+                loadProject(project);
                 break;
             case MEDIA_FULL_SCREEN:
                 setFullScreen(Utilities.parseStringAsBoolean(command.getParameter(CommandParamater.PARAMETER)));
@@ -512,7 +509,7 @@ public class LaboratoryCore extends LaboCore {
                 break;
             case MEDIA_VOLUME:
                 int mediaVolume = Utilities.parseStringAsInt(command.getParameter(CommandParamater.PARAMETER));
-                mediaSetVolume(mediaVolume);
+                setMediaVolume(mediaVolume);
                 fireMediaVolumeChanged(mediaVolume);
                 break;
             case AUDIO_PLAY:
@@ -550,17 +547,15 @@ public class LaboratoryCore extends LaboCore {
                 break;
             case AUDIO_VOLUME:
                 int audioVolume = Utilities.parseStringAsInt(command.getParameter(CommandParamater.PARAMETER));
-                audioSetVolume(audioVolume);
+                setAudioVolume(audioVolume);
                 fireAudioVolumeChanged(audioVolume);
                 break;
             case SEND_MESSAGE:
                 fireNewMessage(command.getParameter(CommandParamater.PARAMETER));
                 break;
             default:
-                isExecute = false;
+                throw new ThotException(ThotCodeException.UNKNOWN, "Commande {} non prise en charge", command);
         }
-
-        return isExecute;
     }
 
     /**
@@ -717,9 +712,7 @@ public class LaboratoryCore extends LaboCore {
                     }
                 } else {
                     //exécution de la commande
-
-                    isOK = executeCommand(command);
-
+                    executeCommand(command);
                 }
             } catch (ThotException e) {
                 LOGGER.error("une erreur est survenue lors de l'exécution de la commande {}", e, command);

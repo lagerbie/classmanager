@@ -18,6 +18,7 @@ import javax.swing.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.supervision.Command;
 import thot.supervision.CommandAction;
 import thot.supervision.CommandParamater;
@@ -130,7 +131,7 @@ public class ProcessMosaique extends ProgressThread {
      * @param timeout timeout pour l'affichage d'écran.
      */
     public void addClient(int numero, String addressIP, int port, String name, int x, int y, int width, int height,
-            int nbLines, int timeout) {
+            int nbLines, int timeout) throws ThotException {
         if (!window.isVisible()) {
             window.setSize(Toolkit.getDefaultToolkit().getScreenSize());
             window.setVisible(true);
@@ -204,7 +205,7 @@ public class ProcessMosaique extends ProgressThread {
      *
      * @return le processus démarré.
      */
-    private Process startProcess(String args) {
+    private Process startProcess(String args) throws ThotException {
         StringBuilder output = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
 

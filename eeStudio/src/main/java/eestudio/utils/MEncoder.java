@@ -124,7 +124,7 @@ public class MEncoder implements Converter {
      * Arrête le processus.
      */
     @Override
-    public void cancel() {
+    public void cancel() throws ThotException {
         process.destroy();
         Utilities.killApplication(encoder.getName());
         Utilities.killApplication(player.getName());

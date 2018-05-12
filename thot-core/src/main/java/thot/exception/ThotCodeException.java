@@ -10,8 +10,12 @@ import lombok.Getter;
  */
 public enum ThotCodeException {
 
+    UNKNOWN(1),
+
     FILE_NOT_FOUND(100),
     EMPTY_DIRECTORY(101),
+    READ_RIGHT(102),
+    WRITE_RIGHT(103),
     BINARY_NOT_FOUND(110),
     VLC_NOT_FOUND(111),
     MPLAYER_NOT_FOUND(112),

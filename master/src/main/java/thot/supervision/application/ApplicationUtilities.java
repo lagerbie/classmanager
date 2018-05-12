@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import thot.exception.ThotException;
 import thot.utils.Constants;
 import thot.utils.Utilities;
 import thot.utils.XMLUtilities;
@@ -82,20 +83,13 @@ public class ApplicationUtilities extends XMLUtilities {
      *
      * @param applications la liste d'applications.
      * @param file le fichier.
-     *
-     * @return la réussite de l'opération.
      */
-    public static boolean saveObject(ApplicationsList applications, File file) {
+    public static void saveObject(ApplicationsList applications, File file) throws ThotException {
         if (!file.exists()) {
-//            ApplicationsList oldList = loadApplicationsList(file);
-//            if(applications.isIdentical(oldList))
-//                return true;
-//        }
-//        else {
             file.getParentFile().mkdirs();
         }
 
-        return Utilities.saveText(getXML(applications), file);
+        Utilities.saveText(getXML(applications), file);
     }
 
     /**
@@ -105,7 +99,7 @@ public class ApplicationUtilities extends XMLUtilities {
      *
      * @return le xml complet.
      */
-    private static String getXML(ApplicationsList applications) {
+    private static String getXML(ApplicationsList applications) throws ThotException {
         StringBuilder element = new StringBuilder(1024);
         element.append(XML_HEADER);
         element.append(createElementStart(element_applications));
@@ -124,7 +118,7 @@ public class ApplicationUtilities extends XMLUtilities {
      *
      * @return une description de l'application.
      */
-    private static String getXMLDescription(Application application) {
+    private static String getXMLDescription(Application application) throws ThotException {
         if (application == null) {
             return getXMLDescription(new Application(Application.UNKNOWN, null));
         }

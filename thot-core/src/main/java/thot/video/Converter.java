@@ -17,7 +17,7 @@ public interface Converter {
     /**
      * Arrête le processus.
      */
-    void cancel();
+    void cancel() throws ThotException;
 
     /**
      * Ajoute d'une écoute de type ProgessListener.

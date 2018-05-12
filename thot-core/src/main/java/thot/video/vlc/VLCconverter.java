@@ -101,7 +101,7 @@ public class VLCconverter implements Converter {
     }
 
     @Override
-    public void cancel() {
+    public void cancel() throws ThotException {
         process.destroy();
         Utilities.killApplication(encoder.getName());
     }
@@ -519,7 +519,7 @@ public class VLCconverter implements Converter {
      *
      * @return le chemin de VLC.
      */
-    public static File getVLC() {
+    public static File getVLC() throws ThotException {
         File file = null;
         if (Utilities.WINDOWS_PLATFORM) {
             file = getVLConWindows();
@@ -536,7 +536,7 @@ public class VLCconverter implements Converter {
      *
      * @return la présence du codec mp3lame sur l'encodeur.
      */
-    private boolean hasCodec_mp3lame() {
+    private boolean hasCodec_mp3lame() throws ThotException {
         return Utilities.hasFileOnLinux(LIB_MP3_LAME);
     }
 
@@ -545,7 +545,7 @@ public class VLCconverter implements Converter {
      *
      * @return le chemin de VLC.
      */
-    private static File getVLConWindows() {
+    private static File getVLConWindows() throws ThotException {
         String command = "reg query HKLM\\SOFTWARE\\VideoLAN\\VLC /v InstallDir";
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);
@@ -575,7 +575,7 @@ public class VLCconverter implements Converter {
      *
      * @return le chemin de VLC.
      */
-    private static File getVLConLinux() {
+    private static File getVLConLinux() throws ThotException {
         return Utilities.getApplicationPathOnLinux("vlc");
     }
 

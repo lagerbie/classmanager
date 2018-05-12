@@ -23,20 +23,16 @@ public interface ProjectManager {
      * Charge les fichiers contenus dans le projet. Les données précédante sont effacées.
      *
      * @param project l'ensembles des fichiers à charger.
-     *
-     * @return la réussite du chargement.
      */
-    boolean loadProject(ProjectFiles project) throws ThotException;
+    void loadProject(ProjectFiles project) throws ThotException;
 
     /**
      * Sauvegarde d'un projet.
      *
      * @param file le fichier de sauvegarde.
      * @param project le projet à sauvegarder.
-     *
-     * @return la réussite dde la sauvegarde.
      */
-    boolean saveProject(File file, ProjectFiles project) throws ThotException;
+    void saveProject(File file, ProjectFiles project) throws ThotException;
 
     /**
      * Supprime les éléments du projet qu sont chargés.

@@ -85,7 +85,11 @@ public class FlashCore {
         this.guiResources.addProcessingBarWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                core.cancelConversion();
+                try {
+                    core.cancelConversion();
+                } catch (ThotException ex) {
+                    LOGGER.error("", e);
+                }
             }
         });
     }

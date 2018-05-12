@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.utils.dll.WindowsUtilities;
 
 /**
@@ -28,7 +29,7 @@ public class Battery {
      *
      * @return le niveau de la batterie de 0 à 100, ou -1 si undefined.
      */
-    public static int getBatteryLevel() {
+    public static int getBatteryLevel() throws ThotException {
         if (Utilities.WINDOWS_PLATFORM) {
             return getBatteryLevelWindows();
         } else if (Utilities.LINUX_PLATFORM) {
@@ -142,7 +143,7 @@ public class Battery {
      *
      * @return le niveau de la batterie de 0 à 100, ou -1 si undefined.
      */
-    private static int getBatteryLevelMacOs() {
+    private static int getBatteryLevelMacOs() throws ThotException {
         int level = UNDEFINED_LEVEL;
         StringBuilder result = new StringBuilder(1024);
         StringBuilder error = new StringBuilder(1024);

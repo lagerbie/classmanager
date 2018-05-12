@@ -15,6 +15,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.supervision.Command;
 import thot.supervision.CommandAction;
 import thot.supervision.CommandParamater;
@@ -93,7 +94,14 @@ public class StudentServer extends Server {
         //Si pas d'entrée au nom du login
         if (!loginFile.exists()) {
             String xml = CommandXMLUtilities.getLoginXML(password);
-            return Utilities.saveText(xml, loginFile);
+            try {
+                Utilities.saveText(xml, loginFile);
+                return true;
+            } catch (ThotException e) {
+                LOGGER.error("Impossible de sauvegarder les identifiants de l'élève {} dans le fichier {}", login,
+                        loginFile.getAbsolutePath());
+                return false;
+            }
         }
 
         String passwordInFile = CommandXMLUtilities.getPassword(loginFile);
@@ -196,8 +204,6 @@ public class StudentServer extends Server {
      * Traitement spécifique des données sur la socket connecté.
      *
      * @param socket la connexion établie.
-     *
-     * @throws IOException
      */
     @Override
     protected void process(Socket socket) throws IOException {

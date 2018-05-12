@@ -7,6 +7,8 @@ import java.io.File;
 
 import javax.swing.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
@@ -31,6 +33,11 @@ import thot.utils.Utilities;
  */
 public class ExportDialog extends JDialog {
     private static final long serialVersionUID = 19000L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportDialog.class);
 
     /**
      * Resources textuelles.
@@ -153,12 +160,9 @@ public class ExportDialog extends JDialog {
                             .processBegin(true, resources.getString("saveTitle"), resources.getString("saveMessage"),
                                     (file == null) ? null : file.getAbsolutePath());
                     try {
-                        boolean success = manager.saveProject(file, project);
-                        if (!success) {
-                            GuiUtilities.showMessage("Une erreur est survenue dans la sauvegarde du projet");
-                        }
+                        manager.saveProject(file, project);
                     } catch (ThotException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Une erreur est survenue dans la sauvegarde du projet", e);
                         GuiUtilities
                                 .showMessage("Une erreur est survenue dans la sauvegarde du projet " + e.getMessage());
                     }

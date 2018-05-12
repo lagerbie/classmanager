@@ -25,6 +25,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import eestudio.utils.Wave;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.audio.AudioPlayer;
@@ -119,10 +120,12 @@ public class Core {
     /**
      * Sauvegarde du temps courant en millisecondes
      */
+    @Getter
     private long currentTime = 0;
     /**
      * Sauvegarde du temps maximum d'enregistrement en millisecondes
      */
+    @Getter
     private long recordTimeMax = 0;
     /**
      * Temps d'allocation maximum en millisecondes (=60 min)
@@ -265,24 +268,6 @@ public class Core {
             }
         }
         fireAudioDataChanged();
-    }
-
-    /**
-     * Retourne le temps d'enregistrement maximum possible.
-     *
-     * @return le temps d'enregistrement maximum possible.
-     */
-    public long getRecordTimeMax() {
-        return recordTimeMax;
-    }
-
-    /**
-     * Retourne le temps courrant.
-     *
-     * @return le temps actuel en ms.
-     */
-    public long getCurrentTime() {
-        return currentTime;
     }
 
     /**
@@ -1171,11 +1156,8 @@ public class Core {
      * Charge les fichiers contenus dans le projet. Si un fichier est null, les données correspondantes sont effacées.
      *
      * @param project l'ensembles des fichiers à charger.
-     *
-     * @return la réussite du chargement.
      */
-    public boolean loadProject(ProjectFiles project) throws ThotException {
-        boolean success = true;
+    public void loadProject(ProjectFiles project) throws ThotException {
         long length = -1;
 
         //si plus de texte ou nouveau texte, on efface l'ancien
@@ -1227,22 +1209,16 @@ public class Core {
             fireVideoFileChanged(null);
             extract(srcFile, audioFileTemp, videoFileTemp);
             if (hasVideoSrteam(videoFileTemp)) {
-                boolean loaded = loadVideo(videoFileTemp);
-                success &= loaded;
-                if (loaded) {
-                    projectFiles.setVideoFile(srcFile.getAbsolutePath());
-                }
+                loadVideo(videoFileTemp);
+                projectFiles.setVideoFile(srcFile.getAbsolutePath());
             }
             if (hasAudioSrteam(audioFileTemp)) {
-                int loaded = loadAudio(audioFileTemp, audioBuffer);
-                success &= (loaded > 0);
-                if (loaded > 0) {
-                    projectFiles.setAudioFile(srcFile.getAbsolutePath());
-                    long lenght = (long) (audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
-                            * 1000);
-                    setRecordTimeMax(lenght);
-                    fireAudioDataChanged();
-                }
+                loadAudio(audioFileTemp, audioBuffer);
+                projectFiles.setAudioFile(srcFile.getAbsolutePath());
+                long lenght = (long) (audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
+                        * 1000);
+                setRecordTimeMax(lenght);
+                fireAudioDataChanged();
             }
             project.setAudioFile(null);
             project.setVideoFile(null);
@@ -1257,46 +1233,38 @@ public class Core {
                 length = videoLength;
             }
 
-            boolean loaded = loadVideo(videoFile);
-            success &= loaded;
-            if (loaded) {
-                projectFiles.setVideoFile(videoFile.getAbsolutePath());
+            loadVideo(videoFile);
+            projectFiles.setVideoFile(videoFile.getAbsolutePath());
 
-                if (project.getAudioFile() == null) {
-                    setRecordTimeMax(length);
-                    fireAudioDataChanged();
-                }
-            }
-        }
-
-        if (project.getAudioFile() != null) {
-            File audioFile = new File(project.getAudioFile());
-            int loaded = loadAudio(audioFile, audioBuffer);
-            success &= (loaded > 0);
-            if (loaded > 0) {
-                projectFiles.setAudioFile(audioFile.getAbsolutePath());
-                long audioLength = (long) (
-                        audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate() * 1000);
-                //si l'ancienne durée n'est valide ou supérieure à la durée de
-                //l'audio, on la remplace par la durée de l'audio
-                if (length < 0 || length > audioLength) {
-                    length = audioLength;
-                }
+            if (project.getAudioFile() == null) {
                 setRecordTimeMax(length);
                 fireAudioDataChanged();
             }
         }
 
+        if (project.getAudioFile() != null) {
+            File audioFile = new File(project.getAudioFile());
+            loadAudio(audioFile, audioBuffer);
+            projectFiles.setAudioFile(audioFile.getAbsolutePath());
+            long audioLength = (long) (
+                    audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate() * 1000);
+            //si l'ancienne durée n'est valide ou supérieure à la durée de
+            //l'audio, on la remplace par la durée de l'audio
+            if (length < 0 || length > audioLength) {
+                length = audioLength;
+            }
+            setRecordTimeMax(length);
+            fireAudioDataChanged();
+        }
+
         if (project.getTextFile() != null) {
             File textFile = new File(project.getTextFile());
-            boolean loaded = loadText(textFile);
-            success &= loaded;
+            loadText(textFile);
         }
 
         if (project.getIndexesFile() != null) {
             File indexesFile = new File(project.getIndexesFile());
-            boolean loaded = loadIndexes(indexesFile);
-            success &= loaded;
+            loadIndexes(indexesFile);
         }
 
         if (project.getTagFile() != null) {
@@ -1306,11 +1274,8 @@ public class Core {
 
 //        if(project.getSubtitleFile() != null) {
 //            File subtitleFile = new File(project.getSubtitleFile());
-//            boolean loaded = loadSubtitleFile(subtitleFile);
-//            success &= loaded;
+//            loadSubtitleFile(subtitleFile);
 //        }
-
-        return success;
     }
 
     /**
@@ -1318,59 +1283,44 @@ public class Core {
      *
      * @param file le fichier.
      * @param time le temps.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    public boolean insertFile(File file, long time) throws ThotException {
+    public void insertFile(File file, long time) throws ThotException {
         long begin = time;
         if (begin < 0) {
             begin = currentTime;
         }
 
-        if (!file.exists()) {
-            return false;
-        }
-
-        boolean success;
         if (Utilities.isTextFile(file)) {
-            success = loadText(file);
+            loadText(file);
         } else if (Utilities.isImageFile(file)) {
-            success = loadImage(file);
+            loadImage(file);
         } else {
             int cnt = mediaIndexes.getIndexesCount();
             if (cnt > 0 || projectFiles.getAudioFile() != null) {
                 int write = addFileIndex(begin, file);
-                success = (write > 0);
             } else {
-                success = loadFile(file);
+                loadFile(file);
             }
         }
-        return success;
     }
 
     /**
      * Charge d'un fichier.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadFile(File file) throws ThotException {
-        boolean success = false;
-
+    private void loadFile(File file) throws ThotException {
         if (hasAudioSrteam(file) && hasVideoSrteam(file)) {
             fireVideoFileChanged(null);
             extract(file, audioFileTemp, videoFileTemp);
             if (hasVideoSrteam(videoFileTemp)) {
                 boolean loaded = loadVideo(videoFileTemp);
-                success &= loaded;
                 if (loaded) {
                     projectFiles.setVideoFile(file.getAbsolutePath());
                 }
             }
             if (hasAudioSrteam(audioFileTemp)) {
                 int loaded = loadAudio(audioFileTemp, audioBuffer);
-                success &= (loaded > 0);
                 if (loaded > 0) {
                     projectFiles.setAudioFile(file.getAbsolutePath());
                     long lenght = (long) (audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
@@ -1381,13 +1331,9 @@ public class Core {
             }
         } else if (hasVideoSrteam(file)) {
             boolean loaded = loadVideo(file);
-            success &= loaded;
-            if (loaded) {
-                projectFiles.setVideoFile(file.getAbsolutePath());
-            }
+            projectFiles.setVideoFile(file.getAbsolutePath());
         } else if (hasAudioSrteam(file)) {
             int loaded = loadAudio(file, audioBuffer);
-            success &= (loaded > 0);
             if (loaded > 0) {
                 projectFiles.setAudioFile(file.getAbsolutePath());
                 long lenght = (long) (audioBuffer.limit() / audioFormat.getFrameSize() / audioFormat.getSampleRate()
@@ -1396,60 +1342,43 @@ public class Core {
                 fireAudioDataChanged();
             }
         }
-        return success;
     }
 
     /**
      * Charge un fichier d'index.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadIndexes(File file) {
+    private void loadIndexes(File file) {
         mediaIndexes = Utilities.getIndexes(file);
         projectFiles.setIndexesFile(file.getAbsolutePath());
         setRecordTimeMaxByIndexes();
         fireIndexesChanged(mediaIndexes);
-        return true;
     }
 
     /**
      * Chargement d'une image.
      *
      * @param file le fichier image.
-     *
-     * @return la réussite du chargement.
      */
-    private boolean loadImage(File file) {
-        boolean success;
+    private void loadImage(File file) {
         try {
             BufferedImage image = ImageIO.read(file);
-            success = true;
             fireImageChanged(image);
         } catch (IOException e) {
             LOGGER.error("", e);
             fireImageChanged(null);
-            success = false;
         }
 
-        return success;
     }
 
     /**
      * Charge un fichier texte dans la zone de texte.
      *
      * @param file le fichier à charger.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    public boolean loadText(File file) {
-        if (!file.exists()) {
-            return false;
-        }
-
+    public void loadText(File file) throws ThotException {
         eraseText();
-        boolean load = false;
         projectFiles.setTextFile(file.getAbsolutePath());
 
         boolean styled = false;
@@ -1458,14 +1387,12 @@ public class Core {
         if (Utilities.isTextStyledFile(file)) {
             if (Utilities.getExtensionFile(file).contentEquals(Constants.RTF_extension)) {
                 File htmlFile = new File(tempPath, file.getName() + Constants.HTML_extension);
-                boolean converted = Utilities.rtf2html(file, htmlFile);
-                if (converted) {
-                    load = loadTextStyled(htmlFile);
-                }
+                Utilities.rtf2html(file, htmlFile);
+                loadTextStyled(htmlFile);
             } else {
-                load = loadTextStyled(file);
+                loadTextStyled(file);
             }
-            styled = load;
+            styled = true;
         } else {
             //pour le charset en UTF-8
             text = Utilities.getTextInFile(file, Utilities.UTF8_CHARSET);
@@ -1473,24 +1400,17 @@ public class Core {
             //pour le charset par défaut de windows
             if (text == null || text.isEmpty()) {
                 text = Utilities.getTextInFile(file, Utilities.WINDOWS_CHARSET);
-            }//end if
-
-            if (text != null) {
-                load = true;
             }
         }
         fireTextLoaded(text, styled);
-        return load;
     }
 
     /**
      * Charge un fichier de type RTF dans la zone de texte.
      *
      * @param file le fichier à charger.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadTextStyled(File file) {
+    private void loadTextStyled(File file) {
         try {
             //effacement
             styledDocument.remove(0, styledDocument.getLength());
@@ -1500,10 +1420,8 @@ public class Core {
             fileInputStream.close();
         } catch (Exception e) {
             LOGGER.error("", e);
-            return false;
         }
 
-        return true;
     }
 
     /**
@@ -1642,10 +1560,8 @@ public class Core {
         //sauvegarde des index
         if (project.getIndexesFile() != null) {
             File indexesFile = new File(path, name + project.getIndexesFile());
-            saved = saveMediaIndexes(indexesFile);
-            if (saved) {
-                savedFiles.setIndexesFile(indexesFile.getName());
-            }
+            saveMediaIndexes(indexesFile);
+            savedFiles.setIndexesFile(indexesFile.getName());
         }
 
         //sauvegarde des soustitres
@@ -1655,10 +1571,8 @@ public class Core {
             }
 
             File subtitleFile = new File(path, name + project.getSubtitleFile());
-            saved = saveSubtitleFile(subtitleFile);
-            if (saved) {
-                savedFiles.setSubtitleFile(subtitleFile.getName());
-            }
+            saveSubtitleFile(subtitleFile);
+            savedFiles.setSubtitleFile(subtitleFile.getName());
         }
 
         //sauvegarde de l'audio
@@ -1708,10 +1622,8 @@ public class Core {
         //sauvegarde des tags
         if (project.getTagFile() != null) {
             File tagFile = new File(path, name + project.getTagFile());
-            saved = Utilities.saveText(LaboXMLUtilities.getXML(tags), tagFile);
-            if (saved) {
-                savedFiles.setTagFile(tagFile.getName());
-            }
+            Utilities.saveText(LaboXMLUtilities.getXML(tags), tagFile);
+            savedFiles.setTagFile(tagFile.getName());
         }
 
         //sauvegarde des images du diaporama
@@ -1730,10 +1642,8 @@ public class Core {
                 Utilities.fileDirectoryCopy(path, file);
             } else {
                 File projectFile = new File(path, name + Constants.projectExtension);
-                saved = Utilities.saveObject(savedFiles, projectFile);
-                if (saved) {
-                    saved = Utilities.compressFile(path, file);
-                }
+                Utilities.saveObject(savedFiles, projectFile);
+                saved = Utilities.compressFile(path, file);
             }
         }
 
@@ -1745,38 +1655,27 @@ public class Core {
      * Sauvegarde les d'index dans un fichier.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveMediaIndexes(File file) {
+    private void saveMediaIndexes(File file) throws ThotException {
         Utilities.saveObject(mediaIndexes, file);
         projectFiles.setIndexesFile(file.getAbsolutePath());
-        return true;
     }
 
     /**
      * Sauvegarde les soustitres.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveSubtitleFile(File file) {
-        boolean success = false;
-
+    private void saveSubtitleFile(File file) throws ThotException {
         String extension = Utilities.getExtensionFile(file);
         if (extension.equalsIgnoreCase(Constants.SRT_extension)) {
-            success = Utilities.saveSRTSubtitleFile(mediaIndexes, file);
+            Utilities.saveSRTSubtitleFile(mediaIndexes, file);
         } else if (extension.equalsIgnoreCase(Constants.SUB_extension)) {
-            success = Utilities.saveSUBSubtitleFile(mediaIndexes, file);
+            Utilities.saveSUBSubtitleFile(mediaIndexes, file);
         } else if (extension.equalsIgnoreCase(Constants.LRC_extension)) {
-            success = Utilities.saveLRCSubtitleFile(mediaIndexes, file);
+            Utilities.saveLRCSubtitleFile(mediaIndexes, file);
         }
-
-        if (success) {
-            projectFiles.setSubtitleFile(file.getAbsolutePath());
-        }
-        return success;
+        projectFiles.setSubtitleFile(file.getAbsolutePath());
     }
 
     /**
@@ -1786,7 +1685,7 @@ public class Core {
      *
      * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveText(File file) {
+    private boolean saveText(File file) throws ThotException {
         boolean saved = false;
         File destFile = file;
         if (!Utilities.isTextFile(destFile)) {
@@ -1800,7 +1699,7 @@ public class Core {
                 File htmlFile = new File(tempPath, destFile.getName() + Constants.HTML_extension);
                 saved = saveTextStyled(htmlFile);
                 if (saved) {
-                    saved = Utilities.html2rtf(htmlFile, destFile);
+                    Utilities.html2rtf(htmlFile, destFile);
                 }
             } else {
                 saved = saveTextStyled(destFile);
@@ -1808,7 +1707,7 @@ public class Core {
         } else {
             try {
                 String text = styledDocument.getText(0, styledDocument.getLength());
-                saved = Utilities.saveText(text, destFile);
+                Utilities.saveText(text, destFile);
             } catch (BadLocationException e) {
                 LOGGER.error("", e);
             }
@@ -2081,7 +1980,7 @@ public class Core {
     /**
      * Annule une conversion en cours.
      */
-    public void cancelConversion() {
+    public void cancelConversion() throws ThotException {
         converter.cancel();
     }
 

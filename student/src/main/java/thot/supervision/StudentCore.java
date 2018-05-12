@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.supervision.gui.Login;
@@ -164,20 +165,22 @@ public class StudentCore implements Runnable {
                 LOGGER.info("ended: " + source + " -> " + exit);
                 if (source instanceof MasterSearch) {
                     login.showLogin(false);
-//v0.94:
-//                    if(!screenWindow.isRun()
-//                            && !captureScreen.isRun())
-//                        return;
+
+//                    if(!screenWindow.isRun() && !captureScreen.isRun()) return; //v0.94:
                 }
 
                 if (exit < 0) {
-                    sendEndedError();
+                    try {
+                        sendEndedError();
+                    } catch (ThotException e) {
+                        LOGGER.error("Impossible d'envoyer le signal d'erreur", e);
+                    }
                 }
 
                 chatVoip.disconnectAllWithoutPairing();
                 screenWindow.stop();
 
-                if (Utilities.WINDOWS_PLATFORM) {// && !blockWindow.isVisible()
+                if (Utilities.WINDOWS_PLATFORM) {
                     WindowsUtilities.blockInput(false);
                 }
 
@@ -202,7 +205,11 @@ public class StudentCore implements Runnable {
         captureScreen.addListener(listener);
         masterSearch.addListener(listener);
 
-        Battery.getBatteryLevel();
+        try {
+            Battery.getBatteryLevel();
+        } catch (ThotException e) {
+            LOGGER.error("Impossible de récupérer l'état de la baterrie", e);
+        }
     }
 
     /**
@@ -280,14 +287,14 @@ public class StudentCore implements Runnable {
     /**
      * Fermeture de la session de l'os sous Linux.
      */
-    private void closeSessionOnLinux() {
+    private void closeSessionOnLinux() throws ThotException {
         Utilities.killApplication("x-session-manager");
     }
 
     /**
      * Fermeture des applications interdites.
      */
-    private void killApplication() {
+    private void killApplication() throws ThotException {
         for (String application : applicationsForbiden) {
             LOGGER.info("kill application: " + application);
             Utilities.killApplication(application);
@@ -297,7 +304,7 @@ public class StudentCore implements Runnable {
     /**
      * Blocage du port 80 (Internet) sous Linux.
      */
-    private void iptablesOnLinux() {
+    private void iptablesOnLinux() throws ThotException {
         String command;
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
@@ -317,7 +324,7 @@ public class StudentCore implements Runnable {
     /**
      * Tue les navigateurs internet.
      */
-    private void killWebNavigators() {
+    private void killWebNavigators() throws ThotException {
         if (Utilities.WINDOWS_PLATFORM) {
             killWebNavigatorsOnWindows();
         } else if (Utilities.LINUX_PLATFORM) {
@@ -328,7 +335,7 @@ public class StudentCore implements Runnable {
     /**
      * Fermeture de FireFox sous Linux.
      */
-    private void killWebNavigatorsOnLinux() {
+    private void killWebNavigatorsOnLinux() throws ThotException {
         LOGGER.info("pkill -f firefox");
         Utilities.killApplication("firefox");
     }
@@ -336,7 +343,7 @@ public class StudentCore implements Runnable {
     /**
      * Fermeture des navigateurs FireFox et Internet Explorer sous Windows.
      */
-    private void killWebNavigatorsOnWindows() {
+    private void killWebNavigatorsOnWindows() throws ThotException {
         LOGGER.info("taskkill /F firefox iexplore chrome");
         Utilities.killApplication("iexplore.exe");
         Utilities.killApplication("firefox.exe");
@@ -348,7 +355,7 @@ public class StudentCore implements Runnable {
      *
      * @param block {@code true} pour bloquer.
      */
-    private void setWebEnable(boolean block) {
+    private void setWebEnable(boolean block) throws ThotException {
         internetBlocked = block;
         if (internetBlocked) {
             killWebNavigators();
@@ -368,56 +375,41 @@ public class StudentCore implements Runnable {
      * Envoi d'une commande au poste professeur.
      *
      * @param command la commande.
-     *
-     * @return le success de l'envoi.
      */
-    private boolean sendSupervisionCommand(Command command) {
-        if (masterIP == null) {
-            return false;
-        }
-
-        return Utilities.sendXml(CommandXMLUtilities.getXML(command), masterIP, ThotPort.studentToMasterPort);
+    private void sendSupervisionCommand(Command command) throws ThotException {
+        Utilities.sendMessage(CommandXMLUtilities.getXML(command), masterIP, ThotPort.studentToMasterPort);
     }
 
     /**
      * Envoi un appel d'aide au professeur.
-     *
-     * @return le success de l'envoi.
      */
-    public boolean sendHelpDemand() {
+    public void sendHelpDemand() throws ThotException {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.HELP_CALL);
-        return sendSupervisionCommand(command);
+        sendSupervisionCommand(command);
     }
 
     /**
      * Transfert un fichier au professeur.
      *
      * @param file le fichier.
-     *
-     * @return si le fichier à été transféré.
      */
-    public boolean sendFile(File file) {
+    public void sendFile(File file) throws ThotException {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_FILE);
         command.putParameter(CommandParamater.PORT, ThotPort.fileTransfertPortBase);
         command.putParameter(CommandParamater.FILE, file.getName());
         command.putParameter(CommandParamater.SIZE, file.length());
 
-        boolean sended = sendSupervisionCommand(command);
+        sendSupervisionCommand(command);
 
-        if (sended) {
-            fileTransfert.sendFile(file, ThotPort.fileTransfertPortBase, 1);
-        }
-        return sended;
+        fileTransfert.sendFile(file, ThotPort.fileTransfertPortBase, 1);
     }
 
     /**
      * Transfert un fichier au professeur.
-     *
-     * @return si le fichier à été transféré.
      */
-    private boolean sendEndedError() {
+    private void sendEndedError() throws ThotException {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.END_ERROR);
-        return sendSupervisionCommand(command);
+        sendSupervisionCommand(command);
     }
 
     /**
@@ -425,7 +417,7 @@ public class StudentCore implements Runnable {
      *
      * @param command la commande à traiter.
      */
-    private void execute(Command command) {
+    private void execute(Command command) throws ThotException {
         CommandAction action = command.getAction();
 
         switch (action) {
@@ -478,7 +470,8 @@ public class StudentCore implements Runnable {
                     }
                 }
 
-                Utilities.sendXml(CommandXMLUtilities.getXML(returnCommand), remoteHost, ThotPort.studentToMasterPort);
+                Utilities.sendMessage(CommandXMLUtilities.getXML(returnCommand), remoteHost,
+                        ThotPort.studentToMasterPort);
                 break;
             case SEND_SCREEN:
                 int portBase = command.getParameterAsInt(CommandParamater.SCREEN_PORT);
@@ -704,9 +697,7 @@ public class StudentCore implements Runnable {
                 applicationsForbiden.clear();
                 if (applicationList != null) {
                     List<String> appList = XMLUtilities.parseList(applicationList);
-                    for (String application : appList) {
-                        applicationsForbiden.add(application);
-                    }
+                    applicationsForbiden.addAll(appList);
                     appList.clear();
                 }
 

@@ -439,7 +439,7 @@ public class ImportDialog extends JDialog {
 
         Thread thread = new Thread(() -> {
             try {
-                boolean success = core.loadProject(project);
+                core.loadProject(project);
             } catch (ThotException e) {
                 e.printStackTrace();
                 GuiUtilities.showMessage("Erreur dans le traitement " + e);

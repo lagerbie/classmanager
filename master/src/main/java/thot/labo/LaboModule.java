@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.audio.DummyAudioPlayer;
 import thot.audio.DummyAudioRecorder;
+import thot.exception.ThotException;
 import thot.gui.Resources;
 import thot.supervision.Command;
 import thot.supervision.CommandAction;
@@ -135,7 +136,14 @@ public class LaboModule extends LaboCore {
      * @return {@code true} si la commande a bien été exécuter.
      */
     private boolean sendCommand(String xml, String address) {
-        return Utilities.sendXml(xml, address, ThotPort.masterToStudentPort);
+        try {
+            Utilities.sendMessage(xml, address, ThotPort.masterToStudentPort);
+            return true;
+        } catch (ThotException e) {
+            LOGGER.error("Echec de l'envoi de la commande {} à l'élève {}:{}", xml, address,
+                    ThotPort.masterToStudentPort);
+            return false;
+        }
     }
 
     /**
@@ -150,9 +158,6 @@ public class LaboModule extends LaboCore {
      *
      * @param button le nom du bouton de la commande.
      * @param parameter le paramètre associé.
-     *
-     * @throws IndexOutOfBoundsException
-     * @throws NumberFormatException
      */
     public void executeCommand(String button, String parameter) {
         LOGGER.info("button: " + button + " parameter: " + parameter);
@@ -284,7 +289,7 @@ public class LaboModule extends LaboCore {
             case GuiConstants.back:
                 command.putParameter(CommandParamater.PARAMETER, 0);
                 sendCommand(command);
-                timeToZero();
+                setTimeToZero();
                 break;
             case GuiConstants.play:
                 if (parameter != null && !parameter.trim().isEmpty()) {

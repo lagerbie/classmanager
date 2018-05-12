@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.jar.JarEntry;
@@ -40,6 +41,8 @@ import javax.swing.text.rtf.RTFEditorKit;
 import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotCodeException;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.labo.ProjectFiles;
 import thot.labo.index.Indexes;
@@ -52,7 +55,7 @@ import thot.labo.utils.SubtitleUtilities;
  * @author Fabrice Alleau
  * @version 1.8.4
  */
-public class Utilities {
+public final class Utilities {
 
     /**
      * Instance de log.
@@ -394,15 +397,15 @@ public class Utilities {
      *
      * @return le texte décodé ou {@code null}
      */
-    public static String getTextInFile(File file, String charset) {
+    public static String getTextInFile(File file, String charset) throws ThotException {
         StringBuilder text = new StringBuilder(1024);
         try (Scanner scanner = new Scanner(file, charset)) {
             while (scanner.hasNext()) {
                 text.append(scanner.nextLine()).append("\n");
             }
         } catch (FileNotFoundException e) {
-            LOGGER.error("", e);
-            return null;
+            throw new ThotException(ThotCodeException.FILE_NOT_FOUND, "Le fichier {} n'existe pas", e,
+                    file.getAbsolutePath());
         }
 
         if (text.length() == 0) {
@@ -417,10 +420,8 @@ public class Utilities {
      *
      * @param text le texte à sauvegarder.
      * @param file le fichier.
-     *
-     * @return la réussite.
      */
-    public static boolean saveText(String text, File file) {
+    public static void saveText(String text, File file) throws ThotException {
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), UTF8_CHARSET)) {
             // le texte doit être non null
             if (text == null) {
@@ -429,11 +430,9 @@ public class Utilities {
                 writer.write(text);
             }
         } catch (IOException e) {
-            LOGGER.error("", e);
-            return false;
+            throw new ThotException(ThotCodeException.WRITE_RIGHT, "Impossible d'écrire dans le fichier {}", e,
+                    file.getAbsolutePath());
         }
-
-        return true;
     }
 
     /**
@@ -452,14 +451,13 @@ public class Utilities {
      *
      * @param srcFile le fichier au format html.
      * @param destFile le fichier au format rtf.
-     *
-     * @return si le fichier à été créé.
      */
-    public static boolean html2rtf(File srcFile, File destFile) {
+    public static void html2rtf(File srcFile, File destFile) throws ThotException {
         EditorKit srcEditorKit = new HTMLEditorKit();
         Document srcDocument = readStyledFile(srcFile, srcEditorKit);
         if (srcDocument == null) {
-            return false;
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le fichier {}",
+                    srcFile.getAbsolutePath());
         }
 
         JTextPane textPane = new JTextPane();
@@ -477,22 +475,22 @@ public class Utilities {
                 Element element = rootElement.getElement(i);
                 for (int j = 0; j < element.getElementCount(); j++) {
                     Element child = element.getElement(j);
-                    String text = srcDocument.getText(child.getStartOffset(),
-                            child.getEndOffset() - child.getStartOffset());
+                    String text = srcDocument
+                            .getText(child.getStartOffset(), child.getEndOffset() - child.getStartOffset());
                     AttributeSet attributeSet = child.getAttributes();
                     addText(textPane, text, attributeSet);
                 }
             }
         } catch (BadLocationException e) {
-            LOGGER.error("", e);
-            return false;
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le document {}", e,
+                    srcFile.getAbsolutePath());
         }
 
         destEditorKit.deinstall(textPane);
         srcEditorKit.deinstall(textPane);
         textPane.removeAll();
 
-        return writeStyledFile(destFile, textPane);
+        writeStyledFile(destFile, textPane);
     }
 
     /**
@@ -500,14 +498,13 @@ public class Utilities {
      *
      * @param srcFile le fichier au format rtf.
      * @param destFile le fichier au format html.
-     *
-     * @return si le fichier à été créé.
      */
-    public static boolean rtf2html(File srcFile, File destFile) {
+    public static void rtf2html(File srcFile, File destFile) throws ThotException {
         EditorKit srcEditorKit = new RTFEditorKit();
         Document srcDocument = readStyledFile(srcFile, srcEditorKit);
         if (srcDocument == null) {
-            return false;
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le fichier {}",
+                    srcFile.getAbsolutePath());
         }
 
         JTextPane textPane = new JTextPane();
@@ -521,15 +518,15 @@ public class Utilities {
             Element rootElement = srcDocument.getDefaultRootElement();
             addText(textPane, rootElement);
         } catch (BadLocationException e) {
-            LOGGER.error("", e);
-            return false;
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le document {}", e,
+                    srcFile.getAbsolutePath());
         }
 
         destEditorKit.deinstall(textPane);
         srcEditorKit.deinstall(textPane);
         textPane.removeAll();
 
-        return writeStyledFile(destFile, textPane);
+        writeStyledFile(destFile, textPane);
     }
 
     /**
@@ -540,13 +537,13 @@ public class Utilities {
      *
      * @return le document correspondant ou {@code null}.
      */
-    private static Document readStyledFile(File srcFile, EditorKit editorKit) {
+    private static Document readStyledFile(File srcFile, EditorKit editorKit) throws ThotException {
         Document document = editorKit.createDefaultDocument();
         try (FileInputStream fileInputStream = new FileInputStream(srcFile)) {
             editorKit.read(fileInputStream, document, 0);
-        } catch (Exception e) {
-            LOGGER.error("", e);
-            document = null;
+        } catch (IOException | BadLocationException e) {
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le document {}", e,
+                    srcFile.getAbsolutePath());
         }
         return document;
     }
@@ -556,20 +553,16 @@ public class Utilities {
      *
      * @param destFile le fichier au format rtf ou html.
      * @param textPane l'éditeur de style qui gère le document avec gestion de style.
-     *
-     * @return la réussite de la sauvegarde.
      */
-    private static boolean writeStyledFile(File destFile, JTextPane textPane) {
-        boolean success = false;
+    private static void writeStyledFile(File destFile, JTextPane textPane) throws ThotException {
         Document document = textPane.getStyledDocument();
         try (FileOutputStream output = new FileOutputStream(destFile)) {
             textPane.getEditorKit().write(output, document, 0, document.getLength());
             output.flush();
-            success = true;
-        } catch (Exception e) {
-            LOGGER.error("", e);
+        } catch (IOException | BadLocationException e) {
+            throw new ThotException(ThotCodeException.WRITE_RIGHT, "Impossible décrire dans le fichier {}", e,
+                    destFile.getAbsolutePath());
         }
-        return success;
     }
 
     /**
@@ -577,8 +570,6 @@ public class Utilities {
      *
      * @param textPane le gestionnaire de documents stylés.
      * @param element l'élément de style.
-     *
-     * @throws BadLocationException
      */
     private static void addText(JTextPane textPane, Element element) throws BadLocationException {
         Document srcDocument = element.getDocument();
@@ -601,8 +592,6 @@ public class Utilities {
      * @param textPane le gestionnaire de documents stylés.
      * @param text le texte.
      * @param attributeSet le style du texte.
-     *
-     * @throws BadLocationException
      */
     private static void addText(JTextPane textPane, String text, AttributeSet attributeSet)
             throws BadLocationException {
@@ -709,11 +698,9 @@ public class Utilities {
      *
      * @param indexes la liste d'index.
      * @param file le fichier.
-     *
-     * @return la réussite de l'opération.
      */
-    public static boolean saveObject(Indexes indexes, File file) {
-        return saveText(LaboXMLUtilities.getXML(indexes), file);
+    public static void saveObject(Indexes indexes, File file) throws ThotException {
+        saveText(LaboXMLUtilities.getXML(indexes), file);
     }
 
     /**
@@ -721,11 +708,9 @@ public class Utilities {
      *
      * @param project le projet.
      * @param file le fichier.
-     *
-     * @return la réussite de l'opération.
      */
-    public static boolean saveObject(ProjectFiles project, File file) {
-        return saveText(LaboXMLUtilities.getXML(project), file);
+    public static void saveObject(ProjectFiles project, File file) throws ThotException {
+        saveText(LaboXMLUtilities.getXML(project), file);
     }
 
     /**
@@ -733,11 +718,9 @@ public class Utilities {
      *
      * @param indexes les index.
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    public static boolean saveSRTSubtitleFile(Indexes indexes, File file) {
-        return Utilities.saveText(SubtitleUtilities.createSRTSubtitle(indexes), file);
+    public static void saveSRTSubtitleFile(Indexes indexes, File file) throws ThotException {
+        Utilities.saveText(SubtitleUtilities.createSRTSubtitle(indexes), file);
     }
 
     /**
@@ -745,11 +728,9 @@ public class Utilities {
      *
      * @param indexes les index.
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    public static boolean saveSUBSubtitleFile(Indexes indexes, File file) {
-        return Utilities.saveText(SubtitleUtilities.createSUBSubtitle(indexes), file);
+    public static void saveSUBSubtitleFile(Indexes indexes, File file) throws ThotException {
+        Utilities.saveText(SubtitleUtilities.createSUBSubtitle(indexes), file);
     }
 
     /**
@@ -757,11 +738,9 @@ public class Utilities {
      *
      * @param indexes les index.
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    public static boolean saveLRCSubtitleFile(Indexes indexes, File file) {
-        return Utilities.saveText(SubtitleUtilities.createLRCSubtitle(indexes), file);
+    public static void saveLRCSubtitleFile(Indexes indexes, File file) throws ThotException {
+        Utilities.saveText(SubtitleUtilities.createLRCSubtitle(indexes), file);
     }
 
     /**
@@ -770,20 +749,15 @@ public class Utilities {
      * @param source le fichier source.
      * @param dest le fichier de destination.
      */
-    public static void fileCopy(File source, File dest) {
-        FileChannel sourceChannel;
-        FileChannel destChannel;
-
-        try {
-            sourceChannel = new FileInputStream(source).getChannel();
-            destChannel = new FileOutputStream(dest).getChannel();
+    public static void fileCopy(File source, File dest) throws ThotException {
+        try (FileChannel sourceChannel = new FileInputStream(source).getChannel();
+             FileChannel destChannel = new FileOutputStream(dest).getChannel()) {
 
             sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
 
-            sourceChannel.close();
-            destChannel.close();
-        } catch (Exception e) {
-            LOGGER.error("", e);
+        } catch (IOException e) {
+            throw new ThotException(ThotCodeException.UNKNOWN, "Impossible de copier le fichier {} vers le fichier {}",
+                    e, source.getAbsolutePath(), dest.getAbsolutePath());
         }
     }
 
@@ -793,8 +767,11 @@ public class Utilities {
      * @param srcDirectory le fichier source.
      * @param destDirectory le fichier de destination.
      */
-    public static void fileDirectoryCopy(File srcDirectory, File destDirectory) {
-        destDirectory.mkdirs();
+    public static void fileDirectoryCopy(File srcDirectory, File destDirectory) throws ThotException {
+        if (!destDirectory.exists() && !destDirectory.mkdirs()) {
+            throw new ThotException(ThotCodeException.WRITE_RIGHT, "Impossible de créer le répertoire {}",
+                    destDirectory.getAbsolutePath());
+        }
 
         File[] files = srcDirectory.listFiles();
         if (files != null) {
@@ -834,20 +811,10 @@ public class Utilities {
      */
     public static boolean isBusyPort(int port) {
         boolean occuped = true;
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(port);
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             occuped = false;
         } catch (IOException e) {
-            LOGGER.error("", e);
-        } finally {
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    LOGGER.error("", e);
-                }
-            }
+            LOGGER.warn("Impossible de se connecter au port {} : {}", port, e.getMessage());
         }
 
         return occuped;
@@ -856,34 +823,26 @@ public class Utilities {
     /**
      * Envoi une commande xml à l'adresse et sur le port indiqués.
      *
-     * @param xml la commande xml.
+     * @param message la commande xml.
      * @param addressIP l'adresse d'envoi.
      * @param port le port d'envoi.
-     *
-     * @return 1 si la commande a été transmise, sinon l'erreur (<0).
      */
-    public static boolean sendXml(String xml, String addressIP, int port) {
-        if (xml == null) {
-            return false;
-        }
-
+    public static void sendMessage(String message, String addressIP, int port) throws ThotException {
         InetSocketAddress sockaddr = new InetSocketAddress(addressIP, port);
 
         DataOutputStream outputStream;
-        boolean send = false;
-        try (Socket socket = new Socket();) {
-            LOGGER.info("sendXML {} à {}:{}", xml, addressIP, port);
+        try (Socket socket = new Socket()) {
+            LOGGER.info("Envoi du message {} à {}:{}", message, addressIP, port);
             socket.connect(sockaddr, Constants.TIME_MAX_FOR_ORDER);
 
             outputStream = new DataOutputStream(socket.getOutputStream());
-            outputStream.write(xml.getBytes(UTF8_CHARSET));
+            outputStream.write(message.getBytes(UTF8_CHARSET));
             //out.write((byte)0);
             outputStream.flush();
-            send = true;
         } catch (IOException e) {
-            LOGGER.error("erreur sendXML {} à {}:{}", e, xml, addressIP, port);
+            throw new ThotException(ThotCodeException.SERVER, "Erreur lors de l'envoi du message {} à {}:{}", e,
+                    message, addressIP, port);
         }
-        return send;
     }
 
     /**
@@ -896,10 +855,9 @@ public class Utilities {
      *
      * @return la valeur de sortie du processus résultat de la commande.
      */
-    public static int executeCommand(String name, StringBuilder output, StringBuilder error, String... command) {
+    public static int executeCommand(String name, StringBuilder output, StringBuilder error, String... command)
+            throws ThotException {
         int end = -1;
-        Runtime runtime = Runtime.getRuntime();
-        Process process = null;
 
         String charset = UTF8_CHARSET;
         if (WINDOWS_PLATFORM) {
@@ -910,7 +868,11 @@ public class Utilities {
             }
         }
 
+        String fullCommand = Arrays.toString(command);
+        Runtime runtime = Runtime.getRuntime();
+        Process process;
         try {
+            LOGGER.info("Exécution de la commande {}", fullCommand);
             if (command.length == 1) {
                 process = runtime.exec(command[0]);
             } else {
@@ -927,15 +889,14 @@ public class Utilities {
                     waitInMillisecond(10);
                 }
             } catch (InterruptedException e) {
-                LOGGER.error("", e);
+                LOGGER.warn("L'exécution de la commande {} à été intérompue", e, fullCommand);
             }
         } catch (IOException e) {
-            LOGGER.error("", e);
+            throw new ThotException(ThotCodeException.UNKNOWN, "Erreur lor de l'exécution de la commande {}", e,
+                    fullCommand);
         }
 
-        if (process != null) {
-            process.destroy();
-        }
+        process.destroy();
         return end;
     }
 
@@ -949,7 +910,8 @@ public class Utilities {
      *
      * @return le processus démarré ou {@code null}.
      */
-    public static Process startProcess(String name, StringBuilder output, StringBuilder error, String... command) {
+    public static Process startProcess(String name, StringBuilder output, StringBuilder error, String... command)
+            throws ThotException {
         return startProcess(name, output, error, null, command);
     }
 
@@ -965,9 +927,7 @@ public class Utilities {
      * @return le processus démarré ou {@code null}.
      */
     public static Process startProcess(String name, StringBuilder output, StringBuilder error,
-            File workingDirectory, String... command) {
-        Runtime runtime = Runtime.getRuntime();
-        Process process;
+            File workingDirectory, String... command) throws ThotException {
 
         String charset = UTF8_CHARSET;
         if (WINDOWS_PLATFORM) {
@@ -978,7 +938,11 @@ public class Utilities {
             }
         }
 
+        String fullCommand = Arrays.toString(command);
+        Runtime runtime = Runtime.getRuntime();
+        Process process;
         try {
+            LOGGER.info("Lancement de la commande {}", fullCommand);
             if (command.length == 1) {
                 process = runtime.exec(command[0], null, workingDirectory);
             } else {
@@ -990,8 +954,8 @@ public class Utilities {
             outputThread.start();
             errorThread.start();
         } catch (IOException e) {
-            LOGGER.error("", e);
-            return null;
+            throw new ThotException(ThotCodeException.UNKNOWN, "Erreur lor de l'exécution de la commande {}", e,
+                    fullCommand);
         }
 
         return process;
@@ -1008,7 +972,7 @@ public class Utilities {
      */
     private static Thread createReadThread(final String name, final InputStream inputStream, final StringBuilder output,
             final String charset) {
-        Thread thread = new Thread(name) {
+        return new Thread(name) {
             @Override
             public void run() {
                 byte[] data = new byte[1024];
@@ -1019,11 +983,10 @@ public class Utilities {
                         cnt = inputStream.read(data);
                     }
                 } catch (IOException e) {
-                    LOGGER.error("", e);
+                    LOGGER.error("Erreur lors de la lecture du flux {}", e, name);
                 }
             }
         };
-        return thread;
     }
 
     /**
@@ -1085,7 +1048,7 @@ public class Utilities {
      *
      * @return le chemin de l'application.
      */
-    public static File getApplicationPathOnLinux(String name) {
+    public static File getApplicationPathOnLinux(String name) throws ThotException {
         File file = null;
         String[] command = new String[]{"/bin/sh", "-c", "which " + name};
         StringBuilder input = new StringBuilder(1024);
@@ -1105,10 +1068,8 @@ public class Utilities {
      * @param name le nom de l'application.
      *
      * @return le chemin de l'application.
-     *
-     * @since version 1.82 - version 1.83
      */
-    public static boolean hasFileOnLinux(String name) {
+    public static boolean hasFileOnLinux(String name) throws ThotException {
         boolean has = false;
         String[] command = new String[]{"/bin/sh", "-c", "whereis " + name};
         StringBuilder input = new StringBuilder(1024);
@@ -1127,7 +1088,7 @@ public class Utilities {
      *
      * @param application le nom de l'application.
      */
-    public static void killApplication(String application) {
+    public static void killApplication(String application) throws ThotException {
         if (WINDOWS_PLATFORM) {
             killApplicationOnWindows(application);
         } else if (LINUX_PLATFORM) {
@@ -1140,7 +1101,7 @@ public class Utilities {
      *
      * @param application le nom de l'application.
      */
-    private static void killApplicationOnLinux(String application) {
+    private static void killApplicationOnLinux(String application) throws ThotException {
         String[] command = new String[]{"/bin/sh", "-c", "pkill -f " + application};
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
@@ -1158,7 +1119,7 @@ public class Utilities {
             LOGGER.info("taskkill /F /IM " + application);
             runtime.exec("taskkill /F /IM " + application);
         } catch (IOException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Erreur lors de l'arrêt de l'application {}", e, application);
         }
     }
 
@@ -1167,7 +1128,7 @@ public class Utilities {
      *
      * @return la commande pour lancer JClic sous Windows.
      */
-    public static String getJClicCommand() {
+    public static String getJClicCommand() throws ThotException {
         String command = "reg query HKLM\\SOFTWARE\\Classes\\JClic.install\\shell\\open\\command /ve";
 
         StringBuilder result = new StringBuilder(1024);
@@ -1187,7 +1148,7 @@ public class Utilities {
      *
      * @return la commande pour lancer JClicReports sous Windows.
      */
-    public static String getJClicReportsCommand() {
+    public static String getJClicReportsCommand() throws ThotException {
         String jclic = getJClicCommand();
 
         if (jclic == null) {
@@ -1205,7 +1166,7 @@ public class Utilities {
      *
      * @return le chemin absolu de l'application.
      */
-    public static File pathOnWindowsProgramFiles(String path) {
+    public static File pathOnWindowsProgramFiles(String path) throws ThotException {
         File file;
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
@@ -1248,7 +1209,7 @@ public class Utilities {
      *
      * @return le chemin relatif dans "Program Files" ou {@code null} fichier.
      */
-    public static String pathWithoutWindowsProgramFiles(File file) {
+    public static String pathWithoutWindowsProgramFiles(File file) throws ThotException {
         String absolutePath = file.getAbsolutePath();
         String relativePath = null;
         StringBuilder out = new StringBuilder(1024);
@@ -1293,68 +1254,57 @@ public class Utilities {
      * Récupère un fichier de resources inclu dans un jar.
      *
      * @param resourcePath le chemin de la resource dans les jar.
-     *
-     * @return le chemin de la resource trouvée.
-     */
-    public static InputStream getResource(String resourcePath) {
-        return ClassLoader.getSystemResourceAsStream(resourcePath);
-    }
-
-    /**
-     * Récupère un fichier de resources inclu dans un jar.
-     *
-     * @param resourcePath le chemin de la resource dans les jar.
      * @param destDirectory le répertoire ou sera la resource si il faut la décompressés.
      *
      * @return le chemin de la resource trouvée.
      */
-    public static File getResource(String resourcePath, File destDirectory) {
-        String fileProtocol = "file:";
-        String jarFileProtocol = "jar:file:";
+    public static File getResource(String resourcePath, File destDirectory) throws ThotException {
+        LOGGER.info("Récupération de la resource {}", resourcePath);
+
         URL url = ClassLoader.getSystemResource(resourcePath);
-        //file:/C:/..../beep.wav (si le fichier .jar n'existe pas) (Windows)
-        //jar:file:/C:/.../master066.jar!/supevision/beep.wav (Windows)
-        //jar:file:/opt/.../master066.jar!/supervision/beep.wav (Linux)
+
         if (url == null) {
-            return null;
+            throw new ThotException(ThotCodeException.FILE_NOT_FOUND, "Fichier {} introuvable", resourcePath);
         }
 
-        String path;
+        String ressource;
+        LOGGER.info("Ressource {} trouvée à l'url {}", resourcePath, url);
         try {
-            path = URLDecoder.decode(url.toString(), UTF8_CHARSET);
+            ressource = URLDecoder.decode(url.toString(), Utilities.UTF8_CHARSET);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("", e);
-            return null;
+            throw new ThotException(ThotCodeException.FILE_NOT_FOUND, "Impossible de décoder l'url {}", e, url);
         }
 
-        int offset = 0;
-        if (WINDOWS_PLATFORM) {
-            offset = 1;
-        }
+
+        String fileProtocol = "file:/"; //file:/C:/..../resourcePath (si le fichier .jar n'existe pas)
+        String jarFileProtocol = "jar:file:/"; //jar:file:/C:/.../final.jar!/resourcePath
+        int offset = WINDOWS_PLATFORM ? 1 : 0;
 
         File destFile = null;
-        if (path.startsWith(fileProtocol)) {
+        if (ressource.startsWith(fileProtocol)) {
             //si le fichier n'est pas intégré dans le jar
             int begin = fileProtocol.length() + offset;
-            destFile = new File(path.substring(begin));
-        } else if (path.startsWith(jarFileProtocol)) {
+            destFile = new File(ressource.substring(begin));
+        } else if (ressource.startsWith(jarFileProtocol)) {
             //fichier intégré dans le jar
             int begin = jarFileProtocol.length() + offset;
-            int end = path.lastIndexOf('!');
-            String jarFilePath = path.substring(begin, end);
+            int end = ressource.lastIndexOf('!');
+            String jarFilePath = ressource.substring(begin, end);
 
-            try {
-                JarFile jarFile = new JarFile(jarFilePath);
+            destFile = new File(destDirectory, resourcePath);
+            if (!destFile.getParentFile().mkdirs()) {
+                // important de créer les répertoires
+                throw new ThotException(ThotCodeException.WRITE_RIGHT, "Impossible de créer le dossier {}",
+                        destFile.getParentFile().getAbsolutePath());
+            }
+
+            try (JarFile jarFile = new JarFile(jarFilePath)) {
                 JarEntry entry = jarFile.getJarEntry(resourcePath);
-
-                destFile = new File(destDirectory, resourcePath);
-                destFile.getParentFile().mkdirs();//important de créer les répertoires
-                destFile.createNewFile();
-
                 try (FileOutputStream outputStream = new FileOutputStream(destFile);
                      InputStream inputStream = jarFile.getInputStream(entry)) {
 
                     byte[] data = new byte[1024];
+
                     int read = inputStream.read(data);
                     while (read > 0) {
                         outputStream.write(data, 0, read);
@@ -1362,9 +1312,10 @@ public class Utilities {
                     }
                 }
             } catch (IOException e) {
-                LOGGER.error("", e);
-                destFile = null;
+                throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de lire le fichier {}", e,
+                        jarFilePath);
             }
+
         }
         return destFile;
     }
@@ -1372,7 +1323,7 @@ public class Utilities {
     /**
      * Lancement d'un clavier virtuel.
      */
-    public static void virtualKeyboard() {
+    public static void virtualKeyboard() throws ThotException {
         if (WINDOWS_PLATFORM) {
             windowsVirtualKeyboard();
         }
@@ -1381,7 +1332,7 @@ public class Utilities {
     /**
      * Lancement d'un clavier virtuel sous Windows.
      */
-    private static void windowsVirtualKeyboard() {
+    private static void windowsVirtualKeyboard() throws ThotException {
         String command = "cmd /C osk";
 
         StringBuilder result = new StringBuilder(1024);
@@ -1395,6 +1346,7 @@ public class Utilities {
      * @return la première adresse IP valide sur le réseu connecté.
      */
     public static String getAddress() {
+        LOGGER.info("Recherche l'adresse IP");
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
@@ -1405,26 +1357,23 @@ public class Utilities {
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
 
-                    if (inetAddress instanceof Inet4Address
-                            && !inetAddress.isLoopbackAddress()) {
-                        LOGGER.info("Nom Machine = " + inetAddress.getHostName());
-                        LOGGER.info("IP = " + inetAddress.getHostAddress());
-
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
+                        LOGGER.info("IP = {}, Nom Machine = {}", inetAddress.getHostAddress(),
+                                inetAddress.getHostName());
                         return inetAddress.getHostAddress();
                     }
                 }
             }
         } catch (SocketException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Impossible de récupérer l'adresse par le NetworkInterface", e);
         }
 
         try {
             InetAddress localHost = InetAddress.getLocalHost();
-            LOGGER.info("Computer name = " + localHost.getHostName());
-            LOGGER.info("IP = " + localHost.getHostAddress());
+            LOGGER.info("IP = {}, Computer name = {}", localHost.getHostAddress(), localHost.getHostName());
             return localHost.getHostAddress();
         } catch (UnknownHostException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Impossible de récupérer l'adresse", e);
         }
 
         return null;
@@ -1439,7 +1388,7 @@ public class Utilities {
         try {
             Thread.sleep(millisecond);
         } catch (InterruptedException e) {
-            LOGGER.error("", e);
+            LOGGER.warn("Interruption", e);
         }
     }
 
@@ -1452,7 +1401,7 @@ public class Utilities {
         try {
             Thread.sleep(nanoseconds / 1000000, (int) (nanoseconds % 1000000));
         } catch (InterruptedException e) {
-            LOGGER.error("", e);
+            LOGGER.warn("Interruption", e);
         }
     }
 }

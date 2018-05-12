@@ -361,19 +361,19 @@ public class LaboPanel extends TabPanel {
 
             @Override
             public void setValue(double position) {
-                core.mediaSetVolume((int) (position * 100));
-                updateMediaMuteMode(core.mediaGetVolume() == 0);
-                setPosition((double) core.mediaGetVolume() / 100);
+                core.setMediaVolume((int) (position * 100));
+                updateMediaMuteMode(core.getMediaVolume() == 0);
+                setPosition((double) core.getMediaVolume() / 100);
             }
 
             @Override
             public void toggleMute() {
-                core.mediaToggleMute();
-                updateMediaMuteMode(core.mediaGetVolume() == 0);
-                setPosition((double) core.mediaGetVolume() / 100);
+                core.toggleMediaMute();
+                updateMediaMuteMode(core.getMediaVolume() == 0);
+                setPosition((double) core.getMediaVolume() / 100);
             }
         };
-        mediaVolume.setPosition(core.mediaGetVolume() / 100.0);
+        mediaVolume.setPosition(core.getMediaVolume() / 100.0);
         mediaVolume.setToolTipText(resources.getString("mediaVolume"));
 
         //Barre de défilement du temps et des index
@@ -567,7 +567,7 @@ public class LaboPanel extends TabPanel {
         });
 
         //anonymous listeners pour le bouton retour à zéro
-        returnButton.addActionListener(event -> core.timeToZero());
+        returnButton.addActionListener(event -> core.setTimeToZero());
 
         //anonymous listeners pour le bouton Sauvegarder du module audio
         timeMaxButton.addActionListener(event -> {
@@ -614,7 +614,7 @@ public class LaboPanel extends TabPanel {
         boolean isRecording = (runningState == Constants.RECORDING);
         boolean isStop = (runningState == Constants.PAUSE);
         boolean isIndex = (core.getMediaIndexesCount() != 0) && (core.checkMultimediaIndexesValidity() == 0);
-        boolean isAuto = core.getIndexesMode();
+        boolean isAuto = core.isIndexesMode();
 
         playButton.setEnabled(isStop || (isRecording && !isAuto));
 //        playButton.setEnabled(isStop || isRecording);

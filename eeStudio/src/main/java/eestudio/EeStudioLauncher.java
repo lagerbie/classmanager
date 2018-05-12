@@ -12,6 +12,7 @@ import eestudio.gui.GuiFlashResource;
 import eestudio.utils.MEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.supervision.CommandXMLUtilities;
@@ -58,8 +59,13 @@ public class EeStudioLauncher {
         userHome.mkdirs();
 
         if (Utilities.LINUX_PLATFORM) {
-            mplayer = Utilities.getApplicationPathOnLinux("mplayer");
-            mencoder = Utilities.getApplicationPathOnLinux("mencoder");
+            try {
+                mplayer = Utilities.getApplicationPathOnLinux("mplayer");
+                mencoder = Utilities.getApplicationPathOnLinux("mencoder");
+            } catch (ThotException e) {
+                LOGGER.error("", e);
+            }
+
         }
 
         Locale language = Locale.getDefault();
@@ -105,7 +111,12 @@ public class EeStudioLauncher {
             exe = new File(path, exe.getPath());
         }
         if (filever.exists()) {
-            String exeVersion = getWindowsFileVersion(filever, exe);
+            String exeVersion = null;
+            try {
+                exeVersion = getWindowsFileVersion(filever, exe);
+            } catch (ThotException e) {
+                LOGGER.error("", e);
+            }
             LOGGER.info(exe.getName() + " version:" + exeVersion);
             if (exeVersion != null) {
                 versions.add(exe.getName());
@@ -145,9 +156,13 @@ public class EeStudioLauncher {
             System.exit(0);
         }
 
-        Utilities.killApplication(mencoder.getName());
-        Utilities.killApplication(mplayer.getName());
-        Utilities.killApplication(flash.getName());
+        try {
+            Utilities.killApplication(mencoder.getName());
+            Utilities.killApplication(mplayer.getName());
+            Utilities.killApplication(flash.getName());
+        } catch (ThotException e) {
+            LOGGER.error("", e);
+        }
 
         Converter converter = new MEncoder(mencoder, mplayer);
 
@@ -169,16 +184,21 @@ public class EeStudioLauncher {
 
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
-        final Process process = Utilities.startProcess("flash", out, err, flash.getAbsolutePath());
-        Thread flashThread = new Thread(() -> {
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                LOGGER.error("", e);
-            }
-            core.closeApplication();
-        });
-        flashThread.start();
+        try {
+            final Process process = Utilities.startProcess("flash", out, err, flash.getAbsolutePath());
+            Thread flashThread = new Thread(() -> {
+                try {
+                    process.waitFor();
+                } catch (InterruptedException e) {
+                    LOGGER.error("", e);
+                }
+                core.closeApplication();
+            });
+            flashThread.start();
+        } catch (ThotException e) {
+            LOGGER.error("", e);
+            System.exit(-1);
+        }
 
         guiResource.processBegin(false, "cacheTitle", "cacheMessage");
         if (languageFile.exists()) {
@@ -199,7 +219,7 @@ public class EeStudioLauncher {
      *
      * @return le numéro de version ou {@code null}.*
      */
-    private static String getWindowsFileVersion(File filever, File file) {
+    private static String getWindowsFileVersion(File filever, File file) throws ThotException {
         StringBuilder out = new StringBuilder(1024);
         StringBuilder err = new StringBuilder(1024);
         String command = "\"" + filever.getAbsolutePath() + "\" /EAD \"" + file.getAbsolutePath() + "\"";

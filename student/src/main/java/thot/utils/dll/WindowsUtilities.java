@@ -1,19 +1,13 @@
 package thot.utils.dll;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
+import thot.utils.Utilities;
 
 /**
  * Utilitaires pour les dll de Windows.
@@ -31,7 +25,12 @@ public class WindowsUtilities {
     /**
      * Nom de la dll.
      */
-    private static String dllName = "utilities";
+    private static final String UTILITIES_DLL_NAME = "utilities";
+    /**
+     * Nom de la  dll User32.
+     */
+    private static final String USER32_DLL_NAME = "User32";
+
     /**
      * Références des fonctions de la dll.
      */
@@ -41,112 +40,32 @@ public class WindowsUtilities {
      */
     private static User32Dll user32Dll;
 
-    static {
-        loadDll();
-    }
-
-    /**
+    /*
      * Initialise les dll.
      */
-    private static void loadDll() {
-        addSearchPathFor(dllName);
+    static {
 
         try {
-            utilitiesDll = Native.loadLibrary(dllName, UtilitiesDll.class, UtilitiesDll.DEFAULT_OPTIONS);
-        } catch (UnsatisfiedLinkError e) {
-            LOGGER.error("", e);
-            utilitiesDll = null;
+            addSearchPath();
+            utilitiesDll = Native.loadLibrary(UTILITIES_DLL_NAME, UtilitiesDll.class, UtilitiesDll.DEFAULT_OPTIONS);
+        } catch (ThotException e) {
+            LOGGER.error("Impossible de charger la librairie {}", e, UTILITIES_DLL_NAME);
         }
 
-        user32Dll = Native.loadLibrary("User32", User32Dll.class);
+        user32Dll = Native.loadLibrary(USER32_DLL_NAME, User32Dll.class);
     }
 
     /**
      * Ajout des chemins de recherche pour les librairies embarquées.
-     *
-     * @param libraryName le nom de la librairie.
      */
-    private static void addSearchPathFor(String libraryName) {
-        String fileProtocol = "file:/";
-        String jarFileProtocol = "jar:file:/";
-        URL url = WindowsUtilities.class.getResource(libraryName + ".dll");
-        //file:/C:/..../utilities.dll (si le fichier .jar n'existe pas)
-        //jar:file:/C:/.../student.jar!/supervision/dll/utilities.dll
+    private static void addSearchPath() throws ThotException {
+        String ressourcePath = "dll" + UTILITIES_DLL_NAME + ".dll";
+        LOGGER.info("Recherche de l'emplacement de librairie {} ({})", UTILITIES_DLL_NAME, ressourcePath);
+        File resourceFile = new File(System.getProperty("java.io.tmpdir"), ressourcePath);
 
-        String ressource = null;
-        if (url != null) {//fichier jar
-            try {
-                ressource = URLDecoder.decode(url.toString(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("", e);
-                return;
-            }
-        }
+        File library = Utilities.getResource(ressourcePath, resourceFile);
 
-        if (ressource == null) {
-            ressource = "bin/lib/" + libraryName + ".dll";
-        }
-
-        String path = null;
-        if (ressource.startsWith(fileProtocol)) {
-            path = ressource.substring(fileProtocol.length());
-        } else if (ressource.startsWith(jarFileProtocol)) {
-            int begin = jarFileProtocol.length();
-            int end = ressource.lastIndexOf('!');
-            String jarFilePath = ressource.substring(begin, end);
-            String fileClassPath = ressource.substring(end + 2);
-
-            path = System.getProperty("java.io.tmpdir");
-            String separator = System.getProperty("file.separator");
-            if (!path.endsWith(separator)) {
-                path += separator;
-            }
-
-            path = path + dllName + separator;
-
-            FileOutputStream outputStream = null;
-            InputStream inputStream = null;
-            try {
-                JarFile jarFile = new JarFile(jarFilePath);
-                JarEntry entry = jarFile.getJarEntry(fileClassPath);
-
-                File fileDest = new File(path + libraryName + ".dll");
-                fileDest.getParentFile().mkdirs();// important de créer les répertoires
-                fileDest.createNewFile();
-
-                outputStream = new FileOutputStream(fileDest);
-                inputStream = jarFile.getInputStream(entry);
-
-                byte[] data = new byte[1024];
-
-                int read = inputStream.read(data);
-                while (read > 0) {
-                    outputStream.write(data, 0, read);
-                    read = inputStream.read(data);
-                }
-            } catch (IOException e) {
-                LOGGER.error("", e);
-                return;
-            } finally {
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        LOGGER.error("", e);
-                    }
-                }
-
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        LOGGER.error("", e);
-                    }
-                }
-            }
-        }
-
-        NativeLibrary.addSearchPath(libraryName, path);
+        NativeLibrary.addSearchPath(WindowsUtilities.UTILITIES_DLL_NAME, library.getAbsolutePath());
     }
 
     /**

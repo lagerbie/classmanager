@@ -11,6 +11,7 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.utils.Utilities;
 import thot.video.MediaPlayer;
 import thot.video.MediaPlayerState;
@@ -398,29 +399,33 @@ public class VLCMediaPlayer implements MediaPlayer {
      * @return le chemin du répertoire de VLC.
      */
     private static String getVLCpathOnWindows() {
-        String command = "reg query HKLM\\SOFTWARE\\VideoLAN\\VLC /v InstallDir";
-        StringBuilder result = new StringBuilder(1024);
-        StringBuilder error = new StringBuilder(1024);
-
-        Utilities.executeCommand("reg query", result, error, command);
-
-        String[] splitResult = result.toString().split("REG_SZ");
-
-        if (splitResult.length == 1) {
-            command = "reg query HKLM\\SOFTWARE\\Wow6432Node\\VideoLAN\\VLC /v InstallDir";
-            result = new StringBuilder(1024);
-            error = new StringBuilder(1024);
+        String path = null;
+        try {
+            String command = "reg query HKLM\\SOFTWARE\\VideoLAN\\VLC /v InstallDir";
+            StringBuilder result = new StringBuilder(1024);
+            StringBuilder error = new StringBuilder(1024);
 
             Utilities.executeCommand("reg query", result, error, command);
 
-            splitResult = result.toString().split("REG_SZ");
-        }
+            String[] splitResult = result.toString().split("REG_SZ");
 
-        if (splitResult.length > 1) {
-            return splitResult[splitResult.length - 1].trim();
-        } else {
-            return null;
+            if (splitResult.length == 1) {
+                command = "reg query HKLM\\SOFTWARE\\Wow6432Node\\VideoLAN\\VLC /v InstallDir";
+                result = new StringBuilder(1024);
+                error = new StringBuilder(1024);
+
+                Utilities.executeCommand("reg query", result, error, command);
+
+                splitResult = result.toString().split("REG_SZ");
+            }
+
+            if (splitResult.length > 1) {
+                path = splitResult[splitResult.length - 1].trim();
+            }
+        } catch (ThotException e) {
+            LOGGER.error("Impossible de trouver la librairie de VLC", e);
         }
+        return path;
     }
 
     /**

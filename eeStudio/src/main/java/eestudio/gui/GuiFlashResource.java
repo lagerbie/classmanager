@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.swing.*;
 
 import eestudio.Core;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
@@ -28,6 +30,10 @@ import thot.utils.Utilities;
  * @author Fabrice Alleau
  */
 public class GuiFlashResource {
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuiFlashResource.class);
     /**
      * Référence sur le noyau de l'application
      */
@@ -162,7 +168,11 @@ public class GuiFlashResource {
         textEditor.addLoadActionListener(e -> {
             if (e.getSource() instanceof JButton) {
                 ((JButton) e.getSource()).setEnabled(false);
-                flashTextLoad();
+                try {
+                    flashTextLoad();
+                } catch (ThotException ex) {
+                    LOGGER.error("", ex);
+                }
                 ((JButton) e.getSource()).setEnabled(true);
             }
         });
@@ -219,7 +229,11 @@ public class GuiFlashResource {
         }
 
         GuiUtilities.setDefaultLocale(locale);
-        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        try {
+            Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        } catch (ThotException e) {
+            LOGGER.error("", e);
+        }
 
         //internalisation des différents textes
         resources.updateLocale(locale);
@@ -465,7 +479,7 @@ public class GuiFlashResource {
                 closeMainWindow();
             } else {
                 processBegin(true, "conversionTitle", "conversionMessage", file.getAbsolutePath());
-                boolean success = core.insertFile(file, begin);
+                core.insertFile(file, begin);
                 processEnded();
             }
         }
@@ -580,14 +594,14 @@ public class GuiFlashResource {
     /**
      * charge un fichier texte.
      */
-    private void flashTextLoad() {
+    private void flashTextLoad() throws ThotException {
         fileChooser.setFileFilter(resources.getString("textFilter"), Constants.textExtension);
 
         //affiche la boite de dialogue et récupère le nom du fichier si l'action à été validée
         File file = fileChooser.getSelectedFile(textEditor, FileChooser.LOAD);
         if (file != null) {
             processBegin(false, "conversionTitle", "conversionMessage", file.getAbsolutePath());
-            boolean success = core.loadText(file);
+            core.loadText(file);
             processEnded();
         }
     }

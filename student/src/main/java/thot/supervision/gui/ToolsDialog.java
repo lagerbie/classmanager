@@ -8,6 +8,7 @@ import javax.swing.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.ProcessingBar;
 import thot.gui.Resources;
@@ -110,7 +111,11 @@ public class ToolsDialog extends JFrame implements ProgressPercentListener {
                         @Override
                         public void run() {
                             fileButton.setEnabled(false);
-                            core.sendFile(file);
+                            try {
+                                core.sendFile(file);
+                            } catch (ThotException e) {
+                                LOGGER.error("Erreur lors de l'envoi du fichier {}", e, file);
+                            }
                             fileButton.setEnabled(true);
                         }
                     }.start();
@@ -119,8 +124,9 @@ public class ToolsDialog extends JFrame implements ProgressPercentListener {
         });
 
         helpDemandButton.addActionListener(event -> {
-            boolean success = core.sendHelpDemand();
-            if (success) {
+            try {
+                core.sendHelpDemand();
+
                 updateHelpDemandButton(true);
                 new Thread("senHelpDemand") {
                     @Override
@@ -133,6 +139,8 @@ public class ToolsDialog extends JFrame implements ProgressPercentListener {
                         updateHelpDemandButton(false);
                     }
                 }.start();
+            } catch (ThotException e) {
+                LOGGER.error("Erreur lors de l'envoi du fichierde demande d'aide", e);
             }
         });
 

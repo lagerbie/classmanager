@@ -20,12 +20,14 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.StyledEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thot.audio.AudioPlayer;
 import thot.audio.AudioProcessing;
 import thot.audio.AudioRecorder;
 import thot.audio.TimeProcessingListener;
+import thot.exception.ThotCodeException;
 import thot.exception.ThotException;
 import thot.labo.index.Index;
 import thot.labo.index.IndexProcessing;
@@ -82,36 +84,44 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Fichiers pour le projet.
      */
+    @Getter
     private ProjectFiles projectFiles;
 
     /**
      * Etat du mode actif.
      */
+    @Getter
     private int runningState;
     /**
      * Type du fichier du module multimédia.
      */
+    @Getter
     private int mediaType;
     /**
      * Pour indiquer si on est en lecture automatique ou non.
      */
+    @Getter
     private boolean indexesMode;
 
     /**
      * Volume pour la lecture des données issues du microphone (de 0 à 100).
      */
+    @Getter
     private int audioVolume;
     /**
      * Volume pour le lecteur multimédia (de 0 à 100).
      */
+    @Getter
     private int mediaVolume;
     /**
      * Sauvegarde du temps courant en millisecondes.
      */
+    @Getter
     private long currentTime;
     /**
      * Sauvegarde le temps maximum d'enregistrement en millisecondes.
      */
+    @Getter
     private long recordTimeMax;
     /**
      * Temps d'allocation maximum en millisecondes (=30 min).
@@ -158,10 +168,12 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Document pour l'utilisation de style dans la zone de texte.
      */
+    @Getter
     private StyledDocument styledDocument;
     /**
      * Editeur de texte avec gestion de style de type RTF.
      */
+    @Getter
     private StyledEditorKit styledEditorKit;
 
     /**
@@ -267,34 +279,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         System.exit(0);
     }
 
-    @Override
-    public ProjectFiles getProjectFiles() {
-        return projectFiles;
-    }
-
-    /**
-     * Retourne le document sauvegardant le texte de la zone de texte.
-     *
-     * @return le document sauvegardant le texte.
-     */
-    public StyledDocument getStyledDocument() {
-        return styledDocument;
-    }
-
-    /**
-     * Retourne l'éditeur gérant le texte de la zone de texte.
-     *
-     * @return l'éditeur gérant le texte.
-     */
-    public StyledEditorKit getStyledEditorKit() {
-        return styledEditorKit;
-    }
-
-    @Override
-    public int getRunningState() {
-        return runningState;
-    }
-
     /**
      * Met à jour l'état du module audio.
      *
@@ -303,15 +287,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     private void setRunningState(int state) {
         runningState = state;
         fireStateChanged(state, mediaType);
-    }
-
-    /**
-     * Retourne le type de média du module multimédia.
-     *
-     * @return le type de média.
-     */
-    public int getMediaType() {
-        return mediaType;
     }
 
     /**
@@ -326,15 +301,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     }
 
     /**
-     * Retourne si on est en mode index ou non.
-     *
-     * @return {@code true} si on est en lecture automatique.
-     */
-    public boolean getIndexesMode() {
-        return indexesMode;
-    }
-
-    /**
      * Modifie le mode de lecture automatique.
      *
      * @param mode le mode de lecture automatique.
@@ -345,20 +311,11 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     }
 
     /**
-     * Retourne le niveau du volume du module multimédia.
-     *
-     * @return le niveau du volume.
-     */
-    public int mediaGetVolume() {
-        return mediaVolume;
-    }
-
-    /**
      * Met à jour le volume du lecteur mutimédia.
      *
      * @param value la nouvelle valeur comprise entre 0 et 100.
      */
-    public void mediaSetVolume(int value) {
+    public void setMediaVolume(int value) {
         mediaVolume = value;
         mediaPlayer.setVolume(value);
     }
@@ -366,17 +323,8 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Change le mode mute du module multimédia.
      */
-    public void mediaToggleMute() {
-        mediaSetVolume((mediaVolume == 0) ? 50 : 0);
-    }
-
-    /**
-     * Retourne le niveau du volume du module audio.
-     *
-     * @return le niveau du volume.
-     */
-    public int audioGetVolume() {
-        return audioVolume;
+    public void toggleMediaMute() {
+        setMediaVolume((mediaVolume == 0) ? 50 : 0);
     }
 
     /**
@@ -384,7 +332,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @param value la nouvelle valeur comprise entre 0 et 100.
      */
-    public void audioSetVolume(int value) {
+    public void setAudioVolume(int value) {
         audioVolume = value;
         audioPlayer.setVolume(value);
     }
@@ -392,8 +340,8 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Change le mode mute du module audio.
      */
-    public void audioToggleMute() {
-        audioSetVolume((audioVolume == 0) ? 50 : 0);
+    public void toggleAudioMute() {
+        setAudioVolume((audioVolume == 0) ? 50 : 0);
     }
 
     /**
@@ -536,25 +484,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     }
 
     /**
-     * Retourne le temps d'enregistrement maximum possible.
-     *
-     * @return le temps d'enregistrement maximum possible.
-     */
-    @Override
-    public long getRecordTimeMax() {
-        return recordTimeMax;
-    }
-
-    /**
-     * Retourne le temps courrant.
-     *
-     * @return le temps actuel en ms.
-     */
-    public long getCurrentTime() {
-        return currentTime;
-    }
-
-    /**
      * Retourne le nombre de pistes où l'élève s'est enregistré.
      *
      * @return le nombre de pistes où l'élève s'est enregistré.
@@ -601,44 +530,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     @Override
     public Iterator<Index> mediaIndexIterator() {
         return mediaIndexes.iterator();
-    }
-
-    /**
-     * Retourne l'index qui comprent la position.
-     *
-     * @param position la position relative comprise entre 0 et 1.
-     *
-     * @return l'index contenant la position.
-     */
-    private Index getMediaIndex(double position) {
-        return mediaIndexes.getIndexAtTime((long) (position * recordTimeMax));
-    }
-
-    /**
-     * Retourne si on est positionner sur un index.
-     *
-     * @param position la position relative comprise entre 0 et 1.
-     *
-     * @return si on est positionner sur un index.
-     */
-    public boolean onMediaIndex(double position) {
-        return (getMediaIndex(position) != null);
-    }
-
-    /**
-     * Retourne la durée de l'index à la position indiqué;
-     *
-     * @param position la position relative comprise entre 0 et 1.
-     *
-     * @return la durée de l'index ou -1 si pas d'index.
-     */
-    public long getMediaIndexDuration(double position) {
-        Index index = getMediaIndex(position);
-        if (index != null) {
-            return index.getLength();
-        } else {
-            return -1;
-        }
     }
 
     /**
@@ -754,21 +645,8 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Met le temps à zéro.
      */
-    public void timeToZero() {
+    public void setTimeToZero() {
         setPosition(0);
-    }
-
-    /**
-     * Lecture d'une plage de temps.
-     *
-     * @param begin le début de la plage.
-     * @param end la fin de la plage.
-     */
-    public void playOnRange(long begin, long end) {
-        stopTime = end;
-        setTime(begin);
-        onIndex = true;//pour dire que l'on est pas en lecture automatique
-        audioPlay();
     }
 
     /**
@@ -910,58 +788,37 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     }
 
     /**
-     * Retourne le temps maxi à lire.
-     *
-     * @return le temps d'arrêt.
-     */
-    public long getStopTime() {
-        return stopTime;
-    }
-
-    /**
      * Charge les fichiers contenus dans le projet. Si un fichier est null, les données correspondantes sont effacées.
      *
      * @param project l'ensembles des fichiers à charger.
-     *
-     * @return la réussite du chargement.
      */
     @Override
-    public boolean loadProject(ProjectFiles project) throws ThotException {
-        boolean success = true;
-
+    public void loadProject(ProjectFiles project) throws ThotException {
         //Effacement des éléments précédement chargés
-        mediaUnload();
+        unloadMedia();
         audioErase();
         textErase();
 
         if (project.getVideoFile() != null) {
-            success = loadMedia(new File(project.getVideoFile()));
+            loadMedia(new File(project.getVideoFile()));
         }
         if (project.getAudioFile() != null) {
-            success &= audioLoad(new File(project.getAudioFile()));
+            audioLoad(new File(project.getAudioFile()));
         }
         if (project.getTextFile() != null) {
-            success &= loadText(new File(project.getTextFile()));
+            loadText(new File(project.getTextFile()));
         }
         if (project.getIndexesFile() != null) {
-            success &= loadIndexes(new File(project.getIndexesFile()));
+            loadIndexes(new File(project.getIndexesFile()));
         }
-
-        return success;
     }
 
     /**
      * Charge un fichier d'index.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadIndexes(File file) {
-        if (!file.exists()) {
-            return false;
-        }
-
+    private void loadIndexes(File file) throws ThotException {
         mediaIndexes = Utilities.getIndexes(file);
         mediaIndexes.sortIndexes();
 
@@ -976,77 +833,52 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         fireIndexesChanged();
 
         File subtitleFile = new File(file.getParentFile(), file.getName() + Constants.SRT_extension);
-        if (Utilities.saveSRTSubtitleFile(mediaIndexes, subtitleFile)) {
-            loadSubtitleFile(subtitleFile);
-        }
-
-        return true;
+        Utilities.saveSRTSubtitleFile(mediaIndexes, subtitleFile);
+        loadSubtitleFile(subtitleFile);
     }
 
     /**
      * Charge un fichier de soustitre.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadSubtitleFile(File file) {
-        boolean success = false;
+    private void loadSubtitleFile(File file) {
         if (Utilities.isSubtitleFile(file)) {
             projectFiles.setSubtitleFile(file.getAbsolutePath());
             mediaPlayerSetSubtitleFile(file.getAbsolutePath());
-            success = true;
         }
-        return success;
     }
 
     /**
      * Chargement d'une image.
      *
      * @param file le fichier
-     *
-     * @return la réussite du chargement.
      */
-    private boolean loadImage(File file) {
-        boolean success;
+    private void loadImage(File file) {
         try {
             BufferedImage image = ImageIO.read(file);
-            success = true;
             fireImageChanged(image);
         } catch (IOException e) {
             LOGGER.error("Impossible de charger l'image {}", e, file.getAbsolutePath());
             fireImageChanged(null);
-            success = false;
         }
-
-        return success;
     }
 
     /**
      * Charge un fichier texte dans la zone de texte.
      *
      * @param file le fichier à charger.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadText(File file) {
-        if (!file.exists()) {
-            return false;
-        }
-
-        boolean load = false;
-
+    private void loadText(File file) throws ThotException {
         projectFiles.setTextFile(file.getAbsolutePath());
 
         if (Utilities.isTextStyledFile(file)) {
             if (file.getName().toLowerCase().endsWith(Constants.RTF_extension)) {
-                load = loadTextStyled(file);
+                loadTextStyled(file);
             } else {
                 File rtfFile = new File(tempPath, file.getName() + Constants.RTF_extension);
-                boolean converted = Utilities.html2rtf(file, rtfFile);
-                if (converted) {
-                    load = loadTextStyled(rtfFile);
-                }
+                Utilities.html2rtf(file, rtfFile);
+                loadTextStyled(rtfFile);
             }
         } else {
             //pour le charset en UTF-8
@@ -1058,49 +890,36 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
             }
 
             if (text != null) {
-                load = true;
                 fireTextLoaded(text);
             }
         }
-
-        return load;
     }
 
     /**
      * Charge un fichier de type RTF dans la zone de texte.
      *
      * @param file le fichier à charger.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadTextStyled(File file) {
+    private void loadTextStyled(File file) throws ThotException {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             //effacement
             styledDocument.remove(0, styledDocument.getLength());
             //insertion
             styledEditorKit.read(fileInputStream, styledDocument, 0);
         } catch (BadLocationException | IOException e) {
-            LOGGER.error("Impossible de charger le fichier texte {}", e, file.getAbsolutePath());
-            return false;
+            throw new ThotException(ThotCodeException.READ_RIGHT, "Impossible de charger le fichier texte {}", e,
+                    file.getAbsolutePath());
         }
-
-        return true;
     }
 
     /**
      * Charge un fichier multimédia.
      *
      * @param file le chemin absolu du fichier à charger.
-     *
-     * @return {@code true} si le chargement s'est bien passé.
      */
-    private boolean loadMedia(File file) throws ThotException {
-        if (!file.exists()) {
-            return false;
-        }
-
+    private void loadMedia(File file) throws ThotException {
         if (mediaType != Constants.UNLOAD) {
-            mediaUnload();
+            unloadMedia();
         }
 
         projectFiles.setVideoFile(file.getAbsolutePath());
@@ -1108,9 +927,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         //test si c'est une image lisible par java.
         boolean image = Utilities.isImageFile(file);
         if (image) {
-            if (!loadImage(file)) {
-                return false;
-            }
+            loadImage(file);
         } else {
             mediaPlayer.setMedia(file.getAbsolutePath());
             mediaPlayer.setVideoSubtitleFile(null);
@@ -1133,7 +950,9 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
                     if (mediaPlayer.isEndReached() || mediaPlayer.isErrorOccured()) {
                         setMediaType(Constants.UNLOAD);
                         projectFiles.setVideoFile(null);
-                        return false;
+                        throw new ThotException(ThotCodeException.READ_RIGHT,
+                                "Impossible de charger le fichier {} : le lecteur multimedia est dans l'état {}",
+                                file.getAbsolutePath(), mediaPlayer.getState());
                     }
 
                     Utilities.waitInMillisecond(10);
@@ -1147,13 +966,15 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
 
                         String tempExtension = ".convert.mp4";
                         if (file.getName().endsWith(tempExtension)) {
-                            return false;
+                            throw new ThotException(ThotCodeException.READ_RIGHT,
+                                    "Impossible de charger le fichier {} : le format n'est pas supporté",
+                                    file.getAbsolutePath());
                         }
 
                         File destFile = new File(file.getParentFile(),
                                 Utilities.getNameWithoutExtension(file) + tempExtension);
                         executeConverter(file, destFile);
-                        return loadMedia(destFile);
+                        loadMedia(destFile);
                     }
                 }
 
@@ -1173,13 +994,12 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         }
 
         setTime(0);
-        return true;
     }
 
     @Override
     public void removeProject(ProjectFiles project) {
         if (project.getVideoFile() != null) {
-            mediaUnload();
+            unloadMedia();
         }
         if (project.getAudioFile() != null) {
             audioErase();
@@ -1192,7 +1012,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Déchargement de la vidéo.
      */
-    private void mediaUnload() {
+    private void unloadMedia() {
         //on nettoie le fichier projet
         projectFiles.setVideoFile(null);
         projectFiles.setIndexesFile(null);
@@ -1230,11 +1050,9 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
      *
      * @param file le fichier projet.
      * @param project les éléments à sauvegarder.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
     @Override
-    public boolean saveProject(File file, ProjectFiles project) throws ThotException {
+    public void saveProject(File file, ProjectFiles project) throws ThotException {
         //le nom sans extension du fichier principal pour le nom du répertoire
         String name = Utilities.getNameWithoutExtension(file);
 
@@ -1247,7 +1065,6 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
 
         path.mkdirs();
 
-        boolean saved = false;
         //réfrences sur les fichiers sauvegardés dans un projet
         ProjectFiles savedFiles = new ProjectFiles();
 
@@ -1270,44 +1087,33 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
         if (project.getAudioFile() != null) {
             File audioFile = new File(path, name + project.getAudioFile());
             //sauvegarde de l'audio dans un fichier temporaire au format wav
-            saved = saveAudio(audioFile);
-            if (saved) {
-                savedFiles.setAudioFile(audioFile.getName());
-            }
+            saveAudio(audioFile);
+            savedFiles.setAudioFile(audioFile.getName());
         }
 
         //sauvegarde du texte associé
         if (project.getTextFile() != null) {
             File textFile = new File(path, name + project.getTextFile());
-            saved = saveText(textFile);
-            if (saved) {
-                savedFiles.setTextFile(textFile.getName());
-            }
+            saveText(textFile);
+            savedFiles.setTextFile(textFile.getName());
         }
 
         //sauvegarde du fichier projet et compression
         if (!savedFiles.isEmptyProject()) {
             File projectFile = new File(path, name + Constants.projectExtension);
-            saved = Utilities.saveObject(savedFiles, projectFile);
-            if (saved) {
-                saved = Utilities.compressFile(path, file);
-            }
+            Utilities.saveObject(savedFiles, projectFile);
+            Utilities.compressFile(path, file);
         }
 
         savedFiles.clear();
-
-        return saved;
     }
 
     /**
      * Sauvegarde les données saisies dans la zone de texte dans un fichier.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveText(File file) {
-        boolean saved;
+    private void saveText(File file) throws ThotException {
         File destFile = file;
         if (!Utilities.isTextFile(destFile)) {
             destFile = new File(file.getAbsoluteFile() + textDefaultExtension);
@@ -1317,43 +1123,37 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
 
         if (Utilities.isTextStyledFile(destFile)) {
             if (destFile.getName().toLowerCase().endsWith(Constants.RTF_extension)) {
-                saved = saveTextStyled(destFile);
+                saveTextStyled(destFile);
             } else {
                 File rtfFile = new File(tempPath, destFile.getName() + Constants.RTF_extension);
-                saved = saveTextStyled(rtfFile);
-                if (saved) {
-                    saved = Utilities.rtf2html(rtfFile, destFile);
-                }
+                saveTextStyled(rtfFile);
+                Utilities.rtf2html(rtfFile, destFile);
             }
         } else {
             try {
                 String text = styledDocument.getText(0, styledDocument.getLength());
-                saved = Utilities.saveText(text, destFile);
+                Utilities.saveText(text, destFile);
             } catch (BadLocationException e) {
-                LOGGER.error("Impossible de sauvegarder le texte dans le fichier {}", e, file.getAbsolutePath());
-                saved = false;
+                throw new ThotException(ThotCodeException.WRITE_RIGHT,
+                        "Impossible de sauvegarder le texte dans le fichier {}", e, file.getAbsolutePath());
             }
         }
-        return saved;
     }
 
     /**
      * Sauvegarde les données saisies dans la zone de texte dans un fichier RTF.
      *
      * @param file le fichier.
-     *
-     * @return {@code true} si la sauvegarde s'est bien passée.
      */
-    private boolean saveTextStyled(File file) {
+    private void saveTextStyled(File file) throws ThotException {
         try (FileOutputStream output = new FileOutputStream(file)) {
             styledEditorKit.write(output, styledDocument, 0, styledDocument.getLength());
             output.flush();
         } catch (IOException | BadLocationException e) {
-            LOGGER.error("Impossible de sauvegarder le texte dans le fichier {}", e, file.getAbsolutePath());
-            return false;
+            throw new ThotException(ThotCodeException.WRITE_RIGHT,
+                    "Impossible de sauvegarder le texte dans le fichier {}", e, file.getAbsolutePath());
         }
 
-        return true;
     }
 
     /**
@@ -1561,7 +1361,7 @@ public abstract class LaboCore implements ProjectManager, IndexProcessing {
     /**
      * Annule une conversion en cours.
      */
-    public void cancelConversion() {
+    public void cancelConversion() throws ThotException {
         converter.cancel();
     }
 

@@ -15,8 +15,11 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thot.LaboratoryCore;
 import thot.LaboratoryListener;
+import thot.exception.ThotException;
 import thot.labo.gui.EraseDialog;
 import thot.labo.gui.ExportDialog;
 import thot.labo.gui.ImportDialog;
@@ -47,10 +50,15 @@ import thot.utils.Utilities;
  * Fenêtre principale du poste élève.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class LaboratoryFrame extends JFrame {
     private static final long serialVersionUID = 18200L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(LaboratoryFrame.class);
 
     /**
      * Référence sur le noyau de l'application.
@@ -578,19 +586,19 @@ public class LaboratoryFrame extends JFrame {
 
             @Override
             public void setValue(double position) {
-                core.mediaSetVolume((int) (position * 100));
-                updateMediaMuteMode(core.mediaGetVolume() == 0);
-                setPosition((double) core.mediaGetVolume() / 100);
+                core.setMediaVolume((int) (position * 100));
+                updateMediaMuteMode(core.getMediaVolume() == 0);
+                setPosition((double) core.getMediaVolume() / 100);
             }
 
             @Override
             public void toggleMute() {
-                core.mediaToggleMute();
-                updateMediaMuteMode(core.mediaGetVolume() == 0);
-                setPosition((double) core.mediaGetVolume() / 100);
+                core.toggleMediaMute();
+                updateMediaMuteMode(core.getMediaVolume() == 0);
+                setPosition((double) core.getMediaVolume() / 100);
             }
         };
-        mediaVolume.setPosition(core.mediaGetVolume() / 100.0);
+        mediaVolume.setPosition(core.getMediaVolume() / 100.0);
         mediaVolume.setToolTipText(resources.getString("mediaVolume"));
 
         // volume audio
@@ -602,19 +610,19 @@ public class LaboratoryFrame extends JFrame {
 
             @Override
             public void setValue(double position) {
-                core.audioSetVolume((int) (position * 100));
-                updateAudioMuteMode(core.audioGetVolume() == 0);
-                setPosition((double) core.audioGetVolume() / 100);
+                core.setAudioVolume((int) (position * 100));
+                updateAudioMuteMode(core.getAudioVolume() == 0);
+                setPosition((double) core.getAudioVolume() / 100);
             }
 
             @Override
             public void toggleMute() {
-                core.audioToggleMute();
-                updateAudioMuteMode(core.audioGetVolume() == 0);
-                setPosition((double) core.audioGetVolume() / 100);
+                core.toggleAudioMute();
+                updateAudioMuteMode(core.getAudioVolume() == 0);
+                setPosition((double) core.getAudioVolume() / 100);
             }
         };
-        audioVolume.setPosition(core.audioGetVolume() / 100.0);
+        audioVolume.setPosition(core.getAudioVolume() / 100.0);
         audioVolume.setToolTipText(resources.getString("audioVolume"));
 
         JPanel timePanel = new ImagePanel(
@@ -851,7 +859,7 @@ public class LaboratoryFrame extends JFrame {
         helpDemandButton.addActionListener(event -> core.sendHelpDemand());
 
         //anonymous listeners pour le bouton de changement de mode
-        indexesModeButton.addActionListener(event -> core.setIndexesMode(!core.getIndexesMode()));
+        indexesModeButton.addActionListener(event -> core.setIndexesMode(!core.isIndexesMode()));
 
         //anonymous listeners pour le boutton Charger du module multimédia
         loadButton.addActionListener(event -> {
@@ -902,7 +910,7 @@ public class LaboratoryFrame extends JFrame {
         recordButton.addActionListener(event -> core.audioRecord());
 
         //anonymous listeners pour le bouton retour à zéro
-        returnButton.addActionListener(event -> core.timeToZero());
+        returnButton.addActionListener(event -> core.setTimeToZero());
 
         //anonymous listeners pour le bouton Sauvegarder du module audio
         timeMaxButton.addActionListener(event -> {
@@ -1110,7 +1118,11 @@ public class LaboratoryFrame extends JFrame {
         this.setLocale(locale);
 
         File languageFile = new File(userHome, "language.xml");
-        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        try {
+            Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        } catch (ThotException e) {
+            LOGGER.error("Impossible de sauvegarder les préférences de langue dans le fichier {}", languageFile);
+        }
 
         //internalisation des différents textes
         resources.updateLocale(locale);
@@ -1134,7 +1146,7 @@ public class LaboratoryFrame extends JFrame {
         recordButton.setToolTipText(resources.getString("record"));
         timeMaxButton.setToolTipText(resources.getString("timeMax"));
 
-        if (core.getIndexesMode()) {
+        if (core.isIndexesMode()) {
             indexesModeButton.setToolTipText(resources.getString("modeAuto"));
         } else {
             indexesModeButton.setToolTipText(resources.getString("modeManuel"));
@@ -1332,7 +1344,7 @@ public class LaboratoryFrame extends JFrame {
         boolean isStop = (runningState == Constants.PAUSE);
         boolean isIndex = (core.getMediaIndexesCount() != 0)
                 && (core.checkMultimediaIndexesValidity() == 0);
-        boolean isAuto = core.getIndexesMode();
+        boolean isAuto = core.isIndexesMode();
 
         playButton.setEnabled(isStop || (isRecording && !isAuto));
 //        playButton.setEnabled(isStop || isRecording);

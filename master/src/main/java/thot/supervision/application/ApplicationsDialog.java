@@ -11,6 +11,9 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.GuiUtilities;
 import thot.gui.Resources;
 import thot.utils.Constants;
@@ -31,6 +34,11 @@ public abstract class ApplicationsDialog extends JDialog {
      *  addApplication, launchApplication, editApplication, sortApplications,
      *  nameIsEmpty, nameHasBadCharacters, pathNoFile
      */
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsDialog.class);
 
     /**
      * Liste des applications.
@@ -337,11 +345,7 @@ public abstract class ApplicationsDialog extends JDialog {
         sortButton.setText(resources.getString("sortApplications"));
         addButton.setText(resources.getString("addApplication"));
 
-        int size = applicationFields.size();
-
-        for (int i = 0; i < size; i++) {
-            ApplicationFields fields = applicationFields.get(i);
-
+        for (ApplicationFields fields : applicationFields) {
             fields.launchButton.setText(resources.getString("launchApplication"));
             fields.editButton.setText(resources.getString("editApplication"));
         }
@@ -355,17 +359,18 @@ public abstract class ApplicationsDialog extends JDialog {
      * Test la validité des changements et modifie les index en conséquence.
      */
     private void validAction() {
-        int size = applicationFields.size();
-
-        for (int i = 0; i < size; i++) {
-            ApplicationFields fields = applicationFields.get(i);
+        for (ApplicationFields fields : applicationFields) {
             Application application = applicationsList.getApplicationWithId(fields.id);
             application.setAllowed(!fields.checkBox.isSelected());
         }
 
         setVisible(false);
 
-        applyModifications();
+        try {
+            applyModifications();
+        } catch (ThotException e) {
+            LOGGER.error("Impossible d'appliquer les modifications", e);
+        }
     }
 
     /**
@@ -395,11 +400,16 @@ public abstract class ApplicationsDialog extends JDialog {
         if (application.getPath() != null) {
             if (application.getPath().startsWith(Constants.PROGAM_FILES)) {
                 String path = application.getPath().substring(Constants.PROGAM_FILES.length());
-                File file = Utilities.pathOnWindowsProgramFiles(path);
-                exist = file.exists();
-                if (exist) {
-                    application.setPath(file.getAbsolutePath());
+                try {
+                    File file = Utilities.pathOnWindowsProgramFiles(path);
+                    exist = file.exists();
+                    if (exist) {
+                        application.setPath(file.getAbsolutePath());
+                    }
+                } catch (ThotException e) {
+                    LOGGER.error("Impossible de trouver le fichier de l'application {}", application, e);
                 }
+
             } else {
                 File file = new File(application.getPath());
                 exist = file.exists();
@@ -416,7 +426,11 @@ public abstract class ApplicationsDialog extends JDialog {
 
         launchButton.addActionListener(e -> {
             String path = applicationsList.getApplicationWithId(fields.id).getPath();
-            launchApplication(path);
+            try {
+                launchApplication(path);
+            } catch (ThotException ex) {
+                LOGGER.error("Impossible de lancer l'application", ex);
+            }
         });
 
         editButton.addActionListener(e -> editDialog.showDialog(applicationsList.getApplicationWithId(fields.id)));
@@ -448,9 +462,9 @@ public abstract class ApplicationsDialog extends JDialog {
         }
     }
 
-    protected abstract void launchApplication(String path);
+    protected abstract void launchApplication(String path) throws ThotException;
 
-    protected abstract void applyModifications();
+    protected abstract void applyModifications() throws ThotException;
 
     /**
      * Classe recensant tous les composants graphiques nécessaires pour un index.
@@ -462,23 +476,23 @@ public abstract class ApplicationsDialog extends JDialog {
         /**
          * id de l'index.
          */
-        protected long id;
+        long id;
         /**
          * Champs de sélection des index.
          */
-        protected JCheckBox checkBox;
+        JCheckBox checkBox;
         /**
          * Champs formatés pour les temps de départ des index.
          */
-        protected JTextField nameField;
+        JTextField nameField;
         /**
          * Champ formaté pour le temps de fin de l'index.
          */
-        protected JButton launchButton;
+        JButton launchButton;
         /**
          * Champ non modifiable pour la durée de l'index.
          */
-        protected JButton editButton;
+        JButton editButton;
 
         private ApplicationFields(long id, JCheckBox checkBox, JTextField nameField,
                 JButton launchButton, JButton editButton) {

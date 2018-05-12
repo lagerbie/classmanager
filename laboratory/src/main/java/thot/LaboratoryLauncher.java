@@ -25,7 +25,7 @@ import thot.video.vlc.VLCconverter;
  * Student est la classe représentant un labo de langue du coté élève.
  *
  * @author Fabrice Alleau
- * @version 1.90
+ * @version 1.8.4
  */
 public class LaboratoryLauncher {
 
@@ -44,12 +44,10 @@ public class LaboratoryLauncher {
 
         boolean microphone = !Utilities.LINUX_PLATFORM;
 
-
         LOGGER.info("version: 1.90.00");
 
         File userHome = new File(System.getProperty("user.home"), Constants.softNamePath);
         userHome.mkdirs();
-        File vlc = VLCconverter.getVLC();
 
         Locale language;
         File languageFile = new File(userHome, "language.xml");
@@ -82,10 +80,17 @@ public class LaboratoryLauncher {
             System.exit(0);
         }
 
-        if (vlc == null || !vlc.exists()) {
-            showMessage(String.format(resources.getString("pathError"), vlc));
-            System.exit(0);
+        File vlc = null;
+        try {
+            vlc = VLCconverter.getVLC();
+            if (vlc == null || !vlc.exists()) {
+                showMessage(String.format(resources.getString("pathError"), vlc));
+                System.exit(0);
+            }
+        } catch (ThotException e) {
+            showMessage("Impossible de charger la librairie de VLC", e);
         }
+
 
         Converter converter = new VLCconverter(vlc, ThotPort.launcherPort);
 
@@ -100,8 +105,7 @@ public class LaboratoryLauncher {
             LaboratoryFrame frame = new LaboratoryFrame(studentCore, resources, userHome);
             frame.showApplication();
         } catch (ThotException e) {
-            LOGGER.error("Impossible d'initinialiser l'application", e);
-            showMessage("Impossible d'initinialiser l'application " + e.getMessage());
+            showMessage("Impossible d'initinialiser l'application", e);
             System.exit(0);
         }
 
@@ -111,9 +115,11 @@ public class LaboratoryLauncher {
      * Affiche un message à l'écran.
      *
      * @param message le message à afficher.
+     * @param params les objets contenus dans le message.
      */
-    private static void showMessage(String message) {
-        GuiUtilities.showMessage(message);
+    private static void showMessage(String message, Object... params) {
+        LOGGER.error(message, params);
+        GuiUtilities.showMessage(String.format(message.replace("{}", "%s"), params));
     }
 
     private static void printUsage() {

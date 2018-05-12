@@ -17,6 +17,9 @@ import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.gui.FileChooser;
 import thot.gui.FilterPanel;
 import thot.gui.GuiUtilities;
@@ -36,6 +39,11 @@ import thot.utils.Utilities;
  */
 public class MainFrame extends JFrame implements MasterCoreListener {
     private static final long serialVersionUID = 19000L;
+
+    /**
+     * Instance de log.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainFrame.class);
 
     /**
      * Label pour l'affichage de la supervision.
@@ -186,7 +194,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
     /**
      * Explorateur de fichiers.
      */
-    protected final FileChooser chooser;
+    private final FileChooser chooser;
     /**
      * Fenêtre affichant une barre de progression.
      */
@@ -1031,7 +1039,11 @@ public class MainFrame extends JFrame implements MasterCoreListener {
         this.setLocale(locale);
 
         File languageFile = new File(userHome, "language.xml");
-        Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        try {
+            Utilities.saveText(CommandXMLUtilities.getLanguageXML(locale.getLanguage()), languageFile);
+        } catch (ThotException e) {
+            LOGGER.error("Impossible de sauvegarder les préférences de langue dans le fichier {}", languageFile);
+        }
 
         //internalisation des différents textes
         resources.updateLocale(locale);
@@ -1143,8 +1155,7 @@ public class MainFrame extends JFrame implements MasterCoreListener {
      *
      * @return l'Object sélectionnée ou {@code null} si pas de sélection.
      */
-    private Object showInputDialog(String message, String title,
-            Object[] values, Object initialValue) {
+    private Object showInputDialog(String message, String title, Object[] values, Object initialValue) {
         return GuiUtilities.showInputDialog(this, message, title, values, initialValue);
     }
 

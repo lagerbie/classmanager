@@ -8,6 +8,7 @@ import java.net.SocketTimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.exception.ThotException;
 import thot.utils.Constants;
 import thot.utils.ProgressThread;
 import thot.utils.Utilities;
@@ -108,9 +109,8 @@ public class MasterSearch extends ProgressThread implements Runnable {
         Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.FIND);
         String response = CommandXMLUtilities.getXML(command);
         String xml;
-        String addressIP;
+        String addressIP = null;
 
-        boolean reponseSended;
         while (true) {
             try {
                 multicastSocket.receive(packet);
@@ -118,18 +118,18 @@ public class MasterSearch extends ProgressThread implements Runnable {
                 addressIP = packet.getAddress().getHostAddress();
                 LOGGER.debug("receive : " + xml + " from " + addressIP);
                 if (xml.contentEquals(Constants.XML_STUDENT_SEARCH)) {
-                    reponseSended = Utilities.sendXml(response, addressIP, responsePort);
-                    if (reponseSended) {
-                        pingTime = System.currentTimeMillis();
-                    }
+                    Utilities.sendMessage(response, addressIP, responsePort);
+                    pingTime = System.currentTimeMillis();
                 }
             } catch (SocketTimeoutException e) {
-                if (System.currentTimeMillis() - pingTime
-                        > 3 * Constants.TIME_MAX_FOR_CONNEXION) {
+                if (System.currentTimeMillis() - pingTime > 3 * Constants.TIME_MAX_FOR_CONNEXION) {
                     fireProcessEnded(0);
                 }
-            } catch (Exception e) {
-                LOGGER.error("", e);
+            } catch (IOException e) {
+                LOGGER.error("Erreur lors de la recherche du professeur (ip={})", e, addressIP);
+            } catch (ThotException e) {
+                LOGGER.error("Erreur lors de l'envoi de la réponse {} au professeur (adresse={}:{})", e, response,
+                        addressIP, responsePort);
             }
         }
     }
