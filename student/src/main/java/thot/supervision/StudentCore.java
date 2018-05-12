@@ -384,7 +384,7 @@ public class StudentCore implements Runnable {
      * Envoi un appel d'aide au professeur.
      */
     public void sendHelpDemand() throws ThotException {
-        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.HELP_CALL);
+        Command command = new Command(CommandModule.SUPERVISION, CommandAction.HELP_CALL);
         sendSupervisionCommand(command);
     }
 
@@ -394,7 +394,7 @@ public class StudentCore implements Runnable {
      * @param file le fichier.
      */
     public void sendFile(File file) throws ThotException {
-        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.RECEIVE_FILE);
+        Command command = new Command(CommandModule.SUPERVISION, CommandAction.RECEIVE_FILE);
         command.putParameter(CommandParamater.PORT, ThotPort.fileTransfertPortBase);
         command.putParameter(CommandParamater.FILE, file.getName());
         command.putParameter(CommandParamater.SIZE, file.length());
@@ -408,7 +408,7 @@ public class StudentCore implements Runnable {
      * Transfert un fichier au professeur.
      */
     private void sendEndedError() throws ThotException {
-        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.END_ERROR);
+        Command command = new Command(CommandModule.SUPERVISION, CommandAction.END_ERROR);
         sendSupervisionCommand(command);
     }
 
@@ -436,7 +436,7 @@ public class StudentCore implements Runnable {
                     return;
                 }
 
-                Command returnCommand = new Command(CommandType.TYPE_SUPERVISION, CommandAction.PONG);
+                Command returnCommand = new Command(CommandModule.SUPERVISION, CommandAction.PONG);
                 returnCommand.putParameter(CommandParamater.BATTERY, batteryLevel);
 
                 //pas de login élève
@@ -767,11 +767,10 @@ public class StudentCore implements Runnable {
                 }
                 LOGGER.info("Recoit Xml: " + xml.toString());
 
-                List<Command> commands = CommandXMLUtilities.parseCommand(xml.toString());
-                for (Command command : commands) {
+                Command command = CommandXMLUtilities.parseCommand(xml.toString());
+                if (command != null) {
                     execute(command);
                 }
-                commands.clear();
 
                 //fermeture de la connection et reboucle sur une écoute du
                 //port (si la connection n'est pas fermée, utilisation

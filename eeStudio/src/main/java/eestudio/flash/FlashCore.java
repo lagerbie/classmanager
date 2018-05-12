@@ -21,7 +21,8 @@ import thot.utils.Utilities;
 /**
  * Fenêtre principale du poste élève.
  *
- * @author fabrice
+ * @author Fabrice Alleau
+ * @version 1.8.4
  */
 public class FlashCore {
     /**
@@ -52,8 +53,6 @@ public class FlashCore {
      * Initialisation de l'interface graphique.
      *
      * @param core le noyau de l'application.
-     * @param flashToCorePort
-     * @param coreToFlashPort
      */
     public FlashCore(Core core, int flashToCorePort, int coreToFlashPort) {
         this.core = core;
@@ -133,13 +132,13 @@ public class FlashCore {
             public void runningStateChanged(int state) {
                 String runningState;
                 if (state == Constants.PLAYING) {
-                    runningState = FlashCommand.playing;
+                    runningState = FlashCommand.PLAYING;
                 } else if (state == Constants.RECORDING) {
-                    runningState = FlashCommand.recording;
+                    runningState = FlashCommand.RECORDING;
                 } else if (state == Constants.RECORDING_INSERT) {
-                    runningState = FlashCommand.insert;
+                    runningState = FlashCommand.INSERT;
                 } else {
-                    runningState = FlashCommand.pause;
+                    runningState = FlashCommand.PAUSE;
                 }
 
                 guiResources.old_runningStateChanged(state);
@@ -230,7 +229,7 @@ public class FlashCore {
      * @param action le type de la commande.
      * @param parameter le paramètre de la commande.
      */
-    public void executeCommand(String action, String parameter) throws ThotException {
+    void executeCommand(String action, String parameter) throws ThotException {
         LOGGER.info("command: " + action + " para: " + parameter);
 
         //par défaut = false

@@ -13,11 +13,6 @@ import lombok.Getter;
 public enum CommandAction {
 
     /**
-     * Valeur de commande inconnue.
-     */
-    UNKNOWN("unknown"),
-
-    /**
      * Action pour rechercher des élèves.
      */
     FIND("find"),
@@ -236,14 +231,14 @@ public enum CommandAction {
     SEND_MESSAGE("65");
 
     @Getter
-    private String action;
+    private String name;
 
-    CommandAction(String action) {
-        this.action = action;
+    CommandAction(String name) {
+        this.name = name;
     }
 
-    public static CommandAction getCommandAction(String action) {
-        return Arrays.stream(CommandAction.values())
-                .filter(commandAction -> commandAction.getAction().equalsIgnoreCase(action)).findFirst().orElse(null);
+    public static CommandAction getCommandAction(String name) {
+        return Arrays.stream(CommandAction.values()).filter(action -> action.getName().equalsIgnoreCase(name))
+                .findFirst().orElse(null);
     }
 }

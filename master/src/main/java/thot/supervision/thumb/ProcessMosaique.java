@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import thot.exception.ThotException;
 import thot.supervision.Command;
 import thot.supervision.CommandAction;
+import thot.supervision.CommandModule;
 import thot.supervision.CommandParamater;
-import thot.supervision.CommandType;
 import thot.supervision.CommandXMLUtilities;
 import thot.utils.ProgressThread;
 import thot.utils.Server;
@@ -226,7 +226,7 @@ public class ProcessMosaique extends ProgressThread {
      * @param numero le numéro du client
      */
     private void sendToThumb(String action, int parameter, int numero) {
-        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.getCommandAction(action));
+        Command command = new Command(CommandModule.SUPERVISION, CommandAction.getCommandAction(action));
         command.putParameter(CommandParamater.PARAMETER, parameter);
         InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", mosaiqueToThumbPortBase + numero);
 
@@ -258,11 +258,9 @@ public class ProcessMosaique extends ProgressThread {
      * @param xml la requête.
      */
     private void execute(String xml) {
-        List<Command> commands = CommandXMLUtilities.parseCommand(xml);
-        for (Command command : commands) {
-            if (command.getAction() == CommandAction.CLOSE) {
-                close();
-            }
+        Command command = CommandXMLUtilities.parseCommand(xml);
+        if (command != null && command.getAction() == CommandAction.CLOSE) {
+            close();
         }
     }
 
@@ -274,7 +272,7 @@ public class ProcessMosaique extends ProgressThread {
             return;
         }
 
-        sendToAllThumb(CommandAction.CLOSE.getAction(), 1);
+        sendToAllThumb(CommandAction.CLOSE.getName(), 1);
 
         for (Process screenWindow : screenWindows) {
             screenWindow.destroy();
@@ -315,8 +313,6 @@ public class ProcessMosaique extends ProgressThread {
 
     /**
      * Thread pour la gestion des requêtes des processus.
-     *
-     * @version 1.90
      */
     private class ListenOrder extends Server {
 

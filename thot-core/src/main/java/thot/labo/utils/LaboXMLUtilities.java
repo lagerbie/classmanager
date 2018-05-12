@@ -356,10 +356,9 @@ public class LaboXMLUtilities extends XMLUtilities {
      * @return une description de la liste d'index.
      */
     public static String getXMLDescription(Indexes indexes) {
-        StringBuilder attributes = new StringBuilder(256);
-        attributes.append(createAttribute(ATTRIBUT_MODE, indexes.getMode()));
-        attributes.append(createAttribute(ATTRIBUT_LENGTH, Long.toString(indexes.getLength())));
-        attributes.append(createAttribute(ATTRIBUT_MEDIA_LENGTH, Long.toString(indexes.getMediaLength())));
+        String attributes = createAttribute(ATTRIBUT_MODE, indexes.getMode())
+                + createAttribute(ATTRIBUT_LENGTH, Long.toString(indexes.getLength()))
+                + createAttribute(ATTRIBUT_MEDIA_LENGTH, Long.toString(indexes.getMediaLength()));
 
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(ELEMENT_INDEXES, attributes));
@@ -382,12 +381,12 @@ public class LaboXMLUtilities extends XMLUtilities {
         if (index == null) {
             return getXMLDescription(new Index(IndexType.UNKNOWN));
         }
-        StringBuilder attributes = new StringBuilder(256);
-        attributes.append(createAttribute(ATTRIBUT_TYPE, index.getType().getName()));
-        attributes.append(createAttribute(ATTRIBUT_INITIAL_TIME, Long.toString(index.getInitialTime())));
-        attributes.append(createAttribute(ATTRIBUT_FINAL_TIME, Long.toString(index.getFinalTime())));
-        attributes.append(createAttribute(ATTRIBUT_READ, Integer.toString(index.getRead())));
-        attributes.append(createAttribute(ATTRIBUT_RATE, Float.toString(index.getRate())));
+
+        String attributes = createAttribute(ATTRIBUT_TYPE, index.getType().getName())
+                + createAttribute(ATTRIBUT_INITIAL_TIME, Long.toString(index.getInitialTime()))
+                + createAttribute(ATTRIBUT_FINAL_TIME, Long.toString(index.getFinalTime()))
+                + createAttribute(ATTRIBUT_READ, Integer.toString(index.getRead()))
+                + createAttribute(ATTRIBUT_RATE, Float.toString(index.getRate()));
 
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(ELEMENT_INDEX, attributes));

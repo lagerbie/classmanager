@@ -106,7 +106,7 @@ public class MasterSearch extends ProgressThread implements Runnable {
             return;
         }
 
-        Command command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.FIND);
+        Command command = new Command(CommandModule.SUPERVISION, CommandAction.FIND);
         String response = CommandXMLUtilities.getXML(command);
         String xml;
         String addressIP = null;

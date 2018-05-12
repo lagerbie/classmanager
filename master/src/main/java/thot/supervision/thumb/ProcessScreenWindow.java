@@ -9,6 +9,11 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thot.supervision.Command;
+import thot.supervision.CommandAction;
+import thot.supervision.CommandModule;
+import thot.supervision.CommandParamater;
+import thot.supervision.CommandXMLUtilities;
 
 /**
  * Fenêtre pour la visualisation d'un élève en mode mosaique et plein écran.
@@ -152,17 +157,18 @@ public class ProcessScreenWindow extends ScreenWindow {
      *
      * @param action le type de l'action.
      */
-    private void sendToMosaique(String action) {
-        ProcessCommand command = new ProcessCommand(action, numero);
-        LOGGER.info("ProcessScreenWindow sendToMosaique {}", command.createXMLCommand());
+    private void sendToMosaique(CommandAction action) {
+        Command command = new Command(CommandModule.THUMB, action);
+        command.putParameter(CommandParamater.PARAMETER, numero);
+        LOGGER.info("ProcessScreenWindow sendToMosaique {}", command);
 
         DataOutputStream outputStream;
         InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", thumbToMosaiquePort);
 
-        try(Socket socket = new Socket()) {
+        try (Socket socket = new Socket()) {
             socket.connect(socketAddress, TIME_MAX_FOR_ORDER);
             outputStream = new DataOutputStream(socket.getOutputStream());
-            outputStream.writeUTF(command.createXMLCommand());
+            outputStream.writeUTF(CommandXMLUtilities.getXML(command));
             outputStream.flush();
         } catch (IOException e) {
             LOGGER.error("Error in sendToMosaique", e);
@@ -174,7 +180,7 @@ public class ProcessScreenWindow extends ScreenWindow {
      */
     @Override
     protected void closeCommand() {
-        sendToMosaique(ProcessCommand.CLOSE);
+        sendToMosaique(CommandAction.CLOSE);
     }
 
     /**
@@ -183,8 +189,8 @@ public class ProcessScreenWindow extends ScreenWindow {
      * @param xml l'ordre.
      */
     private void execute(String xml) {
-        ProcessCommand command = ProcessCommand.createCommand(xml);
-        if (command.getAction().contentEquals(ProcessCommand.CLOSE)) {
+        Command command = CommandXMLUtilities.parseCommand(xml);
+        if (command != null && command.getAction() == CommandAction.CLOSE) {
             listenOrder.stop();
             close();
             System.exit(0);
@@ -227,7 +233,7 @@ public class ProcessScreenWindow extends ScreenWindow {
         /**
          * Arrête le serveur.
          */
-        public void stop() {
+        void stop() {
             run = false;
             if (serverSocket != null) {
                 try {

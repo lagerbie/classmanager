@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -636,18 +635,16 @@ public class LaboratoryCore extends LaboCore {
 
             String xml = inputStream.readUTF();
             LOGGER.info("receive command : " + xml);
-            List<Command> commands = CommandXMLUtilities.parseCommand(xml);
+            Command command = CommandXMLUtilities.parseCommand(xml);
 
-            if (commands.isEmpty()) {
-                outputStream.writeUTF(CommandAction.END.getAction());
+            if (command == null) {
+                outputStream.writeUTF(CommandAction.END.getName());
                 outputStream.flush();
                 //envoi de la façon dont s'est exécutée la commande
                 outputStream.writeBoolean(false);
                 outputStream.flush();
                 return;
             }
-
-            Command command = commands.get(0);
 
             //si il y a un fichier à télécharger
             if (isDownloadFile(command)) {
@@ -657,7 +654,7 @@ public class LaboratoryCore extends LaboCore {
                 //ouverture du fichier d'écriture
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
 
-                outputStream.writeUTF(CommandAction.FILE_GET.getAction());
+                outputStream.writeUTF(CommandAction.FILE_GET.getName());
                 outputStream.flush();
                 //récupération de la taille du fichier à télécharger
                 int cntMax = inputStream.readInt();
@@ -684,7 +681,7 @@ public class LaboratoryCore extends LaboCore {
                     saveProject(file, projectFiles);
                     //envoi du fichier si il existe, sinon on retourne l'échec
                     if (file.exists()) {
-                        outputStream.writeUTF(CommandAction.FILE_SEND.getAction());
+                        outputStream.writeUTF(CommandAction.FILE_SEND.getName());
                         outputStream.flush();
                         //envoi du nom de fichier
                         outputStream.writeUTF(file.getName());
@@ -719,7 +716,7 @@ public class LaboratoryCore extends LaboCore {
                 isOK = false;
             }
 
-            outputStream.writeUTF(CommandAction.END.getAction());
+            outputStream.writeUTF(CommandAction.END.getName());
             outputStream.flush();
             //envoi de la façon dont s'est exécutée la commande
             outputStream.writeBoolean(isOK);

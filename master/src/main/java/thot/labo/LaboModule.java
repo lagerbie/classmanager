@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Iterator;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +16,8 @@ import thot.exception.ThotException;
 import thot.gui.Resources;
 import thot.supervision.Command;
 import thot.supervision.CommandAction;
+import thot.supervision.CommandModule;
 import thot.supervision.CommandParamater;
-import thot.supervision.CommandType;
 import thot.supervision.CommandXMLUtilities;
 import thot.supervision.MasterCore;
 import thot.supervision.Student;
@@ -161,7 +160,7 @@ public class LaboModule extends LaboCore {
      */
     public void executeCommand(String button, String parameter) {
         LOGGER.info("button: " + button + " parameter: " + parameter);
-        Command command = new Command(CommandType.TYPE_LABORATORY, CommandAction.getCommandAction(button));
+        Command command = new Command(CommandModule.LABORATORY, CommandAction.getCommandAction(button));
 
         int cnt;
         long time;
@@ -390,13 +389,11 @@ public class LaboModule extends LaboCore {
 
             String xml = inputStream.readUTF();
             LOGGER.info("xml commande de pilotage: " + xml);
-            List<Command> commands = CommandXMLUtilities.parseCommand(xml);
+            Command command = CommandXMLUtilities.parseCommand(xml);
 
             boolean isOK = false;
-            if (!commands.isEmpty()) {
-                Command command = commands.get(0);
+            if (command != null) {
                 isOK = executeCommand(studentIP, command);
-                commands.clear();
             }
             //envoi de la façon dont s'est exécutée la commande
             outputStream.writeBoolean(isOK);

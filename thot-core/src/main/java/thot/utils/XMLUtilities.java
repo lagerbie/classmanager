@@ -113,7 +113,7 @@ public class XMLUtilities {
      *
      * @return la basile de départ du xml.
      */
-    protected static String createElementStart(String name, StringBuilder attributes) {
+    protected static String createElementStart(String name, String attributes) {
         StringBuilder element = new StringBuilder(32);
         element.append("<");
         element.append(name);

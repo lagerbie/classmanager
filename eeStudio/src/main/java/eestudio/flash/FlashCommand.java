@@ -1,12 +1,16 @@
 package eestudio.flash;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Cette classe représente une commande à effectuer.
  *
  * @author Fabrice Alleau
- * @version 1.03
- * @since version 0.94
+ * @version 1.8.4
  */
+@Getter
+@Setter
 public class FlashCommand {
     /**
      * Commande pour les numéros de versions
@@ -57,24 +61,19 @@ public class FlashCommand {
     /**
      * Etat pause
      */
-    public static final String pause = "pause";
+    public static final String PAUSE = "pause";
     /**
      * Etat lecture
      */
-    public static final String playing = "playing";
+    public static final String PLAYING = "playing";
     /**
      * Etat enregistrement de la voix
      */
-    public static final String recording = "recording";
+    public static final String RECORDING = "recording";
     /**
      * Etat d'insertion de la voix
      */
-    public static final String insert = "insert";
-
-    /**
-     * Commande inconnue
-     */
-    public final static String UNKNOWN = "unknown";
+    public static final String INSERT = "insert";
 
     /**
      * Le nom de la commande
@@ -89,10 +88,8 @@ public class FlashCommand {
      * Initialisation d'une commande sans paramètre. Equivalant à {@code  FlashCommand(action, null)}.
      *
      * @param action le nom de l'action.
-     *
-     * @since version 0.94
      */
-    public FlashCommand(String action) {
+    FlashCommand(String action) {
         this(action, null);
     }
 
@@ -101,66 +98,10 @@ public class FlashCommand {
      *
      * @param action le nom de l'action.
      * @param parameter les parmètres.
-     *
-     * @since version 0.94
      */
-    public FlashCommand(String action, String parameter) {
+    FlashCommand(String action, String parameter) {
         this.action = action;
         this.parameter = parameter;
-    }
-
-    /**
-     * Donne le nom de l'action.
-     *
-     * @return le nom de l'action.
-     *
-     * @since version 0.94
-     */
-    public String getAction() {
-        return action;
-    }
-
-    /**
-     * Retourne la valeur du paramètre.
-     *
-     * @return la valeur du paramètre.
-     *
-     * @since version 0.94
-     */
-    public String getParameter() {
-        return parameter;
-    }
-
-    /**
-     * Modifie le type de l'action.
-     *
-     * @param action le nom de l'action.
-     *
-     * @since version 0.94
-     */
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    /**
-     * Modifie les parmètres.
-     *
-     * @param parameter les parmètres.
-     *
-     * @since version 0.94
-     */
-    public void setParameter(String parameter) {
-        this.parameter = parameter;
-    }
-
-    /**
-     * Nettoyage des références en vue d'une suppresion.
-     *
-     * @since version 0.96
-     */
-    public void clean() {
-        this.action = null;
-        this.parameter = null;
     }
 
 }

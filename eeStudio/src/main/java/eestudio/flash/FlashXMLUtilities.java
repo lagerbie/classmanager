@@ -16,8 +16,9 @@ import thot.utils.XMLUtilities;
  * Utilitaires pour la manipulation de fichier XML.
  *
  * @author Fabrice Alleau
+ * @version 1.8.4
  */
-public class FlashXMLUtilities extends XMLUtilities {
+class FlashXMLUtilities extends XMLUtilities {
 
     /**
      * Instance de log.
@@ -77,7 +78,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      *
      * @return la liste de commandes contenue dans le xml ou une liste vide.
      */
-    public static List<FlashCommand> parseCommand(String xml) {
+    static List<FlashCommand> parseCommand(String xml) {
         LOGGER.debug("Parsing de la commande flash {}", xml);
         List<FlashCommand> commands = null;
 
@@ -103,7 +104,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      *
      * @return le xml complet.
      */
-    public static String getXML(FlashCommand command) {
+    static String getXML(FlashCommand command) {
         return XML_HEADER + createElement(element_command, getXMLDescription(command));
     }
 
@@ -143,7 +144,7 @@ public class FlashXMLUtilities extends XMLUtilities {
      *
      * @return une description de la liste d'index.
      */
-    public static String getXMLDescription(List<String> list) {
+    static String getXMLDescription(List<String> list) {
         StringBuilder element = new StringBuilder(1024);
         element.append(createElementStart(element_list));
         for (int i = 1; i < list.size(); i += 2) {
@@ -170,7 +171,7 @@ public class FlashXMLUtilities extends XMLUtilities {
             for (int i = 0; i < actions.getLength(); i++) {
                 Node action = actions.item(i);
                 if (action.getNodeName().equals(element_action)) {
-                    FlashCommand command = new FlashCommand(FlashCommand.UNKNOWN);
+                    FlashCommand command = new FlashCommand(null);
                     if (action.hasChildNodes()) {
                         NodeList children = action.getChildNodes();
                         for (int j = 0; j < children.getLength(); j++) {
@@ -186,7 +187,9 @@ public class FlashXMLUtilities extends XMLUtilities {
                             }
                         }
                     }
-                    commands.add(command);
+                    if (command.getAction() != null) {
+                        commands.add(command);
+                    }
                 }
             }
         }

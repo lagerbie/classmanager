@@ -13,6 +13,7 @@ import thot.utils.Server;
  * Serveur pour les requête du Flash.
  *
  * @author Fabrice Alleau
+ * @version 1.8.4
  */
 public class FlashServer extends Server {
 
@@ -32,7 +33,7 @@ public class FlashServer extends Server {
      * @param core le noyau de supervision.
      * @param port le port d'écoute des commandes.
      */
-    public FlashServer(FlashCore core, int port) {
+    FlashServer(FlashCore core, int port) {
         super(port);
         this.flashCore = core;
     }
@@ -41,8 +42,6 @@ public class FlashServer extends Server {
      * Traitement de la connexion.
      *
      * @param socket la connexion.
-     *
-     * @throws IOException
      */
     @Override
     protected void process(Socket socket) throws IOException {
@@ -69,7 +68,6 @@ public class FlashServer extends Server {
                 List<FlashCommand> commands = FlashXMLUtilities.parseCommand(request);
                 for (FlashCommand command : commands) {
                     flashCore.executeCommand(command.getAction(), command.getParameter());
-                    command.clean();
                 }
                 commands.clear();
             } catch (Exception e) {

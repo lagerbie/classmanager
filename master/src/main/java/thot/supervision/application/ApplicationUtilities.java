@@ -122,11 +122,9 @@ public class ApplicationUtilities extends XMLUtilities {
         if (application == null) {
             return getXMLDescription(new Application(Application.UNKNOWN, null));
         }
-        StringBuilder attributes = new StringBuilder(256);
-        attributes.append(createAttribute(attribut_name, application.getName()));
 
         StringBuilder element = new StringBuilder(1024);
-        element.append(createElementStart(element_application, attributes));
+        element.append(createElementStart(element_application, createAttribute(attribut_name, application.getName())));
 
         if (application.getPath() != null) {
             File file = new File(application.getPath());

@@ -118,15 +118,24 @@ public enum CommandParamater {
      */
     TEXT_ERASE("32");
 
-    @Getter
-    private String parameter;
-
-    CommandParamater(String parameter) {
-        this.parameter = parameter;
+    public static CommandParamater getCommandParamater(String name) {
+        return Arrays.stream(CommandParamater.values())
+                .filter(command -> command.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
-    public static CommandParamater getCommandParamater(String parameter) {
-        return Arrays.stream(CommandParamater.values())
-                .filter(command -> command.getParameter().equalsIgnoreCase(parameter)).findFirst().orElse(null);
+    @Getter
+    private String name;
+
+    CommandParamater(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Indique si la valeur du paramètre doit être protégé dans un descriptif xml.
+     *
+     * @return le besoin de protection.
+     */
+    public boolean protectionNeeded() {
+        return this == CommandParamater.FILE || this == CommandParamater.MESSAGE;
     }
 }

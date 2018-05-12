@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -221,10 +220,9 @@ public class StudentServer extends Server {
         String xml = builder.toString();
         LOGGER.debug("receive student command : " + xml + " from " + addressIP);
 
-        List<Command> commands = CommandXMLUtilities.parseCommand(xml);
-        for (Command command : commands) {
+        Command command = CommandXMLUtilities.parseCommand(xml);
+        if (command != null) {
             execute(command, addressIP);
         }
-        commands.clear();
     }
 }

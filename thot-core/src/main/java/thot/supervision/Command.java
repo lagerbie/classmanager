@@ -2,7 +2,6 @@ package thot.supervision;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.Data;
 import thot.utils.Utilities;
@@ -17,9 +16,9 @@ import thot.utils.Utilities;
 public class Command {
 
     /**
-     * Identifiant pour le type de commande.
+     * Identifiant pour le module de commande.
      */
-    private CommandType type;
+    private CommandModule module;
     /**
      * Identifiant de la commande.
      */
@@ -30,23 +29,26 @@ public class Command {
     private Map<CommandParamater, String> parameters = new HashMap<>(8);
 
     /**
-     * Initialistion du type de la commande et l'action de la commande.
+     * Initialistion du module de la commande et l'action de la commande.
      *
-     * @param type le type de la commande.
+     * @param module le module de la commande.
      * @param action l'action de la commande.
      */
-    public Command(CommandType type, CommandAction action) {
-        this.type = type;
+    public Command(CommandModule module, CommandAction action) {
+        this.module = module;
         this.action = action;
     }
 
     /**
-     * Retourne les identifiants des paramètres.
+     * Ajoute ou modifie un paramètre.
      *
-     * @return les identifiants des paramètres.
+     * @param key l'identifiant du paramètre.
+     * @param value la valeur du paramètre.
      */
-    public Set<CommandParamater> getParameters() {
-        return parameters.keySet();
+    public void putParameter(CommandParamater key, Object value) {
+        if (key != null && value != null) {
+            parameters.put(key, value.toString());
+        }
     }
 
     /**
@@ -108,26 +110,4 @@ public class Command {
         return Utilities.parseStringAsBoolean(value);
     }
 
-    /**
-     * Ajoute ou modifie un paramètre.
-     *
-     * @param key l'identifiant du paramètre.
-     * @param value la valeur du paramètre.
-     */
-    public void putParameter(CommandParamater key, Object value) {
-        if (key != null && value != null) {
-            parameters.put(key, value.toString());
-        }
-    }
-
-    /**
-     * Indique si la valeur du paramètre doit être protégé dans un descriptif xml.
-     *
-     * @param key l'identifiant du paramètre.
-     *
-     * @return le besoin de protection.
-     */
-    public static boolean protectionNeeded(CommandParamater key) {
-        return key == CommandParamater.FILE || key == CommandParamater.MESSAGE;
-    }
 }

@@ -1,13 +1,13 @@
 package thot.supervision;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import thot.utils.XMLUtilities;
@@ -29,13 +29,9 @@ public class CommandXMLUtilities extends XMLUtilities {
      * Descriptif pour une commande:
      *
      * <?xml version="1.0" encoding="UTF-8"?>
-     * <command>
-     *     <action> valeur supervision ou laboratory
-     *         action
-     *         <key>
-     *             <![CDATA[value]]>
-     *         </key>
-     *     </action>
+     * <command module="module" action="action">
+     *     <key><![CDATA[value]]></key>
+     *     <key>value</key>
      * </command>
      */
     /**
@@ -43,13 +39,13 @@ public class CommandXMLUtilities extends XMLUtilities {
      */
     private static final String ELEMENT_COMMAND = "command";
     /**
-     * Balise pour l'élément action de supervision.
+     * Balise pour l'attribut du module
      */
-    private static final String ELEMENT_SUPERVISION = "supervision";
+    private static final String ATTRIBUT_MODULE = "module";
     /**
      * Balise pour l'élément action du labo.
      */
-    private static final String ELEMENT_LABORATORY = "laboratory";
+    private static final String ATTRIBUT_ACTION = "action";
 
     /*
      * Descriptif pour une login:
@@ -85,29 +81,25 @@ public class CommandXMLUtilities extends XMLUtilities {
     private static final String ELEMENT_LANGUAGE = "language";
 
     /**
-     * Retourne la liste de commandes contenue dans la chaine XML.
+     * Retourne la commande contenue dans la chaine XML.
      *
-     * @param xml le xml contenant les commandes.
+     * @param xml le xml contenant la commande.
      *
-     * @return la liste des commandes contenue dans le xml ou une liste vide.
+     * @return la commande contenue dans le xml ou {@code null}.
      */
-    public static List<Command> parseCommand(String xml) {
+    public static Command parseCommand(String xml) {
         LOGGER.info("Parsing du xml {}", xml);
-        List<Command> commands = null;
+        Command command = null;
 
         // lecture du contenu d'un fichier XML avec DOM
         Document document = getDocument(xml);
 
         //traitement du document
         if (document != null) {
-            commands = parseNodeAsCommand(document.getDocumentElement());
+            command = parseNodeAsCommand(document.getDocumentElement());
         }
 
-        if (commands == null) {
-            commands = new ArrayList<>(0);
-        }
-
-        return commands;
+        return command;
     }
 
     /**
@@ -118,7 +110,7 @@ public class CommandXMLUtilities extends XMLUtilities {
      * @return le xml complet.
      */
     public static String getXML(Command command) {
-        return XML_HEADER + createElement(ELEMENT_COMMAND, getXMLDescription(command));
+        return XML_HEADER + getXMLDescription(command);
     }
 
     /**
@@ -130,27 +122,19 @@ public class CommandXMLUtilities extends XMLUtilities {
      */
     private static String getXMLDescription(Command command) {
         StringBuilder element = new StringBuilder(1024);
-        if (command.getAction() != null) {
-            String actionType = ELEMENT_SUPERVISION;
-            switch (command.getType()) {
-                case TYPE_LABORATORY:
-                    actionType = ELEMENT_LABORATORY;
-                    break;
-            }
+        element.append(createElementStart(ELEMENT_COMMAND,
+                createAttribute(ATTRIBUT_MODULE, command.getModule().getName())
+                        + createAttribute(ATTRIBUT_ACTION, command.getAction().getName())));
 
-            element.append(createElementStart(actionType));
-            element.append(command.getAction());
-
-            Set<CommandParamater> parameters = command.getParameters();
-            for (CommandParamater key : parameters) {
-                if (Command.protectionNeeded(key)) {
-                    element.append(createCDATAElement(key.getParameter(), command.getParameter(key)));
-                } else {
-                    element.append(createElement(key.getParameter(), command.getParameter(key)));
-                }
+        Map<CommandParamater, String> parameters = command.getParameters();
+        parameters.forEach((key, value) -> {
+            if (key.protectionNeeded()) {
+                element.append(createCDATAElement(key.getName(), value));
+            } else {
+                element.append(createElement(key.getName(), value));
             }
-            element.append(createElementEnd(actionType));
-        }
+        });
+        element.append(createElementEnd(ELEMENT_COMMAND));
 
         return element.toString();
     }
@@ -220,61 +204,58 @@ public class CommandXMLUtilities extends XMLUtilities {
     }
 
     /**
-     * Parse le noeud xml comme si c'était une liste de commandes.
+     * Parse le noeud xml comme si c'était une commande.
      *
      * @param node le noeud xml.
      *
-     * @return la liste des commandes ou {@code null}.
+     * @return la commande ou {@code null}.
      */
-    private static List<Command> parseNodeAsCommand(Node node) {
-        List<Command> commands = new ArrayList<>(2);
-
+    private static Command parseNodeAsCommand(Node node) {
+        Command command = new Command(null, null);
         if (node.getNodeName().equals(ELEMENT_COMMAND)) {
-            NodeList actions = node.getChildNodes();
-            for (int i = 0; i < actions.getLength(); i++) {
-                Node action = actions.item(i);
-                Command command = null;
-                switch (action.getNodeName()) {
-                    case ELEMENT_SUPERVISION:
-                        command = new Command(CommandType.TYPE_SUPERVISION, CommandAction.UNKNOWN);
-                        break;
-                    case ELEMENT_LABORATORY:
-                        command = new Command(CommandType.TYPE_LABORATORY, CommandAction.UNKNOWN);
-                        break;
-                }
-                if (command != null) {
-                    if (action.hasChildNodes()) {
-                        NodeList children = action.getChildNodes();
-                        for (int j = 0; j < children.getLength(); j++) {
-                            Node child = children.item(j);
-                            if ((child.getNodeType() == Node.CDATA_SECTION_NODE) || (child.getNodeType()
-                                    == Node.TEXT_NODE)) {
-                                command.setAction(CommandAction.getCommandAction(child.getNodeValue()));
-                            } else {
-                                if (child.getNodeName().contentEquals(CommandParamater.LIST.getParameter())) {
-                                    List<String> list = parseNodeAsList(child);
-                                    String elementName = child.getFirstChild().getNodeName();
-                                    StringBuilder ipList = new StringBuilder(1024);
-                                    for (String item : list) {
-                                        ipList.append(CommandXMLUtilities.createElement(elementName, item));
-                                    }
-                                    command.putParameter(CommandParamater.LIST,
-                                            createElement(CommandParamater.LIST.getParameter(), ipList.toString()));
-                                } else if (child.getFirstChild() != null) {
-                                    command.putParameter(CommandParamater.getCommandParamater(child.getNodeName()),
-                                            child.getFirstChild().getNodeValue());
-                                } else {
-                                    command.putParameter(CommandParamater.getCommandParamater(child.getNodeName()), "");
-                                }
-                            }
-                        }
+            if (node.hasAttributes()) {
+                NamedNodeMap attributes = node.getAttributes();
+                Node attribute;
+                String name;
+                String nodeValue;
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    attribute = attributes.item(i);
+                    name = attribute.getNodeName();
+                    nodeValue = attribute.getNodeValue();
+                    switch (name) {
+                        case ATTRIBUT_MODULE:
+                            command.setModule(CommandModule.getCommandModule(nodeValue));
+                            break;
+                        case ATTRIBUT_ACTION:
+                            command.setAction(CommandAction.getCommandAction(nodeValue));
+                            break;
                     }
-                    commands.add(command);
+                }
+            }
+
+            NodeList params = node.getChildNodes();
+            for (int i = 0; i < params.getLength(); i++) {
+                Node param = params.item(i);
+                if (CommandParamater.LIST.getName().contentEquals(param.getNodeName())) {
+                    List<String> list = parseNodeAsList(param);
+                    String elementName = param.getFirstChild().getNodeName();
+                    StringBuilder ipList = new StringBuilder(1024);
+                    for (String item : list) {
+                        ipList.append(CommandXMLUtilities.createElement(elementName, item));
+                    }
+                    command.putParameter(CommandParamater.LIST,
+                            createElement(CommandParamater.LIST.getName(), ipList.toString()));
+                } else if (param.getFirstChild() != null) {
+                    command.putParameter(CommandParamater.getCommandParamater(param.getNodeName()),
+                            param.getFirstChild().getNodeValue());
                 }
             }
         }
 
-        return commands;
+        if (command.getModule() == null || command.getAction() == null) {
+            return null;
+        }
+        return command;
     }
 
     /**
